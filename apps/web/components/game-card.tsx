@@ -1,4 +1,4 @@
-import { Clock, Users } from "lucide-react";
+import { Clock, Play, Users } from "lucide-react";
 import Link from "next/link";
 import { AUDIENCE_LABEL, TYPE_META, type GameEntry } from "@/lib/games";
 import { GameCover } from "./game-cover";
@@ -18,9 +18,14 @@ export function GameCard({ game }: { game: GameEntry }) {
           <span className={`h-1.5 w-1.5 rounded-full ${meta.dot}`} />
           {meta.label}
         </span>
-        {game.status === "soon" && (
+        {game.status === "soon" ? (
           <span className="absolute top-3 right-3 rounded-full bg-black/35 px-2.5 py-1 text-[11px] font-medium text-white backdrop-blur">
             Sắp ra mắt
+          </span>
+        ) : (
+          <span className="absolute top-3 right-3 inline-flex items-center gap-1 rounded-full bg-party px-2.5 py-1 text-[11px] font-semibold text-white shadow-sm">
+            <Play className="h-3 w-3 fill-current" aria-hidden="true" />
+            Chơi ngay
           </span>
         )}
       </div>

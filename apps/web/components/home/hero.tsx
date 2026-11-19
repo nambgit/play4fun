@@ -1,5 +1,6 @@
 import { ArrowRight, Check, Flame, Play, Sparkles, Users } from "lucide-react";
 import Link from "next/link";
+import { FEATURED_SLUG } from "@/lib/games";
 
 const PERKS = ["Không cần cài đặt", "Không cần đăng ký", "Mượt trên điện thoại"];
 
@@ -46,7 +47,7 @@ export function Hero() {
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <Link href="/games/inbox-zero" className="btn-primary px-6 py-3.5 text-base">
+            <Link href={`/games/${FEATURED_SLUG}`} className="btn-primary px-6 py-3.5 text-base">
               <Play className="h-4 w-4 fill-current" aria-hidden="true" />
               Chơi ngay — miễn phí
             </Link>

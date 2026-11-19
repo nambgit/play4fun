@@ -28,7 +28,12 @@ export type GameEntry = {
   cover: [string, string];
   duration: string;
   players: string;
+  /** Short rules shown next to a playable game */
+  howTo?: string[];
 };
+
+/** Game the global "Chơi ngay" buttons point to */
+export const FEATURED_SLUG = "pixel-dodge";
 
 export const GAMES: GameEntry[] = [
   // --- Arcade ---
@@ -81,12 +86,19 @@ export const GAMES: GameEntry[] = [
     tagline: "Né đạn kiểu bullet-hell, càng sống lâu càng khó.",
     description:
       "Điều khiển một chấm sáng giữa màn mưa đạn pixel. Mỗi 10 giây là một đợt tấn công mới — phản xạ là tất cả.",
-    audience: ["gamer"],
-    status: "soon",
+    audience: ["gamer", "office", "student"],
+    status: "live",
     icon: "crosshair",
     cover: ["#1e1b4b", "#7c3aed"],
     duration: "1–3 phút",
     players: "1 người",
+    howTo: [
+      "Né mọi viên đạn — chạm một viên là hết ván.",
+      "Cứ 10 giây là một đợt mới, đạn nhanh và dày hơn.",
+      "Lướt sát đạn để “sượt qua” và nhận điểm thưởng.",
+      "Ô vàng nhấp nháy báo trước chỗ đạn sắp bắn ra.",
+      "Nhặt khiên xanh để chịu thêm được một lần trúng đạn.",
+    ],
   },
   {
     slug: "go-phim-nhanh",

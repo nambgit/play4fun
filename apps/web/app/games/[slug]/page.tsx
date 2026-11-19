@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { GameCard } from "@/components/game-card";
 import { GameCover } from "@/components/game-cover";
+import { GameStage } from "@/components/game-stage";
 import { AUDIENCE_LABEL, GAMES, TYPE_META, getGame, relatedGames } from "@/lib/games";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -50,6 +51,11 @@ export default async function GamePage({ params }: Props) {
 
       <div className="mt-6 grid gap-8 lg:grid-cols-[1fr_340px]">
         {/* Stage */}
+        {game.status === "live" ? (
+          <div className="self-start rounded-3xl bg-[#0b0a12] p-2 shadow-lift sm:p-4">
+            <GameStage slug={game.slug} />
+          </div>
+        ) : (
         <div className="self-start overflow-hidden rounded-3xl border border-line bg-surface shadow-card">
           <div className="relative">
             <GameCover game={game} size="lg" />
@@ -69,6 +75,7 @@ export default async function GamePage({ params }: Props) {
             )}
           </div>
         </div>
+        )}
 
         {/* Info panel */}
         <aside className="flex flex-col gap-5">
@@ -84,16 +91,32 @@ export default async function GamePage({ params }: Props) {
               {facts.map((f) => (
                 <div key={f.label} className="flex items-center gap-3 py-3 text-sm">
                   <f.icon className="h-4 w-4 shrink-0 text-muted" aria-hidden="true" />
-                  <dt className="text-muted">{f.label}</dt>
+                  <dt className="whitespace-nowrap text-muted">{f.label}</dt>
                   <dd className="ml-auto text-right font-medium">{f.value}</dd>
                 </div>
               ))}
             </dl>
 
-            <button type="button" disabled className="btn-primary mt-6 w-full cursor-not-allowed opacity-60">
-              <Bell className="h-4 w-4" aria-hidden="true" />
-              Sắp ra mắt
-            </button>
+            {game.howTo ? (
+              <div className="mt-6">
+                <h2 className="text-sm font-semibold">Cách chơi</h2>
+                <ol className="mt-3 space-y-2.5">
+                  {game.howTo.map((rule, i) => (
+                    <li key={rule} className="flex gap-3 text-sm leading-relaxed text-muted">
+                      <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-brand-soft text-[11px] font-bold text-brand">
+                        {i + 1}
+                      </span>
+                      {rule}
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            ) : (
+              <button type="button" disabled className="btn-primary mt-6 w-full cursor-not-allowed opacity-60">
+                <Bell className="h-4 w-4" aria-hidden="true" />
+                Sắp ra mắt
+              </button>
+            )}
           </div>
 
           <Link href="/" className="inline-flex items-center gap-2 text-sm font-medium text-muted hover:text-fg">

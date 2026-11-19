@@ -2,6 +2,7 @@
 
 import { Menu, Play, X } from "lucide-react";
 import Link from "next/link";
+import { FEATURED_SLUG } from "@/lib/games";
 import { useEffect, useState } from "react";
 
 type NavLink = { href: string; label: string; dot: string };
@@ -44,7 +45,7 @@ export function MobileNav({ links }: { links: NavLink[] }) {
               </Link>
             ))}
           </nav>
-          <Link href="/games/inbox-zero" onClick={() => setOpen(false)} className="btn-primary mt-3 w-full">
+          <Link href={`/games/${FEATURED_SLUG}`} onClick={() => setOpen(false)} className="btn-primary mt-3 w-full">
             <Play className="h-4 w-4 fill-current" aria-hidden="true" />
             Chơi ngay
           </Link>
