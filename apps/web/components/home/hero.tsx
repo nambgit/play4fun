@@ -30,7 +30,7 @@ export function Hero() {
               <Sparkles className="h-3 w-3" aria-hidden="true" />
               Mới
             </span>
-            Thử thách hằng ngày sắp ra mắt
+            Thử thách Inbox Zero hằng ngày đã có
             <ArrowRight className="h-3.5 w-3.5 text-muted transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
           </Link>
 

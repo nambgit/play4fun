@@ -52,9 +52,7 @@ export default async function GamePage({ params }: Props) {
       <div className="mt-6 grid gap-8 lg:grid-cols-[1fr_340px]">
         {/* Stage */}
         {game.status === "live" ? (
-          <div className="self-start rounded-3xl bg-[#0b0a12] p-2 shadow-lift sm:p-4">
-            <GameStage slug={game.slug} />
-          </div>
+          <GameStage slug={game.slug} />
         ) : (
         <div className="self-start overflow-hidden rounded-3xl border border-line bg-surface shadow-card">
           <div className="relative">

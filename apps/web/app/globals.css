@@ -147,6 +147,37 @@
   animation: float-y 6s ease-in-out infinite;
 }
 
+/* Inbox Zero card motion — fly-* start from the element's inline transform (drag position) */
+@keyframes fly-right {
+  to {
+    transform: translateX(130%) rotate(16deg);
+    opacity: 0;
+  }
+}
+@keyframes fly-left {
+  to {
+    transform: translateX(-130%) rotate(-16deg);
+    opacity: 0;
+  }
+}
+@keyframes fly-up {
+  to {
+    transform: translateY(-120%) scale(0.9);
+    opacity: 0;
+  }
+}
+@keyframes card-in {
+  from {
+    transform: translateY(10px) scale(0.96);
+    opacity: 0.6;
+  }
+}
+@keyframes pop {
+  from {
+    transform: scale(1.25);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
