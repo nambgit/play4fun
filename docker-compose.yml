@@ -1,0 +1,105 @@
+name: play4fun
+
+# Mọi cổng chỉ bind vào 127.0.0.1 — internet đi vào qua nginx native trên host.
+#   127.0.0.1:${WEB_PORT}      -> web (Next.js)
+#   127.0.0.1:${REALTIME_PORT} -> realtime (Socket.IO, path /socket.io/)
+#   127.0.0.1:${POSTGRES_PORT} -> postgres (chỉ để quản trị qua SSH tunnel)
+
+x-db-url: &db-url postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      TZ: Asia/Ho_Chi_Minh
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # Cache + bảng xếp hạng (sorted set) + rate limit. Valkey = bản fork mã nguồn mở của Redis.
+  valkey:
+    image: valkey/valkey:8-alpine
+    restart: unless-stopped
+    command: ["valkey-server", "--appendonly", "yes"]
+    volumes:
+      - valkeydata:/data
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # Chạy 1 lần mỗi lần `up`, áp migration rồi thoát; web chỉ start khi migrate thành công.
+  migrate:
+    build:
+      context: .
+      target: migrate
+    image: play4fun-migrate:latest
+    restart: "no"
+    environment:
+      DATABASE_URL: *db-url
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  web:
+    build:
+      context: .
+      target: web
+    image: play4fun-web:latest
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: *db-url
+      REDIS_URL: redis://valkey:6379
+      PUBLIC_URL: ${PUBLIC_URL}
+      HOSTNAME: 0.0.0.0
+      TZ: Asia/Ho_Chi_Minh
+    ports:
+      - "127.0.0.1:${WEB_PORT:-3000}:3000"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      valkey:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+  realtime:
+    build:
+      context: .
+      target: realtime
+    image: play4fun-realtime:latest
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: *db-url
+      REDIS_URL: redis://valkey:6379
+      CORS_ORIGINS: ${PUBLIC_URL}
+      TZ: Asia/Ho_Chi_Minh
+    ports:
+      - "127.0.0.1:${REALTIME_PORT:-3001}:3001"
+    depends_on:
+      valkey:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3001/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  pgdata:
+  valkeydata:

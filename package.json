@@ -1,0 +1,20 @@
+{
+  "name": "play4fun",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev:web": "npm run dev -w @play4fun/web",
+    "dev:realtime": "npm run dev -w @play4fun/realtime",
+    "build": "npm run build --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "db:generate": "npm run generate -w @play4fun/db",
+    "db:migrate": "npm run migrate:dev -w @play4fun/db",
+    "db:studio": "npm run studio -w @play4fun/db"
+  }
+}
