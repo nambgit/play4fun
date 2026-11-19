@@ -1,19 +1,157 @@
 @import "tailwindcss";
 
-@theme {
-  --color-brand: #7c3aed;
-  --color-brand-soft: #ede9fe;
-  --color-arcade: #f97316;
-  --color-quiz: #0ea5e9;
-  --color-party: #22c55e;
-}
+/* ------------------------------------------------------------------
+   Play4Fun design tokens
+   - Semantic colors live in CSS variables so light/dark swap in one place
+   - Tailwind utilities map onto them: bg-bg, bg-surface, text-muted, border-line…
+   ------------------------------------------------------------------ */
+:root {
+  --bg: #f7f6fb;
+  --surface: #ffffff;
+  --surface-2: #f0eef8;
+  --text: #15131f;
+  --muted: #5f5b75;
+  --line: #e5e2ef;
 
-body {
-  @apply bg-slate-50 text-slate-900 antialiased;
+  --brand: #6b3cf5;
+  --brand-strong: #5527e0;
+  --brand-soft: #eee8ff;
+  --brand-ink: #ffffff;
+
+  --arcade: #ff6a3d;
+  --arcade-soft: #ffebe4;
+  --quiz: #1a9fe8;
+  --quiz-soft: #e2f3fd;
+  --party: #16b364;
+  --party-soft: #defbea;
+
+  --shadow-card: 0 1px 2px rgb(21 19 31 / 0.04), 0 8px 24px -12px rgb(21 19 31 / 0.12);
+  --shadow-lift: 0 2px 4px rgb(21 19 31 / 0.05), 0 24px 48px -20px rgb(80 40 200 / 0.28);
 }
 
 @media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0b0a12;
+    --surface: #14121e;
+    --surface-2: #1c1929;
+    --text: #f2f1f8;
+    --muted: #a29eb9;
+    --line: #29263b;
+
+    --brand: #8c6bff;
+    --brand-strong: #a58bff;
+    --brand-soft: #231b46;
+    --brand-ink: #ffffff;
+
+    --arcade-soft: #3a1d12;
+    --quiz-soft: #0f2a3b;
+    --party-soft: #0e2e1e;
+
+    --shadow-card: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px -12px rgb(0 0 0 / 0.5);
+    --shadow-lift: 0 2px 4px rgb(0 0 0 / 0.3), 0 24px 48px -20px rgb(140 107 255 / 0.35);
+  }
+}
+
+@theme inline {
+  --font-sans: var(--font-be-vietnam), ui-sans-serif, system-ui, sans-serif;
+
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-fg: var(--text);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+
+  --color-brand: var(--brand);
+  --color-brand-strong: var(--brand-strong);
+  --color-brand-soft: var(--brand-soft);
+  --color-brand-ink: var(--brand-ink);
+
+  --color-arcade: var(--arcade);
+  --color-arcade-soft: var(--arcade-soft);
+  --color-quiz: var(--quiz);
+  --color-quiz-soft: var(--quiz-soft);
+  --color-party: var(--party);
+  --color-party-soft: var(--party-soft);
+
+  --shadow-card: var(--shadow-card);
+  --shadow-lift: var(--shadow-lift);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 5rem;
+    -webkit-tap-highlight-color: transparent;
+  }
   body {
-    @apply bg-slate-950 text-slate-100;
+    background: var(--bg);
+    color: var(--text);
+    font-feature-settings: "ss01", "cv11";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  ::selection {
+    background: var(--brand);
+    color: var(--brand-ink);
+  }
+  :focus-visible {
+    outline: 2px solid var(--brand);
+    outline-offset: 3px;
+    border-radius: 8px;
+  }
+}
+
+@utility container-page {
+  @apply mx-auto w-full max-w-6xl px-4 sm:px-6;
+}
+
+@utility btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold whitespace-nowrap transition duration-200 active:scale-[0.98];
+}
+@utility btn-primary {
+  @apply btn bg-brand text-brand-ink shadow-[0_8px_24px_-8px_var(--brand)] hover:bg-brand-strong;
+}
+@utility btn-ghost {
+  @apply btn border border-line bg-surface text-fg hover:border-brand/40 hover:text-brand;
+}
+
+@utility eyebrow {
+  @apply text-xs font-semibold tracking-[0.14em] text-brand uppercase;
+}
+
+/* Dot-grid texture used on covers */
+@utility bg-dots {
+  background-image: radial-gradient(rgb(255 255 255 / 0.22) 1px, transparent 1px);
+  background-size: 14px 14px;
+}
+/* Faint grid fading out from the top, used behind the hero */
+@utility bg-grid-faint {
+  background-image:
+    linear-gradient(to right, var(--line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--line) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse at 50% 0%, black 30%, transparent 75%);
+}
+
+@keyframes float-y {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+.animate-float {
+  animation: float-y 6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .animate-float {
+    animation: none;
   }
 }
