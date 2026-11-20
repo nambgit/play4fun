@@ -1,7 +1,9 @@
 /**
  * Deadline Dash — pure endless-runner logic (no DOM).
- * Logical coordinates: width is chosen by the component (wide on desktop, narrower on phones),
- * height is fixed. A red "deadline" wall chases the player: every stumble lets it close in,
+ * Logical coordinates: the visible width is chosen by the component (wide on desktop, narrower
+ * on phones), height is fixed. The simulation never depends on that width: obstacles always
+ * spawn at SPAWN_X, so the same seed plays out identically on every screen (daily challenge).
+ * A red "deadline" wall chases the player: every stumble lets it close in,
  * clean running slowly rebuilds the lead. Caught = game over.
  */
 import { SCENARIOS, type Scenario } from "./content";
@@ -18,6 +20,9 @@ const JUMP_V = 900; // apex ≈ 156px, airtime ≈ 0.69s
 const FAST_FALL = 5200;
 const JUMP_BUFFER = 0.12;
 const COYOTE = 0.08;
+
+/** Where patterns spawn: just past the widest arena (800). Off-screen on phones until they scroll in. */
+export const SPAWN_X = 840;
 
 const BASE_SPEED = 280;
 const MAX_SPEED = 620;
@@ -189,7 +194,7 @@ function addCoffee(s: GameState, x: number, y: number) {
 
 /** Spawns one pattern at the right edge and returns the gap (px) until the next one. */
 function spawnPattern(s: GameState): number {
-  const x = s.W + 40;
+  const x = SPAWN_X;
   const t = s.t;
   const rng = s.rng;
   const d = Math.min(1, t / 90);
