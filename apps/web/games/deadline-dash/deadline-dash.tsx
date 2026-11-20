@@ -4,6 +4,7 @@ import { ArrowDown, ArrowUp, Award, Check, Coffee, Pause, Play, RotateCcw, Share
 import { useCallback, useEffect, useRef, useState } from "react";
 import { H, createGame, createInput, meters, scoreOf, step, titleFor, type GameState } from "./engine";
 import { render } from "./render";
+import { gameEnd, gameStart } from "@/lib/analytics";
 import { notifyRecordChanged } from "@/lib/record-sync";
 import { SaveRecordHint } from "@/components/auth/save-record-hint";
 
@@ -75,6 +76,7 @@ export default function DeadlineDash() {
     setResult(null);
     setCopied(false);
     setPhase("playing");
+    gameStart("deadline-dash");
     stageRef.current?.focus({ preventScroll: true });
   }, [newGame, setPhase]);
 
@@ -120,6 +122,7 @@ export default function DeadlineDash() {
       }
       setBest(Math.max(prev, score));
       setResult({ meters: m, coffees: s.coffeeCount, hits: s.hits, smashed: s.smashed, score, title: titleFor(m), scenario: s.scenario.title, isBest, best: Math.max(prev, score) });
+      gameEnd("deadline-dash", { score });
       setPhase("over");
     };
 

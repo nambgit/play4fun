@@ -8,3 +8,9 @@ export function createDb(url: string, options: { max?: number } = {}) {
 }
 
 export type Db = ReturnType<typeof createDb>;
+
+/** Plain SQL client for another database (used by /admin to read Umami's tables) */
+export function createSql(url: string, options: { max?: number; idle_timeout?: number } = {}) {
+  return postgres(url, { max: options.max ?? 3, idle_timeout: options.idle_timeout ?? 30 });
+}
+export type Sql = ReturnType<typeof createSql>;

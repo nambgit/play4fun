@@ -1,7 +1,8 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import type { ComponentType } from "react";
+import { useEffect, type ComponentType } from "react";
+import { gameLeave } from "@/lib/analytics";
 import { getGame } from "@/lib/games";
 
 type Frame = "dark" | "light";
@@ -76,6 +77,8 @@ const PLAYABLE: Record<string, { Game: ComponentType; frame: Frame }> = {
 };
 
 export function GameStage({ slug }: { slug: string }) {
+  // Navigating to another page in the middle of a round counts as "quit" (with play time)
+  useEffect(() => () => gameLeave(slug), [slug]);
   const entry = PLAYABLE[slug];
   if (!entry) return null;
   // Light frames get a soft tint of the game's own colours, so the space around

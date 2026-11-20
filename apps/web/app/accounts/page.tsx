@@ -1,5 +1,5 @@
 import { eq, userRecords } from "@play4fun/db";
-import { CalendarDays, Play, Trophy } from "lucide-react";
+import { CalendarDays, LayoutDashboard, Play, Trophy } from "lucide-react";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -8,6 +8,7 @@ import { Avatar } from "@/components/auth/account-menu";
 import { DONG_NGHIEP } from "@/games/quiz/content/dong-nghiep";
 import { GAMER } from "@/games/quiz/content/gamer";
 import { HOC_KIEU_GI } from "@/games/quiz/content/hoc-kieu-gi";
+import { isAdmin } from "@/lib/admin-stats";
 import { currentUser } from "@/lib/auth";
 import { getDb } from "@/lib/db";
 import { getGame } from "@/lib/games";
@@ -47,7 +48,15 @@ export default async function AccountPage() {
             Tham gia ngày {joined}
           </p>
         </div>
-        <AccountActions />
+        <div className="flex flex-col gap-2 sm:items-end">
+          {isAdmin(user.email) && (
+            <Link href="/admin" className="btn-primary h-10 px-4">
+              <LayoutDashboard className="h-4 w-4" aria-hidden="true" />
+              Bảng điều khiển
+            </Link>
+          )}
+          <AccountActions />
+        </div>
       </section>
 
       {/* Records */}

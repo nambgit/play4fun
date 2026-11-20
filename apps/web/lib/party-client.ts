@@ -12,6 +12,7 @@ import {
 } from "@play4fun/party";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { io, type Socket } from "socket.io-client";
+import { track } from "./analytics";
 
 const PID_KEY = "p4f:pid";
 const NAME_KEY = "p4f:name";
@@ -61,6 +62,14 @@ export function useParty(slug: PartySlug) {
   const [notice, setNotice] = useState<string | null>(null);
   const [savedName, setSavedName] = useState("");
   const listeners = useRef({ chat: new Set<(m: ChatMsg) => void>(), op: new Set<(o: DrawOp) => void>() });
+
+  const stateRef = useRef<ServerState | null>(null);
+  stateRef.current = state;
+  /** Only the host can start a game, so each party game is counted once */
+  const trackPartyStart = useCallback(() => {
+    const players = stateRef.current?.room.players.filter((p) => p.connected).length ?? 0;
+    track("party-start", { game: slug, players });
+  }, [slug]);
 
   const apply = useCallback(
     (st: ServerState) => {
@@ -142,13 +151,17 @@ export function useParty(slug: PartySlug) {
       settings: (s: PartySettings) => socketRef.current?.emit("room:settings", s),
       start: () =>
         new Promise<string | null>((resolve) =>
-          socketRef.current?.timeout(8000).emit("room:start", null, (err: Error | null, r: { ok: boolean; error?: string }) =>
-            resolve(err ? "Máy chủ không phản hồi." : r.ok ? null : (r.error ?? "Chưa bắt đầu được.")),
-          ),
+          socketRef.current?.timeout(8000).emit("room:start", null, (err: Error | null, r: { ok: boolean; error?: string }) => {
+            if (!err && r.ok) trackPartyStart();
+            resolve(err ? "Máy chủ không phản hồi." : r.ok ? null : (r.error ?? "Chưa bắt đầu được."));
+          }),
         ),
       toLobby: () => socketRef.current?.emit("room:lobby"),
       kick: (id: string) => socketRef.current?.emit("room:kick", id),
-      act: (a: GameAction) => socketRef.current?.emit("game:action", a),
+      act: (a: GameAction) => {
+        if (a.type === "again") trackPartyStart();
+        socketRef.current?.emit("game:action", a);
+      },
       op: (o: DrawOp) => socketRef.current?.emit("draw:op", o),
       sync: <T,>() =>
         new Promise<T | null>((resolve) => socketRef.current?.timeout(5000).emit("game:sync", null, (err: Error | null, data: T) => resolve(err ? null : data))),
@@ -163,7 +176,7 @@ export function useParty(slug: PartySlug) {
       /** Current time on the server clock (for countdowns) */
       now: () => Date.now() + offsetRef.current,
     }),
-    [drop, enter],
+    [drop, enter, trackPartyStart],
   );
 
   return { state, conn, notice, savedName, ...api };

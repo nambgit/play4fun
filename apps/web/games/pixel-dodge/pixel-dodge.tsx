@@ -4,6 +4,7 @@ import { Check, Pause, Play, RotateCcw, Share2, Trophy } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { H, W, createGame, createInput, scoreOf, step, type GameState } from "./engine";
 import { render } from "./render";
+import { gameEnd, gameStart } from "@/lib/analytics";
 import { notifyRecordChanged } from "@/lib/record-sync";
 import { SaveRecordHint } from "@/components/auth/save-record-hint";
 
@@ -74,6 +75,7 @@ export default function PixelDodge() {
     setResult(null);
     setCopied(false);
     setPhase("playing");
+    gameStart("pixel-dodge");
     stageRef.current?.focus({ preventScroll: true });
   }, [setPhase]);
 
@@ -100,6 +102,7 @@ export default function PixelDodge() {
         setBest(score);
       }
       setResult({ time: s.t, wave: s.wave + 1, grazes: s.grazes, score, isBest });
+      gameEnd("pixel-dodge", { score });
       setPhase("over");
     };
 

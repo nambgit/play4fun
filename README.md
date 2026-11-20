@@ -31,6 +31,7 @@ Nguyên tắc chung: mỗi lần chơi là nội dung ngẫu nhiên và hạn ch
 | Database | PostgreSQL 17 + Drizzle ORM | Người chơi, điểm, thử thách hằng ngày, kết quả ván party |
 | Cache | Valkey 8 (tương thích Redis) | Bảng xếp hạng (sorted set), rate limit, sau này scale realtime |
 | Đăng nhập | Better Auth 1.7 (bảng trong Postgres) + Google/Facebook | Không bắt buộc: khách chơi mọi game; đăng nhập để lưu kỷ lục lên tài khoản |
+| Thống kê | Umami 3.4 tự host (không cookie) + trang `/admin` | Lượt truy cập, nguồn Facebook/TikTok, game chơi nhiều, thời gian chơi |
 | Hạ tầng | Docker Compose + nginx native + Let's Encrypt | |
 
 ## Cấu trúc
@@ -110,6 +111,12 @@ DATABASE_URL=postgres://play4fun:<mật khẩu>@localhost:5432/play4fun
 BETTER_AUTH_SECRET=<chuỗi ngẫu nhiên>     # openssl rand -base64 32
 BETTER_AUTH_URL=http://localhost:3000
 AUTH_DEV_PASSWORD=1                      # nút "đăng nhập thử" bằng email, chỉ chạy khi dev
+# Thống kê ở local (tùy chọn): docker compose up -d umami → http://localhost:3002 (admin/umami), tạo website
+UMAMI_INTERNAL_URL=http://localhost:3002
+UMAMI_WEBSITE_ID=<id website trong Umami local>
+UMAMI_DATABASE_URL=postgres://play4fun:<mật khẩu>@localhost:5432/umami
+REALTIME_INTERNAL_URL=http://localhost:3001
+ADMIN_EMAILS=test@example.com
 ```
 
 `AUTH_DEV_PASSWORD` giúp thử toàn bộ luồng (đồng bộ kỷ lục, trang tài khoản, xóa tài khoản) mà không cần app Google/Facebook. Trên production biến này bị bỏ qua.
@@ -209,7 +216,22 @@ Người chơi không bắt buộc đăng nhập, nên có thể bật sau. Nhà
 
 Dữ liệu: bảng `users` (tên, ảnh, email), `accounts` (liên kết Google/Facebook), `sessions` (phiên 60 ngày), `user_records` (kỷ lục). Người chơi tự xóa tài khoản trong trang `/accounts`; xóa user thì phiên, liên kết và kỷ lục bị xóa theo (`ON DELETE CASCADE`).
 
-### 4. Các lần cập nhật sau
+### 4. Thống kê & trang admin
+
+Container `umami` (thống kê mã nguồn mở, không cookie) chạy cùng docker-compose, dùng database `umami` riêng trong Postgres sẵn có (tự tạo bởi `umami-db-init`). Dashboard Umami chỉ mở trên `127.0.0.1:3002`; người chơi gửi dữ liệu qua `https://play4fun.io.vn/stats/*` (web chuyển tiếp vào container). Trang `/admin` gom số liệu từ Umami, tài khoản và phòng chơi nhóm.
+
+1. Thêm vào `.env`: `UMAMI_APP_SECRET` (chạy `openssl rand -base64 32`) và `ADMIN_EMAILS=email-google-cua-ban@gmail.com` (nhiều email cách nhau bởi dấu phẩy), rồi `./deploy/deploy.sh`.
+2. Mở dashboard Umami qua SSH tunnel từ máy bạn: `ssh -L 3002:127.0.0.1:3002 user@IP-server`, rồi vào `http://localhost:3002`.
+3. Đăng nhập `admin` / `umami` → **đổi mật khẩu ngay** (Settings → Profile).
+4. Settings → Websites → *Add website*: tên `Play4Fun`, domain `play4fun.io.vn` → mở website vừa tạo, sao chép **Website ID**.
+5. Thêm `UMAMI_WEBSITE_ID=<id vừa chép>` vào `.env`, chạy lại `./deploy/deploy.sh`.
+6. Đăng nhập trang web bằng email trong `ADMIN_EMAILS` → menu tài khoản → **Bảng điều khiển** (`/admin`). Người khác vào `/admin` chỉ thấy trang 404. Bấm "Không tính lượt truy cập của tôi" để loại lượt xem của chính bạn khỏi số liệu.
+
+Sự kiện được ghi: `game-start`, `game-end` (kèm `seconds`, `score`), `game-quit` (đóng tab / chuyển trang giữa ván), `party-start` (kèm số người). Code ở `apps/web/lib/analytics.ts`; game mới chỉ cần gọi `gameStart(slug)` và `gameEnd(slug, { score })`. Bot và trình duyệt tự động bị Umami loại khỏi số liệu.
+
+`/admin` đọc thẳng các bảng của Umami 3.4.1 (`website_event`, `event_data`, `session`) trong `apps/web/lib/admin-stats.ts`; khi nâng phiên bản Umami, kiểm tra lại các câu truy vấn đó.
+
+### 5. Các lần cập nhật sau
 
 ```bash
 ./deploy/deploy.sh      # git pull → build → up -d → dọn image cũ
@@ -248,5 +270,6 @@ Nên đặt cron chạy hằng ngày và copy file backup ra ngoài server.
 1. ✅ **MVP**: trang chủ, 5 mini-game, 3 quiz, chia sẻ kết quả, thumbnail + `og:image` từ ảnh chụp game (chưa cần đăng nhập)
 2. ✅ **Party game**: "Ai là gián điệp?", "Vẽ & đoán", "Đố vui team building" (phòng chơi realtime, mã phòng + QR)
 3. ✅ **Đăng nhập** Google/Facebook (không bắt buộc), kỷ lục đồng bộ giữa các thiết bị, trang tài khoản, xóa tài khoản
-4. **Giai đoạn 2 (còn lại)**: thử thách hằng ngày, bảng xếp hạng online, ảnh OG riêng cho từng kết quả
-5. **Giai đoạn 3**: gói cho công ty (phòng team building có thương hiệu, bộ câu hỏi riêng), quảng cáo; scale realtime nhiều instance (Valkey + socket.io adapter)
+4. ✅ **Thống kê** (Umami tự host) và trang `/admin`
+5. **Giai đoạn 2 (còn lại)**: thử thách hằng ngày, bảng xếp hạng online, ảnh OG riêng cho từng kết quả
+6. **Giai đoạn 3**: gói cho công ty (phòng team building có thương hiệu, bộ câu hỏi riêng), quảng cáo; scale realtime nhiều instance (Valkey + socket.io adapter)

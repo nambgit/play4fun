@@ -3,6 +3,7 @@
 import { ArrowLeft, Check, Heart, Lightbulb, Play, RotateCcw, Share2, Shuffle, Sparkles, TriangleAlert } from "lucide-react";
 import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import { answer, back, createRun, isDone, result as computeResult, type Quiz, type QuizResult, type QuizRun } from "./engine";
+import { gameEnd, gameStart } from "@/lib/analytics";
 import { notifyRecordChanged } from "@/lib/record-sync";
 import { SaveRecordHint } from "@/components/auth/save-record-hint";
 
@@ -70,6 +71,7 @@ export function QuizGame({ quiz, accent }: { quiz: Quiz; accent: [string, string
     setRes(null);
     setCopied(false);
     setPhase("question");
+    gameStart(quiz.slug);
     stageRef.current?.focus({ preventScroll: true });
   }, [quiz]);
 
@@ -85,6 +87,7 @@ export function QuizGame({ quiz, accent }: { quiz: Quiz; accent: [string, string
     notifyRecordChanged();
     setLastType(r.type.id);
     setRes(r);
+    gameEnd(quiz.slug);
     setPhase("result");
     // Bring the top of the result card into view on small screens
     requestAnimationFrame(() => {

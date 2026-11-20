@@ -18,6 +18,7 @@ import {
   typeDigit,
   type GameState,
 } from "./engine";
+import { gameEnd, gameStart } from "@/lib/analytics";
 import { notifyRecordChanged } from "@/lib/record-sync";
 import { SaveRecordHint } from "@/components/auth/save-record-hint";
 
@@ -77,6 +78,7 @@ export default function KiemTra15Phut() {
     setResult(null);
     setCopied(false);
     setPhase("playing");
+    gameStart("bai-kiem-tra-15-phut");
     stageRef.current?.focus({ preventScroll: true });
   }, [setPhase]);
 
@@ -102,6 +104,7 @@ export default function KiemTra15Phut() {
       isBest,
       best: Math.max(prev, s.correct),
     });
+    gameEnd("bai-kiem-tra-15-phut", { score: s.correct });
     setPhase("over");
   }, [setPhase]);
 

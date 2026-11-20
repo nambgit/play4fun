@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Be_Vietnam_Pro } from "next/font/google";
+import Script from "next/script";
 import { RecordSync } from "@/components/auth/record-sync";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
@@ -47,6 +48,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </main>
         <SiteFooter />
         <RecordSync />
+        {/* Self-hosted, cookie-free analytics (Umami) via our own /stats proxy; empty script when not configured */}
+        <Script src="/stats/script.js" strategy="afterInteractive" />
       </body>
     </html>
   );

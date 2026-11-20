@@ -69,6 +69,13 @@ services:
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
       FACEBOOK_CLIENT_ID: ${FACEBOOK_CLIENT_ID:-}
       FACEBOOK_CLIENT_SECRET: ${FACEBOOK_CLIENT_SECRET:-}
+      # Thống kê + trang /admin (xem mục "Thống kê & trang admin" trong README)
+      UMAMI_INTERNAL_URL: http://umami:3000
+      UMAMI_WEBSITE_ID: ${UMAMI_WEBSITE_ID:-}
+      # /admin đọc số liệu trực tiếp từ database của Umami (chỉ SELECT)
+      UMAMI_DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/umami
+      ADMIN_EMAILS: ${ADMIN_EMAILS:-}
+      REALTIME_INTERNAL_URL: http://realtime:3001
       HOSTNAME: 0.0.0.0
       TZ: Asia/Ho_Chi_Minh
     ports:
@@ -106,6 +113,40 @@ services:
       interval: 30s
       timeout: 5s
       retries: 3
+
+  # --- Thống kê truy cập (Umami, mã nguồn mở, không cookie) ---
+  # Tạo database "umami" trong Postgres sẵn có nếu chưa có (chạy 1 lần mỗi lần `up`, idempotent)
+  umami-db-init:
+    image: postgres:17-alpine
+    restart: "no"
+    environment:
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+    command:
+      - sh
+      - -c
+      - >-
+        psql -h postgres -U ${POSTGRES_USER} -d ${POSTGRES_DB} -tAc "SELECT 1 FROM pg_database WHERE datname='umami'" | grep -q 1
+        || psql -h postgres -U ${POSTGRES_USER} -d ${POSTGRES_DB} -c "CREATE DATABASE umami"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # Dashboard chỉ mở trên 127.0.0.1 (xem qua SSH tunnel). Người chơi gửi dữ liệu qua
+  # https://play4fun.io.vn/stats/* — web container chuyển tiếp vào đây (apps/web/app/stats).
+  umami:
+    image: ghcr.io/umami-software/umami:3.4.1
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/umami
+      # Ký phiên đăng nhập dashboard. Chưa đặt UMAMI_APP_SECRET thì dùng tạm mật khẩu Postgres (vẫn là bí mật)
+      APP_SECRET: ${UMAMI_APP_SECRET:-${POSTGRES_PASSWORD}}
+      DISABLE_TELEMETRY: 1
+      TZ: Asia/Ho_Chi_Minh
+    ports:
+      - "127.0.0.1:${UMAMI_PORT:-3002}:3000"
+    depends_on:
+      umami-db-init:
+        condition: service_completed_successfully
 
 volumes:
   pgdata:

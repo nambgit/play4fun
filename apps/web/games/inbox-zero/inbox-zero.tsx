@@ -38,6 +38,7 @@ import {
   type Card,
   type GameState,
 } from "./engine";
+import { gameEnd, gameStart } from "@/lib/analytics";
 import { notifyRecordChanged } from "@/lib/record-sync";
 import { SaveRecordHint } from "@/components/auth/save-record-hint";
 
@@ -137,6 +138,7 @@ export default function InboxZero() {
     setResult(null);
     setCopied(false);
     setPhase("playing");
+    gameStart("inbox-zero");
     stageRef.current?.focus({ preventScroll: true });
   }, [setPhase]);
 
@@ -164,6 +166,7 @@ export default function InboxZero() {
       isBest,
       best,
     });
+    gameEnd("inbox-zero", { score: s.score });
     setPhase("over");
   }, [setPhase]);
 

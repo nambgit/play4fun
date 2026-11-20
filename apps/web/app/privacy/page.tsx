@@ -55,6 +55,16 @@ export default function PrivacyPage() {
         </section>
 
         <section>
+          <h2>Thống kê truy cập</h2>
+          <p className="mt-3">
+            Để biết game nào được yêu thích và cải thiện trang, Play4Fun dùng <b>Umami</b>, công cụ thống kê mã nguồn mở <b>tự vận hành trên máy chủ của chúng tôi</b>, không
+            gửi dữ liệu cho Google hay bên quảng cáo nào và <b>không dùng cookie</b>. Mỗi lượt xem trang và mỗi ván game ghi lại: trang đã xem, trang dẫn tới (ví dụ
+            Facebook), loại thiết bị, trình duyệt, quốc gia, game đã chơi, thời gian chơi và điểm. Địa chỉ IP chỉ dùng để suy ra quốc gia và không được lưu lại. Số liệu chỉ
+            được xem ở dạng tổng hợp.
+          </p>
+        </section>
+
+        <section>
           <h2>Dữ liệu được dùng để làm gì</h2>
           <ul>
             <li>Đăng nhập và nhận ra bạn khi quay lại.</li>

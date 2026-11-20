@@ -16,6 +16,7 @@ import {
   type CharState,
   type GameState,
 } from "./engine";
+import { gameEnd, gameStart } from "@/lib/analytics";
 import { notifyRecordChanged } from "@/lib/record-sync";
 import { SaveRecordHint } from "@/components/auth/save-record-hint";
 
@@ -107,6 +108,7 @@ export default function GoPhimNhanh() {
     setResult(null);
     setCopied(false);
     setPhase("playing");
+    gameStart("go-phim-nhanh");
   }, [lang, setPhase]);
 
   const finish = useCallback(() => {
@@ -132,6 +134,7 @@ export default function GoPhimNhanh() {
       best: Math.max(prev, speed),
     });
     if (inputRef.current) inputRef.current.value = "";
+    gameEnd("go-phim-nhanh", { score: speed });
     setPhase("over");
   }, [setPhase]);
 
