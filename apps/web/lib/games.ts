@@ -95,11 +95,19 @@ export const GAMES: GameEntry[] = [
     description:
       "Những phép tính nhẩm xuất hiện ngày càng nhanh. Trả lời đúng để kéo dài thời gian, sai là mất tim. Bạn trụ được đến câu thứ mấy?",
     audience: ["student"],
-    status: "soon",
+    status: "live",
     icon: "calculator",
     cover: ["#0ea5e9", "#22d3a5"],
+    thumbnail: "/thumbnails/bai-kiem-tra-15-phut.webp",
     duration: "1 phút",
     players: "1 người",
+    howTo: [
+      "Bắt đầu với 12 giây, mỗi câu đúng được cộng thêm giờ (càng lên cao càng ít).",
+      "Gõ đáp án bằng bàn phím số; gõ đủ chữ số là tự chấm.",
+      "Sai một câu mất 1 tim và xem đáp án đúng; hết 3 tim là nộp bài.",
+      "Đề khó dần: cộng trừ, bảng cửu chương, phép chia, tìm số còn thiếu, nhân chia trước cộng trừ sau.",
+      "30 câu đúng là điểm 10. Mỗi lần làm là một đề mới.",
+    ],
   },
   {
     slug: "pixel-dodge",

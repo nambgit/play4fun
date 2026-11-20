@@ -87,6 +87,25 @@ const SHOTS = {
       stage.locator('[aria-live="polite"]').evaluate((el) => getComputedStyle(el).opacity === "0"),
   },
 
+  "bai-kiem-tra-15-phut": {
+    captureAt: 9000,
+    // Dải HUD (đồng hồ, tim) trùng chỗ badge của card
+    cropBelow: ":scope > div:first-child",
+    position: "top",
+    async play(page, stage) {
+      // Giải đề trên bảng: thử 0..1000 vào ô trống cho tới khi đẳng thức đúng
+      const text = await stage.locator("p[aria-live]").innerText().catch(() => "");
+      const x = solveBoard(text);
+      if (x !== null) await page.keyboard.type(String(x), { delay: 30 });
+    },
+    async beforeShot(page, stage) {
+      // Chụp lúc đang gõ dở đáp án nhiều chữ số (nếu có)
+      const x = solveBoard(await stage.locator("p[aria-live]").innerText());
+      if (x !== null && x >= 10) await page.keyboard.type(String(x)[0]);
+      await sleep(150);
+    },
+  },
+
   "go-phim-nhanh": {
     captureAt: 6000,
     // Dải HUD (đồng hồ, WPM) trùng chỗ badge của card
@@ -232,6 +251,26 @@ const SHOTS = {
     },
   },
 };
+
+/** Kiểm tra 15 phút: giải phép tính trên bảng, ô trống (nbsp) là ẩn số */
+function solveBoard(text) {
+  const norm = text
+    .replace(/×/g, "*")
+    .replace(/−/g, "-")
+    .replace(/ : /g, " / ")
+    .replace(/(\d+)²/g, "($1*$1)")
+    .replace(/(\d+)% của (\d+)/, "($1*$2/100)");
+  if (!norm.includes(" ") || !norm.includes("=")) return null;
+  for (let x = 0; x <= 1000; x++) {
+    const [l, r] = norm.replace(" ", String(x)).split("=");
+    try {
+      if (Function(`return (${l})`)() === Function(`return (${r})`)()) return x;
+    } catch {
+      return null;
+    }
+  }
+  return null;
+}
 
 // ------------------------------------------------------------ party helpers
 
