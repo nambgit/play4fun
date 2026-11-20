@@ -38,6 +38,8 @@ const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
  *  - goodMoment(page, stage): tuỳ chọn, chỉ chụp khi trả về true
  *  - fit: "cover" (mặc định, cắt cho đầy 16:10) | "contain" (giữ nguyên khung, thêm nền)
  *  - position: với "cover", phần nào được giữ lại khi cắt (sharp `position`)
+ *  - hideHud: tuỳ chọn, selector (trong khung game) của HUD nổi đè lên màn chơi, ẩn khi chụp
+ *  - cropBelow: tuỳ chọn, selector của dải HUD phía trên, ảnh bắt đầu ngay dưới nó
  *  - frame: tuỳ chọn, cắt bớt khung theo tỉ lệ {left, top, width, height} trước khi resize
  */
 const SHOTS = {
@@ -46,8 +48,10 @@ const SHOTS = {
     captureAt: 24000,
     minAt: 11000,
     attempts: 12,
-    // Khung vuông: đặt giữa nền tối thay vì cắt, để giữ cả HUD lẫn phi thuyền
+    // Khung vuông: đặt giữa nền tối thay vì cắt, để giữ trọn màn chơi
     fit: "contain",
+    // HUD (thời gian, đợt, sượt) nằm đè lên góc trên, trùng chỗ badge của card
+    hideHud: ":scope > div.top-0",
     async play(page) {
       // Đi ngẫu nhiên kiểu "random walk" bằng phím mũi tên
       const keys = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"];
@@ -63,6 +67,8 @@ const SHOTS = {
   "deadline-dash": {
     captureAt: 5200,
     position: "left",
+    // Dải HUD (mét, thanh "Cách deadline", cà phê) trùng chỗ badge của card
+    cropBelow: ":scope > div:first-child",
     async play(page) {
       const r = Math.random();
       if (r < 0.3) await page.keyboard.press("Space");
@@ -77,9 +83,28 @@ const SHOTS = {
       stage.locator('[aria-live="polite"]').evaluate((el) => getComputedStyle(el).opacity === "0"),
   },
 
+  "go-phim-nhanh": {
+    captureAt: 6000,
+    // Dải HUD (đồng hồ, WPM) trùng chỗ badge của card
+    cropBelow: ":scope > div:first-child",
+    async play(page, stage) {
+      // Gõ đúng từ đang được tô sáng (thỉnh thoảng gõ sai cho giống người thật)
+      const word = await stage.locator("[data-current-word]").getAttribute("data-current-word");
+      if (!word) return;
+      await page.keyboard.type(Math.random() < 0.08 ? `${word.slice(0, -1)}x ` : `${word} `, { delay: 25 });
+    },
+    async beforeShot(page, stage) {
+      // Chụp lúc đang gõ dở một từ: thấy cả con trỏ lẫn chữ đã gõ
+      const word = await stage.locator("[data-current-word]").getAttribute("data-current-word");
+      if (word && word.length > 2) await page.keyboard.type(word.slice(0, Math.ceil(word.length / 2)), { delay: 25 });
+    },
+  },
+
   "inbox-zero": {
     captureAt: 2500,
     fit: "contain",
+    // Dải HUD (thời gian, tim, điểm) trùng chỗ badge của card
+    cropBelow: ":scope > div:first-child",
     async play() {
       // Không thao tác: chỉ cần email đầu tiên hiện lên
     },
@@ -111,21 +136,38 @@ async function captureOne(page, slug, cfg) {
   });
   const pause = stage.getByRole("button", { name: "Tạm dừng" });
 
-  // Ẩn nút tạm dừng trong ảnh (opacity 0 vẫn tính là "visible" nên không ảnh hưởng việc dò trạng thái)
+  // Ẩn nút tạm dừng + HUD nổi trong ảnh (opacity 0 vẫn tính là "visible" nên không ảnh hưởng việc dò trạng thái)
+  const hidden = [pause, ...(cfg.hideHud ? [stage.locator(cfg.hideHud)] : [])];
+  const setHidden = (on) =>
+    Promise.all(
+      hidden.map((l) =>
+        l.evaluateAll((els, on) => {
+          for (const el of els) Object.assign(el.style, on ? { transition: "none", opacity: "0" } : { transition: "", opacity: "" });
+        }, on),
+      ),
+    );
   const shoot = async () => {
-    await pause.evaluate((el) => Object.assign(el.style, { transition: "none", opacity: "0" })).catch(() => {});
+    await setHidden(true);
     try {
-      return await stage.screenshot({ animations: "allow" });
+      const box = await stage.boundingBox();
+      let clip = box;
+      if (cfg.cropBelow) {
+        // Cắt bỏ dải HUD phía trên: ảnh bắt đầu ngay dưới phần tử này
+        const hud = await stage.locator(cfg.cropBelow).first().boundingBox();
+        const top = hud.y + hud.height;
+        clip = { x: box.x, y: top, width: box.width, height: box.y + box.height - top };
+      }
+      return await page.screenshot({ clip, animations: "allow" });
     } finally {
-      await pause.evaluate((el) => Object.assign(el.style, { transition: "", opacity: "" })).catch(() => {});
+      await setHidden(false);
     }
   };
   const isGood = async () => !cfg.goodMoment || (await cfg.goodMoment(page, stage));
   const attempts = cfg.attempts ?? ATTEMPTS;
 
   for (let attempt = 1; attempt <= attempts; attempt++) {
-    // "Bắt đầu…" ở màn chờ, hoặc "Chơi lại / Chơi ván mới" sau khi thua
-    await stage.getByRole("button", { name: /^(Bắt đầu|Chơi)/ }).first().click();
+    // "Bắt đầu…" ở màn chờ, hoặc "Chơi lại / Chơi ván mới / Chạy ván mới" sau khi thua
+    await stage.getByRole("button", { name: /^(Bắt đầu|Chơi|Chạy ván)/ }).first().click();
     await pause.waitFor({ state: "visible", timeout: 10_000 });
 
     // Chơi tới captureAt. Sau minAt (nếu có) chụp dự phòng định kỳ: lỡ thua sớm
