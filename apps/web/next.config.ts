@@ -9,7 +9,7 @@ const nextConfig: NextConfig = {
   output: "standalone",
   outputFileTracingRoot: monorepoRoot,
   turbopack: { root: monorepoRoot },
-  transpilePackages: ["@play4fun/db"],
+  transpilePackages: ["@play4fun/db", "@play4fun/party"],
   poweredByHeader: false,
 };
 

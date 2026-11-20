@@ -11,6 +11,7 @@ COPY package.json package-lock.json ./
 COPY apps/web/package.json apps/web/
 COPY apps/realtime/package.json apps/realtime/
 COPY packages/db/package.json packages/db/
+COPY packages/party/package.json packages/party/
 # npm nuốt lỗi tải gói optional (binary native) khi mạng chập chờn -> kiểm tra ngay để fail sớm
 RUN --mount=type=cache,target=/root/.npm \
     npm ci --no-audit --no-fund \

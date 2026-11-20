@@ -21,9 +21,10 @@ dành cho dân văn phòng, học sinh, gamer.
 play4fun/
 ├── apps/
 │   ├── web/            # Next.js
-│   └── realtime/       # Socket.IO server
+│   └── realtime/       # Socket.IO server: phòng chơi + logic party game (src/games/)
 ├── packages/
-│   └── db/             # Drizzle schema, migrations (drizzle/), migrate runner
+│   ├── db/             # Drizzle schema, migrations (drizzle/), migrate runner
+│   └── party/          # Protocol dùng chung realtime ↔ web cho party game
 ├── deploy/
 │   ├── nginx/play4fun.io.vn.conf
 │   └── deploy.sh
@@ -72,6 +73,7 @@ Card trên trang chủ và ảnh preview khi chia sẻ link (`og:image`) dùng �
 
 ```bash
 npm run dev:web                                        # terminal 1
+npm run dev:realtime                                   # terminal 1b: chỉ cần cho party game
 npm run thumbnails -w @play4fun/web                    # terminal 2: chụp lại mọi game
 npm run thumbnails -w @play4fun/web -- deadline-dash   # hoặc chỉ 1 game
 ```

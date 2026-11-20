@@ -1,42 +1,95 @@
-export type Player = { id: string; name: string };
+import { NAME_MAX, type PartySettings, type PartySlug, type PlayerView, type RoomPublic } from "@play4fun/party";
+import type { RunningGame } from "./games/types";
+
+/**
+ * A player is identified by a client-generated id kept in localStorage (not the socket id),
+ * so a phone that locks its screen and reconnects gets its seat back.
+ */
+export type Player = {
+  id: string;
+  name: string;
+  /** null while disconnected */
+  socketId: string | null;
+  joinedAt: number;
+  /** When the player disconnected (for the reconnect grace period) */
+  leftAt: number | null;
+};
 
 export type Room = {
   code: string;
-  gameSlug: string;
+  gameSlug: PartySlug;
   hostId: string;
   players: Map<string, Player>;
-  status: "lobby" | "playing" | "ended";
+  status: "lobby" | "playing";
+  settings: PartySettings;
   createdAt: number;
+  game: RunningGame | null;
+  timers: Map<string, NodeJS.Timeout>;
+  /** Content ids already used in this room (word pairs, words, questions) to avoid repeats */
+  used: Set<string>;
 };
-
-export type RoomView = Omit<Room, "players"> & { players: Player[] };
 
 const CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // bỏ O/0/I/1 cho dễ đọc
 const CODE_LENGTH = 5;
-export const MAX_PLAYERS = 12;
 
 /**
- * Trạng thái phòng giữ trong RAM: đủ cho 1 instance realtime.
- * Khi cần scale nhiều instance thì chuyển sang Valkey/Redis + socket.io redis adapter.
+ * Room state lives in RAM: enough for a single realtime instance.
+ * To scale out, move it to Valkey and use the socket.io redis adapter.
  */
 export const rooms = new Map<string, Room>();
 
 export function newRoomCode(): string {
   for (;;) {
     let code = "";
-    for (let i = 0; i < CODE_LENGTH; i++) {
-      code += CODE_ALPHABET[Math.floor(Math.random() * CODE_ALPHABET.length)];
-    }
+    for (let i = 0; i < CODE_LENGTH; i++) code += CODE_ALPHABET[Math.floor(Math.random() * CODE_ALPHABET.length)];
     if (!rooms.has(code)) return code;
   }
 }
 
 export function cleanName(raw: unknown): string | null {
   if (typeof raw !== "string") return null;
-  const name = raw.trim().replace(/\s+/g, " ").slice(0, 20);
+  const name = raw.normalize("NFC").trim().replace(/\s+/g, " ").slice(0, NAME_MAX);
   return name.length > 0 ? name : null;
 }
 
-export function view(room: Room): RoomView {
-  return { ...room, players: [...room.players.values()] };
+/** Client ids are random UUID-ish strings; reject anything else */
+export function cleanPid(raw: unknown): string | null {
+  return typeof raw === "string" && /^[A-Za-z0-9_-]{8,64}$/.test(raw) ? raw : null;
+}
+
+export function cleanCode(raw: unknown): string {
+  return typeof raw === "string" ? raw.trim().toUpperCase().slice(0, CODE_LENGTH) : "";
+}
+
+/** Players in join order */
+export const playerList = (room: Room) => [...room.players.values()].sort((a, b) => a.joinedAt - b.joinedAt);
+
+export const connectedIds = (room: Room) => playerList(room).filter((p) => p.socketId).map((p) => p.id);
+
+export function publicRoom(room: Room): RoomPublic {
+  return {
+    code: room.code,
+    gameSlug: room.gameSlug,
+    hostId: room.hostId,
+    status: room.status,
+    settings: room.settings,
+    players: playerList(room).map((p): PlayerView => ({ id: p.id, name: p.name, connected: p.socketId !== null })),
+  };
+}
+
+/** Make the earliest connected player host if the current host is gone */
+export function ensureHost(room: Room) {
+  const host = room.players.get(room.hostId);
+  if (host?.socketId) return;
+  const next = playerList(room).find((p) => p.socketId);
+  if (next) room.hostId = next.id;
+  else if (!host) {
+    const any = playerList(room)[0];
+    if (any) room.hostId = any.id;
+  }
+}
+
+export function clearTimers(room: Room) {
+  for (const t of room.timers.values()) clearTimeout(t);
+  room.timers.clear();
 }

@@ -222,11 +222,19 @@ export const GAMES: GameEntry[] = [
     description:
       "Mỗi người nhận một từ khoá bí mật, riêng gián điệp nhận từ khác. Lần lượt mô tả, tranh luận và bỏ phiếu tìm ra kẻ mạo danh.",
     audience: ["group", "office", "student"],
-    status: "soon",
+    status: "live",
     icon: "spy",
     cover: ["#0f172a", "#16b364"],
+    thumbnail: "/thumbnails/ai-la-gian-diep.webp",
     duration: "10 phút",
     players: "3–12 người",
+    howTo: [
+      "Một người tạo phòng, mọi người vào bằng mã phòng hoặc quét QR.",
+      "Mỗi người xem từ khóa bí mật trên điện thoại của mình.",
+      "Lần lượt mô tả từ khóa bằng một câu, ngồi cùng nhau hoặc qua cuộc gọi video.",
+      "Bỏ phiếu trên điện thoại để loại người đáng ngờ nhất.",
+      "Dân thắng khi loại hết gián điệp; gián điệp thắng khi còn bằng số dân.",
+    ],
   },
   {
     slug: "ve-doan-chu",
@@ -236,11 +244,19 @@ export const GAMES: GameEntry[] = [
     description:
       "Đến lượt bạn cầm bút: vẽ từ khoá thật nhanh để cả phòng đoán. Đoán đúng càng sớm càng nhiều điểm.",
     audience: ["group", "student", "gamer"],
-    status: "soon",
+    status: "live",
     icon: "brush",
     cover: ["#16b364", "#0ea5e9"],
+    thumbnail: "/thumbnails/ve-doan-chu.webp",
     duration: "15 phút",
     players: "2–12 người",
+    howTo: [
+      "Một người tạo phòng, mọi người vào bằng mã phòng hoặc quét QR.",
+      "Đến lượt mình thì chọn 1 trong 3 từ và vẽ trên màn hình.",
+      "Những người khác gõ đáp án, không cần gõ dấu.",
+      "Đoán càng sớm càng nhiều điểm, người vẽ được điểm cho mỗi người đoán đúng.",
+      "Gợi ý chữ cái sẽ hiện dần khi thời gian trôi qua.",
+    ],
   },
   {
     slug: "do-vui-team-building",
@@ -250,11 +266,19 @@ export const GAMES: GameEntry[] = [
     description:
       "Chiếu câu hỏi lên màn hình lớn, mọi người trả lời bằng điện thoại. Bảng xếp hạng cập nhật sau mỗi câu — hoàn hảo cho buổi họp đầu tuần.",
     audience: ["group", "office"],
-    status: "soon",
+    status: "live",
     icon: "trophy",
     cover: ["#6b3cf5", "#1a9fe8"],
+    thumbnail: "/thumbnails/do-vui-team-building.webp",
     duration: "10–20 phút",
     players: "3–50 người",
+    howTo: [
+      "Chủ phòng mở game trên máy chiếu hoặc TV và tạo phòng.",
+      "Mọi người quét QR để vào bằng điện thoại, đến muộn vẫn vào được.",
+      "Mỗi câu chọn 1 trong 4 đáp án trước khi hết giờ.",
+      "Đúng càng nhanh càng nhiều điểm, đúng liên tiếp được thưởng thêm.",
+      "Bảng xếp hạng cập nhật sau mỗi câu, cuối game có bảng vàng.",
+    ],
   },
 ];
 

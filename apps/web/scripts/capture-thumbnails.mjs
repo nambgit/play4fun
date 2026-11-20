@@ -4,6 +4,7 @@
  * bấm "Chơi", tự chơi vài giây rồi chụp khung game giữa ván.
  *
  *   npm run dev:web                          # terminal 1
+ *   npm run dev:realtime                     # (chỉ cần cho party game)
  *   npm run thumbnails -w @play4fun/web      # terminal 2 (mọi game có trong SHOTS)
  *   npm run thumbnails -w @play4fun/web -- pixel-dodge   # chỉ 1 game
  *
@@ -41,6 +42,8 @@ const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
  *  - alive: tuỳ chọn, selector (toàn trang) cho biết game đang chạy; mặc định là nút "Tạm dừng"
  *  - hideHud: tuỳ chọn, selector (trong khung game) của HUD nổi đè lên màn chơi, ẩn khi chụp
  *  - cropBelow: tuỳ chọn, selector của dải HUD phía trên, ảnh bắt đầu ngay dưới nó
+ *  - custom({ browser, page }): tuỳ chọn, tự viết toàn bộ kịch bản và trả về ảnh PNG
+ *    (dùng cho party game: cần nhiều người chơi, mỗi người một browser context)
  *  - frame: tuỳ chọn, cắt bớt khung theo tỉ lệ {left, top, width, height} trước khi resize
  */
 const SHOTS = {
@@ -121,6 +124,91 @@ const SHOTS = {
     ]),
   ),
 
+  // --- Party game: nhiều người chơi trong các browser context riêng (cần chạy cả `npm run dev:realtime`) ---
+  "ai-la-gian-diep": {
+    position: "top",
+    async custom({ browser, page }) {
+      const room = await partyRoom(browser, page, "ai-la-gian-diep", "Hùng", ["Lan", "Minh", "Ngọc", "Tú"]);
+      try {
+        await page.getByRole("button", { name: "Bắt đầu chơi" }).click();
+        for (const p of [page, ...room.guests]) await p.getByRole("button", { name: "Tôi đã nhớ từ" }).click();
+        await page.getByText("Lần lượt mô tả từ khóa bằng một câu", { exact: true }).waitFor();
+        await page.getByText("Từ khóa của bạn").click(); // lật thẻ từ khóa của chủ phòng
+        await sleep(300);
+        return await partyStage(page).screenshot({ animations: "allow" });
+      } finally {
+        await room.close();
+      }
+    },
+  },
+
+  "ve-doan-chu": {
+    position: "top",
+    async custom({ browser, page }) {
+      const room = await partyRoom(browser, page, "ve-doan-chu", "Hoa", ["Khang", "Linh"]);
+      try {
+        await page.getByRole("button", { name: "Bắt đầu chơi" }).click();
+        await sleep(800);
+        const everyone = [page, ...room.guests];
+        let drawer = null;
+        for (const p of everyone) if (await p.getByText("Đến lượt bạn vẽ!").isVisible()) drawer = p;
+        if (!drawer) throw new Error("không tìm thấy người vẽ");
+        await drawer.locator("button.btn-ghost", { has: drawer.locator("span.rounded-full") }).first().click();
+        await sleep(400);
+        // Vẽ một bức tranh nhỏ: ngôi nhà, mái đỏ, mặt trời, bãi cỏ
+        const canvas = drawer.getByLabel("Bảng vẽ");
+        const box = await canvas.boundingBox();
+        const at = (x, y) => [box.x + box.width * x, box.y + box.height * y];
+        const stroke = async (color, size, pts) => {
+          await drawer.getByRole("radio", { name: `Màu ${color}` }).click();
+          await drawer.getByRole("radio", { name: `Cỡ ${size}` }).click();
+          await drawer.mouse.move(...at(...pts[0]));
+          await drawer.mouse.down();
+          for (const pt of pts.slice(1)) await drawer.mouse.move(...at(...pt), { steps: 6 });
+          await drawer.mouse.up();
+          await sleep(80);
+        };
+        const circle = (cx, cy, r, n = 24) => Array.from({ length: n + 1 }, (_, i) => [cx + r * Math.cos((i / n) * 2 * Math.PI), cy + r * 1.33 * Math.sin((i / n) * 2 * Math.PI)]);
+        await stroke("#16b364", 24, [[0.05, 0.86], [0.95, 0.86]]);
+        await stroke("#8b5a2b", 10, [[0.3, 0.82], [0.3, 0.5], [0.62, 0.5], [0.62, 0.82], [0.3, 0.82]]);
+        await stroke("#e5484d", 10, [[0.26, 0.52], [0.46, 0.28], [0.66, 0.52]]);
+        await stroke("#1a9fe8", 10, [[0.42, 0.82], [0.42, 0.66], [0.5, 0.66], [0.5, 0.82]]);
+        await stroke("#f5c400", 10, circle(0.82, 0.2, 0.07));
+        const guessers = everyone.filter((p) => p !== drawer);
+        await guessers[0].getByLabel("Ô đoán").fill("trông quen quá!");
+        await guessers[0].getByLabel("Ô đoán").press("Enter");
+        await guessers[1].getByLabel("Ô đoán").fill("hmm để mình nghĩ");
+        await guessers[1].getByLabel("Ô đoán").press("Enter");
+        await sleep(600);
+        return await partyStage(guessers[1]).screenshot({ animations: "allow" });
+      } finally {
+        await room.close();
+      }
+    },
+  },
+
+  "do-vui-team-building": {
+    position: "top",
+    async custom({ browser, page }) {
+      const room = await partyRoom(browser, page, "do-vui-team-building", "MC Tâm", ["Quân", "Vy", "Bảo"]);
+      try {
+        await page.getByRole("radio", { name: "30s" }).click();
+        await page.getByRole("button", { name: "Bắt đầu chơi" }).click();
+        await page.getByText(/Câu 1\/\d+/).waitFor();
+        await sleep(900);
+        // Hai người đã chọn, chụp máy của một người chưa chọn: 4 đáp án còn sáng, đồng hồ đang chạy
+        const list = (p) => p.getByRole("list", { name: "Các đáp án" }).getByRole("button");
+        await list(page).nth(0).click();
+        await list(room.guests[0]).nth(2).click();
+        await room.guests[2].getByText(/2\/4 đã trả lời/).waitFor();
+        await sleep(300);
+        return await partyStage(room.guests[2]).screenshot({ animations: "allow" });
+      } finally {
+        await room.close();
+      }
+    },
+  },
+
   "inbox-zero": {
     captureAt: 2500,
     fit: "contain",
@@ -145,7 +233,42 @@ const SHOTS = {
   },
 };
 
-async function captureOne(page, slug, cfg) {
+// ------------------------------------------------------------ party helpers
+
+/** Khung game của party (PartyRoom) */
+const partyStage = (page) => page.locator("main .rounded-2xl.bg-bg").first();
+
+/** Chủ phòng tạo phòng trên `page`, khách vào bằng link mời trong context riêng (mỗi context một người chơi) */
+async function partyRoom(browser, page, slug, hostName, guestNames) {
+  await page.goto(`${BASE_URL}/games/${slug}`, { waitUntil: "networkidle" });
+  await page.getByLabel("Tên của bạn").fill(hostName);
+  await page.getByRole("button", { name: "Tạo phòng mới" }).click();
+  await page.getByText("Sảnh chờ").waitFor({ timeout: 15_000 });
+  const code = (await page.locator("button[aria-label^='Sao chép mã phòng']").getAttribute("aria-label")).slice(-5);
+  const contexts = [];
+  const guests = [];
+  for (const name of guestNames) {
+    const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 }, deviceScaleFactor: 1 });
+    contexts.push(ctx);
+    const p = await ctx.newPage();
+    await p.goto(`${BASE_URL}/games/${slug}?room=${code}`, { waitUntil: "networkidle" });
+    await p.getByLabel("Tên của bạn").fill(name);
+    await p.getByRole("button", { name: "Vào", exact: true }).click();
+    await p.getByText(/Sảnh chờ|Chờ chủ phòng/).first().waitFor({ timeout: 15_000 });
+    guests.push(p);
+  }
+  return {
+    code,
+    guests,
+    close: async () => {
+      for (const p of [page, ...guests]) await p.getByRole("button", { name: "Rời phòng" }).first().click().catch(() => {});
+      await Promise.all(contexts.map((c) => c.close()));
+    },
+  };
+}
+
+async function captureOne(page, slug, cfg, browser) {
+  if (cfg.custom) return cfg.custom({ browser, page });
   await page.goto(`${BASE_URL}/games/${slug}`, { waitUntil: "networkidle" });
   const stage = page.locator('main div[tabindex="-1"]').first();
   await stage.waitFor({ state: "visible", timeout: 30_000 });
@@ -283,7 +406,7 @@ async function main() {
     for (const slug of slugs) {
       const page = await context.newPage();
       try {
-        const png = await captureOne(page, slug, SHOTS[slug]);
+        const png = await captureOne(page, slug, SHOTS[slug], browser);
         if (process.env.KEEP_RAW) await sharp(png).toFile(`${OUT_DIR}${slug}.raw.png`);
         const webp = await toThumbnail(png, SHOTS[slug]);
         await sharp(webp).toFile(`${OUT_DIR}${slug}.webp`);

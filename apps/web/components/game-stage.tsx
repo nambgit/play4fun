@@ -54,6 +54,19 @@ const PLAYABLE: Record<string, { Game: ComponentType; frame: Frame }> = {
     Game: dynamic(() => import("@/games/quiz/gamer"), { ssr: false, loading: skeleton("light") }),
     frame: "light",
   },
+  // --- Party games (realtime rooms, server in apps/realtime) ---
+  "ai-la-gian-diep": {
+    Game: dynamic(() => import("@/games/party/spy"), { ssr: false, loading: skeleton("light") }),
+    frame: "light",
+  },
+  "ve-doan-chu": {
+    Game: dynamic(() => import("@/games/party/draw"), { ssr: false, loading: skeleton("light") }),
+    frame: "light",
+  },
+  "do-vui-team-building": {
+    Game: dynamic(() => import("@/games/party/trivia"), { ssr: false, loading: skeleton("light") }),
+    frame: "light",
+  },
 };
 
 export function GameStage({ slug }: { slug: string }) {
