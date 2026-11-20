@@ -19,6 +19,7 @@ import {
 import { DailyBadge } from "@/components/daily-badge";
 import type { DailyInfo } from "@/lib/daily";
 import { finishDaily } from "@/lib/daily-client";
+import { randomSeed, startRun, type Run } from "@/lib/run-client";
 import { gameEnd, gameStart } from "@/lib/analytics";
 import { resultUrl } from "@/lib/share";
 import { notifyRecordChanged } from "@/lib/record-sync";
@@ -79,6 +80,7 @@ export default function GoPhimNhanh({ daily }: { daily?: DailyInfo }) {
   const stageRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const stateRef = useRef<GameState | null>(null);
+  const runRef = useRef<Run | null>(null);
   const phaseRef = useRef<Phase>("ready");
   const [phase, setPhaseState] = useState<Phase>("ready");
   const [, render] = useReducer((n: number) => n + 1, 0);
@@ -107,7 +109,10 @@ export default function GoPhimNhanh({ daily }: { daily?: DailyInfo }) {
 
   /** Every round: fresh random seed + passages typed in recent rounds pushed to the back */
   const start = useCallback(() => {
-    stateRef.current = daily ? createGame("vi", daily.seed) : createGame(lang, Date.now() ^ Math.floor(Math.random() * 2 ** 31), readSeen(lang));
+    const l: Lang = daily ? "vi" : lang;
+    const seed = daily ? daily.seed : randomSeed();
+    stateRef.current = daily ? createGame(l, seed) : createGame(l, seed, readSeen(l));
+    runRef.current = startRun(`go-phim-nhanh:${l}`, seed, daily);
     if (inputRef.current) inputRef.current.value = "";
     setResult(null);
     setCopied(false);
@@ -139,7 +144,8 @@ export default function GoPhimNhanh({ daily }: { daily?: DailyInfo }) {
     });
     if (inputRef.current) inputRef.current.value = "";
     gameEnd("go-phim-nhanh", { score: speed });
-    if (daily && s.lang === "vi") void finishDaily(daily, "go-phim-nhanh", speed);
+    const sent = runRef.current?.finish(speed, { dealt: s.dealt, log: s.log });
+    if (daily && s.lang === "vi") void finishDaily(daily, "go-phim-nhanh", speed, sent);
     setPhase("over");
   }, [daily, setPhase]);
 

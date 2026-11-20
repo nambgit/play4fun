@@ -34,6 +34,26 @@ function write(key: string, v: string) {
   }
 }
 
+/**
+ * Receipt for the best verified score on this device (from /api/runs/finish). Only verified
+ * scores reach the account: a record this device has without a receipt stays local.
+ */
+const receiptKey = (key: string) => `p4f:receipt:${key}`;
+
+export function saveReceipt(key: string, value: number, receipt: string) {
+  const prev = readReceipt(key);
+  if (!prev || value >= prev.v) write(receiptKey(key), JSON.stringify({ v: value, r: receipt }));
+}
+
+function readReceipt(key: string): { v: number; r: string } | null {
+  try {
+    const v = JSON.parse(read(receiptKey(key)) ?? "null");
+    return v && typeof v.v === "number" && typeof v.r === "string" ? v : null;
+  } catch {
+    return null;
+  }
+}
+
 /** Records on this device. Quiz results ("latest") only when asked, so a stale device never overwrites a newer result. */
 export function localRecords(includeLatest: boolean): RecordValue[] {
   const out: RecordValue[] = [];
@@ -41,8 +61,8 @@ export function localRecords(includeLatest: boolean): RecordValue[] {
     const raw = read(def.storage);
     if (!raw) continue;
     if (def.kind === "best") {
-      const n = Number(raw);
-      if (Number.isFinite(n) && n > 0) out.push({ key: def.key, value: Math.round(n) });
+      const receipt = readReceipt(def.key);
+      if (receipt) out.push({ key: def.key, value: receipt.v, receipt: receipt.r });
     } else if (includeLatest) {
       out.push({ key: def.key, value: 0, meta: { result: raw } });
     }

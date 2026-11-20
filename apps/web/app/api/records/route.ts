@@ -2,6 +2,8 @@ import { eq, sql, userRecords } from "@play4fun/db";
 import { currentUser } from "@/lib/auth";
 import { getDb } from "@/lib/db";
 import { RECORD_BY_KEY, type RecordValue } from "@/lib/record-keys";
+import { saveBest } from "@/lib/records-server";
+import { readReceipt } from "@/lib/run-ticket";
 
 export const dynamic = "force-dynamic";
 
@@ -24,7 +26,7 @@ export async function GET() {
 
 /**
  * Merge records from this device into the account and return the merged set.
- * best → keep the highest value (done in SQL, so concurrent devices never lower a record)
+ * best → keep the highest value; only accepted with the receipt /api/runs/finish gave for it
  * latest → replace with the value sent (only sent right after a new quiz result)
  */
 export async function POST(req: Request) {
@@ -46,17 +48,11 @@ export async function POST(req: Request) {
     if (!def) continue;
 
     if (def.kind === "best") {
-      const value = Number(r.value);
-      // Implausible scores are dropped, not clamped (clamping would put a cheater at the cap, on top of the leaderboard)
-      if (!Number.isFinite(value) || value <= 0 || value > (def.max ?? 1_000_000_000)) continue;
-      const v = Math.round(value);
-      await db
-        .insert(userRecords)
-        .values({ userId: user.id, key: def.key, value: v })
-        .onConflictDoUpdate({
-          target: [userRecords.userId, userRecords.key],
-          set: { value: sql`greatest(${userRecords.value}, excluded.value)`, updatedAt: sql`case when excluded.value > ${userRecords.value} then now() else ${userRecords.updatedAt} end` },
-        });
+      // Only scores the server verified when the round ended (lib/run-rules) carry a receipt
+      const receipt = readReceipt(r.receipt);
+      if (!receipt || receipt.k !== def.key || receipt.v !== r.value) continue;
+      if (receipt.v <= 0 || receipt.v > (def.max ?? 1_000_000_000)) continue;
+      await saveBest(user.id, def.key, receipt.v);
     } else {
       const result = typeof r.meta?.result === "string" ? r.meta.result.slice(0, 40) : "";
       if (!/^[a-z0-9-]+$/.test(result)) continue;

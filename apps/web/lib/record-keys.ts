@@ -42,4 +42,4 @@ export const RECORDS: RecordDef[] = [
 export const RECORD_BY_KEY = new Map(RECORDS.map((r) => [r.key, r]));
 
 /** What the browser sends / the server returns for one record */
-export type RecordValue = { key: string; value: number; meta?: { result?: string } | null; updatedAt?: string };
+export type RecordValue = { key: string; value: number; meta?: { result?: string } | null; updatedAt?: string; receipt?: string };

@@ -1,8 +1,7 @@
 import { and, dailyChallenges, dailyResults, desc, eq, games, sql, users } from "@play4fun/db";
-import { DAILY_RECORD_KEY, dailyInfo, dayOf, type DailySlug } from "./daily";
+import { dailyInfo, dayOf, type DailySlug } from "./daily";
 import { getDb } from "./db";
 import { getGame } from "./games";
-import { RECORD_BY_KEY } from "./record-keys";
 
 /** Get (or create) today's challenge row; the games row is created on first use */
 async function ensureChallenge(day: string) {
@@ -24,9 +23,6 @@ async function ensureChallenge(day: string) {
     .where(and(eq(dailyChallenges.gameId, gameRow.id), eq(dailyChallenges.day, day)));
   return { id: ch.id, ...info };
 }
-
-/** Max plausible daily score for the game (same caps as personal records) */
-export const dailyCap = (game: DailySlug) => RECORD_BY_KEY.get(DAILY_RECORD_KEY[game])?.max ?? 1_000_000;
 
 /** First finished round of the day counts; later rounds only bump `attempts` */
 export async function submitDaily(userId: string, day: string, score: number, shareText?: string) {

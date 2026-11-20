@@ -21,6 +21,7 @@ import {
 import { DailyBadge } from "@/components/daily-badge";
 import type { DailyInfo } from "@/lib/daily";
 import { finishDaily } from "@/lib/daily-client";
+import { randomSeed, startRun, type Run } from "@/lib/run-client";
 import { gameEnd, gameStart } from "@/lib/analytics";
 import { resultUrl } from "@/lib/share";
 import { notifyRecordChanged } from "@/lib/record-sync";
@@ -62,6 +63,7 @@ const CHALK = "#f4f1e8";
 export default function KiemTra15Phut({ daily }: { daily?: DailyInfo }) {
   const stageRef = useRef<HTMLDivElement>(null);
   const stateRef = useRef<GameState | null>(null);
+  const runRef = useRef<Run | null>(null);
   const phaseRef = useRef<Phase>("ready");
   const [phase, setPhaseState] = useState<Phase>("ready");
   const [, render] = useReducer((n: number) => n + 1, 0);
@@ -78,7 +80,9 @@ export default function KiemTra15Phut({ daily }: { daily?: DailyInfo }) {
 
   /** Every round: new random seed → a fresh set of generated questions */
   const start = useCallback(() => {
-    stateRef.current = createGame(daily ? daily.seed : Date.now() ^ Math.floor(Math.random() * 2 ** 31));
+    const seed = daily ? daily.seed : randomSeed();
+    stateRef.current = createGame(seed);
+    runRef.current = startRun("bai-kiem-tra-15-phut", seed, daily);
     setResult(null);
     setCopied(false);
     setPhase("playing");
@@ -109,7 +113,8 @@ export default function KiemTra15Phut({ daily }: { daily?: DailyInfo }) {
       best: Math.max(prev, s.correct),
     });
     gameEnd("bai-kiem-tra-15-phut", { score: s.correct });
-    if (daily) void finishDaily(daily, "bai-kiem-tra-15-phut", s.correct);
+    const sent = runRef.current?.finish(s.correct, { log: s.log });
+    if (daily) void finishDaily(daily, "bai-kiem-tra-15-phut", s.correct, sent);
     setPhase("over");
   }, [daily, setPhase]);
 

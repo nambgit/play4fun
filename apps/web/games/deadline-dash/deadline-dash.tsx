@@ -7,6 +7,7 @@ import { render } from "./render";
 import { DailyBadge } from "@/components/daily-badge";
 import type { DailyInfo } from "@/lib/daily";
 import { finishDaily } from "@/lib/daily-client";
+import { randomSeed, startRun, type Run } from "@/lib/run-client";
 import { gameEnd, gameStart } from "@/lib/analytics";
 import { resultUrl } from "@/lib/share";
 import { notifyRecordChanged } from "@/lib/record-sync";
@@ -50,6 +51,8 @@ export default function DeadlineDash({ daily }: { daily?: DailyInfo }) {
   const bannerRef = useRef<HTMLDivElement>(null);
 
   const stateRef = useRef<GameState | null>(null);
+  const runRef = useRef<Run | null>(null);
+  const seedRef = useRef(0);
   const inputRef = useRef(createInput());
   const phaseRef = useRef<Phase>("ready");
   const touchRef = useRef<{ id: number; y: number; ducked: boolean } | null>(null);
@@ -72,13 +75,16 @@ export default function DeadlineDash({ daily }: { daily?: DailyInfo }) {
 
   const newGame = useCallback(() => {
     const width = arenaWidth(canvasRef.current?.clientWidth ?? 800);
-    const s = daily ? createGame(width, daily.seed, null) : createGame(width, Date.now() ^ Math.floor(Math.random() * 2 ** 31), readStore(LAST_SCENARIO_KEY));
+    const seed = daily ? daily.seed : randomSeed();
+    const s = daily ? createGame(width, seed, null) : createGame(width, seed, readStore(LAST_SCENARIO_KEY));
+    seedRef.current = seed;
     if (!daily) writeStore(LAST_SCENARIO_KEY, s.scenario.id);
     return s;
   }, [daily]);
 
   const start = useCallback(() => {
     stateRef.current = newGame();
+    runRef.current = startRun("deadline-dash", seedRef.current, dailyRef.current);
     inputRef.current = createInput();
     setResult(null);
     setCopied(false);
@@ -130,7 +136,8 @@ export default function DeadlineDash({ daily }: { daily?: DailyInfo }) {
       setBest(Math.max(prev, score));
       setResult({ meters: m, coffees: s.coffeeCount, hits: s.hits, smashed: s.smashed, score, title: titleFor(m), scenario: s.scenario.title, isBest, best: Math.max(prev, score) });
       gameEnd("deadline-dash", { score });
-      if (dailyRef.current) void finishDaily(dailyRef.current, "deadline-dash", score);
+      const sent = runRef.current?.finish(score, { t: s.t, dist: s.dist, coffees: s.coffeeCount, smashed: s.smashed });
+      if (dailyRef.current) void finishDaily(dailyRef.current, "deadline-dash", score, sent);
       setPhase("over");
     };
 

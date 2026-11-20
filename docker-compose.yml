@@ -68,6 +68,7 @@ services:
       # Đăng nhập (không bắt buộc với người chơi). Thiếu khóa nhà cung cấp nào thì nút đó tự ẩn.
       BETTER_AUTH_URL: ${PUBLIC_URL}
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-}
+      RUN_SECRET: ${RUN_SECRET:-}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
       FACEBOOK_CLIENT_ID: ${FACEBOOK_CLIENT_ID:-}

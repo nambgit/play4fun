@@ -18,11 +18,12 @@ export function readLocalDaily(day = dayOf()): LocalDaily | null {
 export const DAILY_EVENT = "p4f:daily";
 
 /**
- * A daily round finished. The first one of the day is the official result: kept locally
- * and sent to the account (the server also keeps only the first). Returns true if this
- * round was the official one.
+ * A daily round finished. The first one of the day is the official result on this device.
+ * The score reaches the daily board through the round's verified run (`sent`, from
+ * lib/run-client), and the server also keeps only the first. Returns true if this round
+ * was the official one.
  */
-export async function finishDaily(info: DailyInfo, game: string, score: number): Promise<boolean> {
+export async function finishDaily(info: DailyInfo, game: string, score: number, sent?: Promise<unknown>): Promise<boolean> {
   if (info.game !== game || dailyGame(info.day) !== game) return false;
   const first = !readLocalDaily(info.day);
   if (first) {
@@ -32,15 +33,7 @@ export async function finishDaily(info: DailyInfo, game: string, score: number):
       /* storage blocked */
     }
   }
-  try {
-    await fetch("/api/daily", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ day: info.day, game, score: Math.round(score) }),
-    });
-  } catch {
-    /* guest (401) or offline: the local result stays */
-  }
+  await sent; // board refreshes after the server has the result
   window.dispatchEvent(new Event(DAILY_EVENT));
   return first;
 }

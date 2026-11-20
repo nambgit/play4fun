@@ -39,6 +39,8 @@ export type GameState = {
   correctWords: number;
   wrongWords: number;
   passagesDone: number;
+  /** Every submitted word, in order — the server re-grades the round from this + `dealt` */
+  log: string[];
 };
 
 // ------------------------------------------------------------ helpers
@@ -102,6 +104,7 @@ export function createGame(lang: Lang, seed = Date.now(), recentlySeen: Readonly
     correctWords: 0,
     wrongWords: 0,
     passagesDone: 0,
+    log: [],
   };
 }
 
@@ -140,6 +143,7 @@ function submit(s: GameState, raw: string) {
     s.wrongWords++;
   }
   s.done.push({ typed, correct });
+  s.log.push(typed);
   if (s.done.length >= s.words.length) nextPassage(s);
 }
 
@@ -203,6 +207,34 @@ export function charStates(target: string, typedRaw: string): { states: CharStat
   }
   return { states, extra: typed.slice(target.length) };
 }
+
+// ------------------------------------------------------------ server-side check
+
+/**
+ * Re-grade a finished round (the server never trusts the WPM a browser reports).
+ * @param dealt passage ids in the order they were dealt
+ * @param log every submitted word, in order
+ * @returns WPM for a full ROUND_SECONDS round, or null if the round is impossible
+ */
+export function regrade(lang: Lang, dealt: readonly string[], log: readonly string[]): number | null {
+  const byId = new Map(PASSAGES[lang].map((p) => [p.id, p]));
+  let w = 0;
+  let correctChars = 0;
+  for (let i = 0; i < dealt.length; i++) {
+    const p = byId.get(dealt[i]);
+    if (!p) return null;
+    const words = splitWords(p.text);
+    const n = Math.min(words.length, log.length - w);
+    // every passage but the last must have been finished before the next was dealt
+    if (i < dealt.length - 1 && n < words.length) return null;
+    for (let j = 0; j < n; j++, w++) if (nfc(log[w]) === words[j]) correctChars += words[j].length + 1;
+  }
+  if (w !== log.length) return null;
+  return Math.round(correctChars / 5 / (ROUND_SECONDS / 60));
+}
+
+/** Passage order of a seeded round with no "recently seen" reordering (daily challenge) */
+export const seededOrder = (lang: Lang, seed: number) => createGame(lang, seed).deck.map((p) => p.id);
 
 const TITLES: [number, string][] = [
   [20, "Gõ mổ cò"],

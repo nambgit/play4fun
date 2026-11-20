@@ -38,7 +38,11 @@ export type GameState = {
   bonus: { amount: number; t: number } | null;
   over: boolean;
   overReason: "time" | "lives" | null;
+  /** Every judged answer as [value, game-clock seconds] — the server replays it to grade the round */
+  log: AnswerLog;
 };
+
+export type AnswerLog = [value: number, t: number][];
 
 // ------------------------------------------------------------ helpers
 
@@ -208,6 +212,7 @@ export function createGame(seed = Date.now()): GameState {
     bonus: null,
     over: false,
     overReason: null,
+    log: [],
   };
 }
 
@@ -250,6 +255,7 @@ export function tick(s: GameState, dt: number) {
 
 function judge(s: GameState) {
   const value = Number(s.typed);
+  s.log.push([value, Math.round(s.elapsed * 1000) / 1000]);
   if (value === s.q.answer) {
     const gain = bonusFor(s.q.level);
     s.correct++;
@@ -288,6 +294,39 @@ export function backspace(s: GameState) {
 export function submit(s: GameState) {
   if (s.over || s.reveal > 0 || s.typed === "") return;
   judge(s);
+}
+
+// ------------------------------------------------------------ server-side check
+
+/** Fastest believable answer after the previous one (seconds of game clock) */
+const MIN_ANSWER_GAP = 0.15;
+
+/**
+ * Re-grade a round from its seed and answer log (used by the server; scores are never trusted).
+ * Questions depend only on the seed and on which answers were right, so the replay deals the
+ * exact same questions. Returns null if the log is impossible (time already out, game already
+ * over, answers faster than a human).
+ */
+export function replay(seed: number, log: AnswerLog): { correct: number; elapsed: number; wrong: number } | null {
+  const s = createGame(seed);
+  for (const [value, t] of log) {
+    if (s.over || !Number.isInteger(value) || value < 0 || value > 999_999) return null;
+    const dt = t - s.elapsed;
+    if (!(dt >= (s.log.length ? MIN_ANSWER_GAP : 0.1))) return null;
+    s.elapsed = t;
+    s.timeLeft -= dt;
+    if (s.timeLeft < -0.05) return null; // answered after the bell
+    s.typed = String(value);
+    judge(s);
+    if (s.reveal > 0) {
+      // the reveal pause ends before the next answer: same as tick() reaching reveal 0
+      s.reveal = 0;
+      s.feedback = null;
+      if (s.lives <= 0) finish(s, "lives");
+      else next(s);
+    }
+  }
+  return { correct: s.correct, elapsed: s.elapsed, wrong: s.wrong };
 }
 
 // ------------------------------------------------------------ results

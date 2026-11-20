@@ -41,6 +41,7 @@ import {
 import { DailyBadge } from "@/components/daily-badge";
 import type { DailyInfo } from "@/lib/daily";
 import { finishDaily } from "@/lib/daily-client";
+import { randomSeed, startRun, type Run } from "@/lib/run-client";
 import { gameEnd, gameStart } from "@/lib/analytics";
 import { resultUrl } from "@/lib/share";
 import { notifyRecordChanged } from "@/lib/record-sync";
@@ -118,6 +119,7 @@ function initials(name: string) {
 export default function InboxZero({ daily }: { daily?: DailyInfo }) {
   const stageRef = useRef<HTMLDivElement>(null);
   const stateRef = useRef<GameState | null>(null);
+  const runRef = useRef<Run | null>(null);
   const phaseRef = useRef<Phase>("ready");
   const [phase, setPhaseState] = useState<Phase>("ready");
   const [, render] = useReducer((n: number) => n + 1, 0);
@@ -137,7 +139,9 @@ export default function InboxZero({ daily }: { daily?: DailyInfo }) {
   /** Every round: new random seed + emails seen in recent rounds pushed to the back of the deck */
   const start = useCallback(() => {
     // Daily challenge: same inbox for everyone (fixed seed, no "recently seen" reordering)
-    stateRef.current = daily ? createGame(daily.seed) : createGame(Date.now() ^ Math.floor(Math.random() * 2 ** 31), readSeen());
+    const seed = daily ? daily.seed : randomSeed();
+    stateRef.current = daily ? createGame(seed) : createGame(seed, readSeen());
+    runRef.current = startRun("inbox-zero", seed, daily);
     setLeaving([]);
     setDrag(null);
     setResult(null);
@@ -172,7 +176,8 @@ export default function InboxZero({ daily }: { daily?: DailyInfo }) {
       best,
     });
     gameEnd("inbox-zero", { score: s.score });
-    if (daily) void finishDaily(daily, "inbox-zero", s.score);
+    const sent = runRef.current?.finish(s.score, { elapsed: s.elapsed, processed: s.processed, correct: s.correct, phishing: s.phishingCaught });
+    if (daily) void finishDaily(daily, "inbox-zero", s.score, sent);
     setPhase("over");
   }, [daily, setPhase]);
 

@@ -7,6 +7,7 @@ import { render } from "./render";
 import { DailyBadge } from "@/components/daily-badge";
 import type { DailyInfo } from "@/lib/daily";
 import { finishDaily } from "@/lib/daily-client";
+import { randomSeed, startRun, type Run } from "@/lib/run-client";
 import { gameEnd, gameStart } from "@/lib/analytics";
 import { resultUrl } from "@/lib/share";
 import { notifyRecordChanged } from "@/lib/record-sync";
@@ -58,6 +59,7 @@ export default function PixelDodge({ daily }: { daily?: DailyInfo }) {
   const bannerRef = useRef<HTMLDivElement>(null);
 
   const stateRef = useRef<GameState>(createGame(1));
+  const runRef = useRef<Run | null>(null);
   const inputRef = useRef(createInput());
   const phaseRef = useRef<Phase>("ready");
   const keysRef = useRef(new Set<string>());
@@ -76,7 +78,9 @@ export default function PixelDodge({ daily }: { daily?: DailyInfo }) {
   useEffect(() => setBest(readBest()), []);
 
   const start = useCallback(() => {
-    stateRef.current = createGame(daily ? daily.seed : Date.now());
+    const seed = daily ? daily.seed : randomSeed();
+    stateRef.current = createGame(seed);
+    runRef.current = startRun("pixel-dodge", seed, daily);
     inputRef.current = createInput();
     keysRef.current.clear();
     setResult(null);
@@ -110,7 +114,8 @@ export default function PixelDodge({ daily }: { daily?: DailyInfo }) {
       }
       setResult({ time: s.t, wave: s.wave + 1, grazes: s.grazes, score, isBest });
       gameEnd("pixel-dodge", { score });
-      if (dailyRef.current) void finishDaily(dailyRef.current, "pixel-dodge", score);
+      const sent = runRef.current?.finish(score, { t: s.t, grazes: s.grazes });
+      if (dailyRef.current) void finishDaily(dailyRef.current, "pixel-dodge", score, sent);
       setPhase("over");
     };
 

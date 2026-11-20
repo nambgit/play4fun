@@ -143,7 +143,21 @@ REDIS_URL=redis://localhost:6379                                     # giữ ph�
    - **Test vui**: chỉ cần thêm một file nội dung trong `apps/web/games/quiz/content/` (kiểu dữ liệu `Quiz`) và một file bọc ngắn như `games/quiz/gamer.tsx`. Kho câu hỏi nên lớn hơn số câu hỏi mỗi lượt.
    - **Chơi nhóm**: thêm slug và giới hạn người chơi vào `packages/party/src/index.ts`, viết module server trong `apps/realtime/src/games/` (đăng ký ở `MODULES` trong `src/index.ts`), rồi viết giao diện dùng `PartyRoom` trong `apps/web/games/party/`. Thông tin bí mật chỉ để trên server và chỉ đưa vào `view()` của người được phép thấy.
 3. Đăng ký component trong `PLAYABLE` ở `apps/web/components/game-stage.tsx`, đổi `status` sang `"live"`, thêm `howTo`.
-4. Chụp thumbnail (mục dưới).
+4. Nếu game có kỷ lục (bảng xếp hạng): thêm khóa vào `apps/web/lib/record-keys.ts` và một luật kiểm tra trong `apps/web/lib/run-rules.ts`, rồi trong game gọi `startRun()` lúc bắt đầu ván và `run.finish(score, proof)` lúc kết thúc (xem mục *Điểm số được kiểm tra trên server*).
+5. Chụp thumbnail (mục dưới).
+
+### Điểm số được kiểm tra trên server
+
+Kỷ lục chỉ lên tài khoản, bảng xếp hạng và thử thách ngày khi server đã kiểm tra ván chơi:
+
+1. Bắt đầu ván, trình duyệt xin một **vé** (`POST /api/runs`): vé ký bằng HMAC, ghi giờ bắt đầu và seed của ván. Game không phải chờ vé.
+2. Kết thúc ván, game gửi điểm kèm bằng chứng (`POST /api/runs/finish`). Server so với vé theo luật trong `lib/run-rules.ts`:
+   - **Gõ phím thần tốc**: server tự tính lại WPM từ các từ đã gõ. Ván phải kéo dài đủ 60 giây.
+   - **Kiểm tra 15 phút**: server chơi lại ván từ seed và danh sách câu trả lời (kèm thời điểm), tự đếm số câu đúng.
+   - **Inbox Zero, Deadline Dash, Pixel Dodge**: các chỉ số tạo nên điểm phải khớp với điểm và phải vừa với thời gian thật đã trôi qua.
+3. Điểm hợp lệ được lưu ngay nếu đã đăng nhập. Khách nhận một **biên nhận** lưu trên máy, khi đăng nhập thì biên nhận đưa kỷ lục lên tài khoản. Điểm sửa tay trong localStorage (không có biên nhận) sẽ không bao giờ lên server.
+
+Vé và biên nhận được ký bằng `RUN_SECRET`, hoặc `BETTER_AUTH_SECRET` nếu không đặt. Không cần bảng DB nào thêm. Giới hạn còn lại: với 3 game hành động, một bản game bị sửa code vẫn có thể gửi chỉ số "đẹp" trong giới hạn thời gian thật. Muốn chặn triệt để thì cần server chạy lại toàn bộ thao tác của ván.
 
 ### Thumbnail game
 
@@ -215,7 +229,7 @@ curl -so /dev/null -w '%{http_code}\n' https://play4fun.io.vn/.env     # 404
 
 Người chơi không bắt buộc đăng nhập, nên có thể bật sau. Nhà cung cấp nào chưa điền khóa thì nút đó tự ẩn; chưa điền gì thì trang `/login` báo "đang chuẩn bị" và mọi game vẫn chạy bình thường.
 
-1. Trong `.env` trên server, đặt `BETTER_AUTH_SECRET` (chạy `openssl rand -base64 32`). **Không đổi chuỗi này sau khi đã chạy**, đổi là mọi người bị đăng xuất.
+1. Trong `.env` trên server, đặt `BETTER_AUTH_SECRET` (chạy `openssl rand -base64 32`). **Không đổi chuỗi này sau khi đã chạy**, đổi là mọi người bị đăng xuất và biên nhận kỷ lục của khách trên các máy hết hiệu lực. Chuỗi này cũng dùng để ký vé ván chơi; thiếu nó thì kỷ lục không được lưu lên server.
 2. **Google**: [Google Cloud Console](https://console.cloud.google.com/apis/credentials) → *Create credentials* → *OAuth client ID* → loại *Web application*.
    - Authorized JavaScript origins: `https://play4fun.io.vn`
    - Authorized redirect URIs: `https://play4fun.io.vn/api/auth/callback/google`
@@ -297,6 +311,6 @@ Nên đặt cron chạy hằng ngày và copy file backup ra ngoài server.
 2. ✅ **Party game**: "Ai là gián điệp?", "Vẽ & đoán", "Đố vui team building" (phòng chơi realtime, mã phòng + QR)
 3. ✅ **Đăng nhập** Google/Facebook (không bắt buộc), kỷ lục đồng bộ giữa các thiết bị, trang tài khoản, xóa tài khoản
 4. ✅ **Thống kê** (Umami tự host) và trang `/admin`
-5. ✅ **Giai đoạn 2**: thử thách hằng ngày, bảng xếp hạng online, ảnh chia sẻ riêng cho từng kết quả
+5. ✅ **Giai đoạn 2**: thử thách hằng ngày, bảng xếp hạng online, ảnh chia sẻ riêng cho từng kết quả, điểm số được server kiểm tra (chấm lại Gõ phím và Kiểm tra 15 phút; kiểm tra thời gian thật cho game hành động)
 6. ✅ **Giai đoạn 3**: Studio câu hỏi + phòng có thương hiệu (miễn phí cho tài khoản), vị trí quảng cáo AdSense (bật bằng `.env`), giữ phòng chơi nhóm qua mỗi lần deploy
-7. **Sau này (khi cần)**: chạy nhiều instance realtime (socket.io redis adapter), thu phí gói công ty, chống gian lận điểm bằng kiểm tra phía server
+7. **Sau này (khi cần)**: chạy nhiều instance realtime (socket.io redis adapter), thu phí gói công ty, chạy lại toàn bộ thao tác của game hành động trên server nếu có trao giải
