@@ -16,6 +16,8 @@ import {
   type CharState,
   type GameState,
 } from "./engine";
+import { notifyRecordChanged } from "@/lib/record-sync";
+import { SaveRecordHint } from "@/components/auth/save-record-hint";
 
 type Phase = "ready" | "playing" | "paused" | "over";
 type Result = {
@@ -113,7 +115,10 @@ export default function GoPhimNhanh() {
     const speed = wpm(s);
     const prev = Number(readStr(bestKey(s.lang))) || 0;
     const isBest = speed > prev;
-    if (isBest) writeStr(bestKey(s.lang), String(speed));
+    if (isBest) {
+      writeStr(bestKey(s.lang), String(speed));
+      notifyRecordChanged();
+    }
     setBest(Math.max(prev, speed));
     setResult({
       lang: s.lang,
@@ -381,6 +386,7 @@ export default function GoPhimNhanh() {
             <p className="mt-3 text-xs text-muted">
               Kỷ lục {LANG_LABEL[lang]}: {lang === result.lang ? result.best : best} WPM · ván mới sẽ là đoạn văn khác
             </p>
+            <SaveRecordHint />
           </Overlay>
         )}
       </div>

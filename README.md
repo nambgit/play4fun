@@ -30,7 +30,7 @@ Nguyên tắc chung: mỗi lần chơi là nội dung ngẫu nhiên và hạn ch
 | Realtime | Node.js + Socket.IO 4 | Phòng chơi nhóm (mã phòng, QR), logic party game chạy trên server |
 | Database | PostgreSQL 17 + Drizzle ORM | Người chơi, điểm, thử thách hằng ngày, kết quả ván party |
 | Cache | Valkey 8 (tương thích Redis) | Bảng xếp hạng (sorted set), rate limit, sau này scale realtime |
-| Auth (giai đoạn 2) | Better Auth: khách + Google/Facebook | Chơi ngay không cần đăng nhập, login để lưu điểm |
+| Đăng nhập | Better Auth 1.7 (bảng trong Postgres) + Google/Facebook | Không bắt buộc: khách chơi mọi game; đăng nhập để lưu kỷ lục lên tài khoản |
 | Hạ tầng | Docker Compose + nginx native + Let's Encrypt | |
 
 ## Cấu trúc
@@ -100,6 +100,19 @@ npm run build            # build production tất cả workspace
 ```
 
 Đổi schema: sửa `packages/db/src/schema.ts` → `npm run db:generate` → commit file SQL mới trong `packages/db/drizzle/`.
+
+### Đăng nhập ở máy local
+
+`apps/web/.env.local` (không commit) cần ít nhất:
+
+```bash
+DATABASE_URL=postgres://play4fun:<mật khẩu>@localhost:5432/play4fun
+BETTER_AUTH_SECRET=<chuỗi ngẫu nhiên>     # openssl rand -base64 32
+BETTER_AUTH_URL=http://localhost:3000
+AUTH_DEV_PASSWORD=1                      # nút "đăng nhập thử" bằng email, chỉ chạy khi dev
+```
+
+`AUTH_DEV_PASSWORD` giúp thử toàn bộ luồng (đồng bộ kỷ lục, trang tài khoản, xóa tài khoản) mà không cần app Google/Facebook. Trên production biến này bị bỏ qua.
 
 ### Thêm game mới
 
@@ -177,7 +190,26 @@ curl -sI http://<IP server>/env                                        # Empty r
 curl -so /dev/null -w '%{http_code}\n' https://play4fun.io.vn/.env     # 404
 ```
 
-### 3. Các lần cập nhật sau
+### 3. Đăng nhập Google / Facebook (tùy chọn)
+
+Người chơi không bắt buộc đăng nhập, nên có thể bật sau. Nhà cung cấp nào chưa điền khóa thì nút đó tự ẩn; chưa điền gì thì trang `/login` báo "đang chuẩn bị" và mọi game vẫn chạy bình thường.
+
+1. Trong `.env` trên server, đặt `BETTER_AUTH_SECRET` (chạy `openssl rand -base64 32`). **Không đổi chuỗi này sau khi đã chạy**, đổi là mọi người bị đăng xuất.
+2. **Google**: [Google Cloud Console](https://console.cloud.google.com/apis/credentials) → *Create credentials* → *OAuth client ID* → loại *Web application*.
+   - Authorized JavaScript origins: `https://play4fun.io.vn`
+   - Authorized redirect URIs: `https://play4fun.io.vn/api/auth/callback/google`
+   - Màn hình *OAuth consent screen*: tên app Play4Fun, link chính sách `https://play4fun.io.vn/privacy`, rồi *Publish app* (để ai cũng đăng nhập được, không chỉ tài khoản test).
+   - Điền `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` vào `.env`.
+3. **Facebook**: [Meta for Developers](https://developers.facebook.com/apps) → tạo app → thêm sản phẩm *Facebook Login*.
+   - Valid OAuth Redirect URIs: `https://play4fun.io.vn/api/auth/callback/facebook`
+   - Privacy Policy URL: `https://play4fun.io.vn/privacy`
+   - User data deletion → *Data deletion instructions URL*: `https://play4fun.io.vn/privacy#xoa-du-lieu`
+   - Chuyển app sang chế độ *Live*, rồi điền `FACEBOOK_CLIENT_ID` (App ID), `FACEBOOK_CLIENT_SECRET` (App Secret) vào `.env`.
+4. `./deploy/deploy.sh` (migration tạo bảng đăng nhập tự chạy). Kiểm tra: `curl -s https://play4fun.io.vn/api/auth/get-session` trả `null`.
+
+Dữ liệu: bảng `users` (tên, ảnh, email), `accounts` (liên kết Google/Facebook), `sessions` (phiên 60 ngày), `user_records` (kỷ lục). Người chơi tự xóa tài khoản trong trang `/accounts`; xóa user thì phiên, liên kết và kỷ lục bị xóa theo (`ON DELETE CASCADE`).
+
+### 4. Các lần cập nhật sau
 
 ```bash
 ./deploy/deploy.sh      # git pull → build → up -d → dọn image cũ
@@ -215,5 +247,6 @@ Nên đặt cron chạy hằng ngày và copy file backup ra ngoài server.
 
 1. ✅ **MVP**: trang chủ, 5 mini-game, 3 quiz, chia sẻ kết quả, thumbnail + `og:image` từ ảnh chụp game (chưa cần đăng nhập)
 2. ✅ **Party game**: "Ai là gián điệp?", "Vẽ & đoán", "Đố vui team building" (phòng chơi realtime, mã phòng + QR)
-3. **Giai đoạn 2**: thử thách hằng ngày, đăng nhập, bảng xếp hạng online (hiện kỷ lục chỉ lưu trên máy người chơi), ảnh OG riêng cho từng kết quả
-4. **Giai đoạn 3**: gói cho công ty (phòng team building có thương hiệu, bộ câu hỏi riêng), quảng cáo; scale realtime nhiều instance (Valkey + socket.io adapter)
+3. ✅ **Đăng nhập** Google/Facebook (không bắt buộc), kỷ lục đồng bộ giữa các thiết bị, trang tài khoản, xóa tài khoản
+4. **Giai đoạn 2 (còn lại)**: thử thách hằng ngày, bảng xếp hạng online, ảnh OG riêng cho từng kết quả
+5. **Giai đoạn 3**: gói cho công ty (phòng team building có thương hiệu, bộ câu hỏi riêng), quảng cáo; scale realtime nhiều instance (Valkey + socket.io adapter)

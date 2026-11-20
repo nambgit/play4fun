@@ -18,6 +18,8 @@ import {
   typeDigit,
   type GameState,
 } from "./engine";
+import { notifyRecordChanged } from "@/lib/record-sync";
+import { SaveRecordHint } from "@/components/auth/save-record-hint";
 
 type Phase = "ready" | "playing" | "paused" | "over";
 type Result = {
@@ -82,7 +84,10 @@ export default function KiemTra15Phut() {
     const s = stateRef.current!;
     const prev = readNum(BEST_KEY);
     const isBest = s.correct > prev;
-    if (isBest) writeNum(BEST_KEY, s.correct);
+    if (isBest) {
+      writeNum(BEST_KEY, s.correct);
+      notifyRecordChanged();
+    }
     const g = grade(s.correct);
     setBest(Math.max(prev, s.correct));
     setResult({
@@ -344,6 +349,7 @@ export default function KiemTra15Phut() {
               </button>
             </div>
             <p className="mt-3 text-xs text-muted">Kỷ lục: {result.best} câu đúng · đề mới sẽ là các phép tính khác</p>
+            <SaveRecordHint />
           </Overlay>
         )}
       </div>

@@ -62,7 +62,12 @@ export function SiteFooter() {
       </div>
       <div className="border-t border-line">
         <div className="container-page flex flex-col gap-2 py-6 text-xs text-muted sm:flex-row sm:items-center sm:justify-between">
-          <p>© {new Date().getFullYear()} play4fun.io.vn — Mọi game đều miễn phí.</p>
+          <p>
+            © {new Date().getFullYear()} play4fun.io.vn — Mọi game đều miễn phí. ·{" "}
+            <Link href="/privacy" className="hover:text-fg hover:underline">
+              Quyền riêng tư
+            </Link>
+          </p>
           <p>Làm tại Việt Nam với ☕ và rất nhiều deadline.</p>
         </div>
       </div>

@@ -4,6 +4,7 @@ import { Menu, Play, X } from "lucide-react";
 import Link from "next/link";
 import { FEATURED_SLUG } from "@/lib/games";
 import { useEffect, useState } from "react";
+import { MobileAccountLinks } from "./auth/account-menu";
 
 type NavLink = { href: string; label: string; dot: string };
 
@@ -45,6 +46,9 @@ export function MobileNav({ links }: { links: NavLink[] }) {
               </Link>
             ))}
           </nav>
+          <div className="mt-1 border-t border-line pt-1">
+            <MobileAccountLinks onNavigate={() => setOpen(false)} />
+          </div>
           <Link href={`/games/${FEATURED_SLUG}`} onClick={() => setOpen(false)} className="btn-primary mt-3 w-full">
             <Play className="h-4 w-4 fill-current" aria-hidden="true" />
             Chơi ngay

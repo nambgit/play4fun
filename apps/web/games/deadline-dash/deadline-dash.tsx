@@ -4,6 +4,8 @@ import { ArrowDown, ArrowUp, Award, Check, Coffee, Pause, Play, RotateCcw, Share
 import { useCallback, useEffect, useRef, useState } from "react";
 import { H, createGame, createInput, meters, scoreOf, step, titleFor, type GameState } from "./engine";
 import { render } from "./render";
+import { notifyRecordChanged } from "@/lib/record-sync";
+import { SaveRecordHint } from "@/components/auth/save-record-hint";
 
 type Phase = "ready" | "playing" | "paused" | "over";
 type Result = { meters: number; coffees: number; hits: number; smashed: number; score: number; title: string; scenario: string; isBest: boolean; best: number };
@@ -112,7 +114,10 @@ export default function DeadlineDash() {
       const score = scoreOf(s);
       const prev = Number(readStore(BEST_KEY)) || 0;
       const isBest = score > prev;
-      if (isBest) writeStore(BEST_KEY, String(score));
+      if (isBest) {
+        writeStore(BEST_KEY, String(score));
+        notifyRecordChanged();
+      }
       setBest(Math.max(prev, score));
       setResult({ meters: m, coffees: s.coffeeCount, hits: s.hits, smashed: s.smashed, score, title: titleFor(m), scenario: s.scenario.title, isBest, best: Math.max(prev, score) });
       setPhase("over");
@@ -403,6 +408,7 @@ export default function DeadlineDash() {
               </button>
             </div>
             <p className="mt-2 text-xs text-muted">Kỷ lục: {result.best.toLocaleString("vi-VN")} điểm · ván mới là kịch bản khác</p>
+            <SaveRecordHint />
           </Overlay>
         )}
       </div>

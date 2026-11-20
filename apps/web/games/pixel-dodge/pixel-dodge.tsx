@@ -4,6 +4,8 @@ import { Check, Pause, Play, RotateCcw, Share2, Trophy } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { H, W, createGame, createInput, scoreOf, step, type GameState } from "./engine";
 import { render } from "./render";
+import { notifyRecordChanged } from "@/lib/record-sync";
+import { SaveRecordHint } from "@/components/auth/save-record-hint";
 
 type Phase = "ready" | "playing" | "paused" | "over";
 type Result = { time: number; wave: number; grazes: number; score: number; isBest: boolean };
@@ -33,6 +35,7 @@ function readBest(): number {
 function writeBest(score: number) {
   try {
     localStorage.setItem(BEST_KEY, String(score));
+    notifyRecordChanged();
   } catch {
     /* private mode / storage blocked: best score just isn't remembered */
   }
@@ -394,6 +397,7 @@ export default function PixelDodge() {
               </button>
             </div>
             <p className="mt-4 text-xs text-white/50">Kỷ lục: {best.toLocaleString("vi-VN")} điểm · nhấn R để chơi lại</p>
+            <SaveRecordHint dark />
           </Overlay>
         )}
       </div>

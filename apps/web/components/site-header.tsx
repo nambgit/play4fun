@@ -1,6 +1,7 @@
 import { Play } from "lucide-react";
 import Link from "next/link";
 import { FEATURED_SLUG, GAME_TYPES, TYPE_META } from "@/lib/games";
+import { AccountMenu } from "./auth/account-menu";
 import { Logo } from "./logo";
 import { MobileNav } from "./mobile-nav";
 
@@ -26,6 +27,7 @@ export function SiteHeader() {
         </nav>
 
         <div className="ml-auto flex items-center gap-2">
+          <AccountMenu />
           <Link href={`/games/${FEATURED_SLUG}`} className="btn-primary hidden px-4 py-2.5 sm:inline-flex">
             <Play className="h-4 w-4 fill-current" aria-hidden="true" />
             Chơi ngay

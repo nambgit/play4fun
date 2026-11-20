@@ -3,6 +3,8 @@
 import { ArrowLeft, Check, Heart, Lightbulb, Play, RotateCcw, Share2, Shuffle, Sparkles, TriangleAlert } from "lucide-react";
 import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import { answer, back, createRun, isDone, result as computeResult, type Quiz, type QuizResult, type QuizRun } from "./engine";
+import { notifyRecordChanged } from "@/lib/record-sync";
+import { SaveRecordHint } from "@/components/auth/save-record-hint";
 
 type Phase = "intro" | "question" | "result";
 
@@ -80,6 +82,7 @@ export function QuizGame({ quiz, accent }: { quiz: Quiz; accent: [string, string
       quiz.ask,
     );
     writeStr(lastKey(quiz.slug), r.type.id);
+    notifyRecordChanged();
     setLastType(r.type.id);
     setRes(r);
     setPhase("result");
@@ -341,6 +344,9 @@ export function QuizGame({ quiz, accent }: { quiz: Quiz; accent: [string, string
                 <RotateCcw className="h-4 w-4" aria-hidden="true" />
                 Làm lại với câu hỏi khác
               </button>
+            </div>
+            <div className="text-center">
+              <SaveRecordHint />
             </div>
           </div>
         )}

@@ -38,6 +38,8 @@ import {
   type Card,
   type GameState,
 } from "./engine";
+import { notifyRecordChanged } from "@/lib/record-sync";
+import { SaveRecordHint } from "@/components/auth/save-record-hint";
 
 type Phase = "ready" | "playing" | "paused" | "over";
 type Leaving = { card: Card; dir: Action; dx: number; dy: number };
@@ -143,7 +145,10 @@ export default function InboxZero() {
     rememberSeen(s.dealt);
     const prev = readNum(BEST_KEY);
     const isBest = s.score > prev;
-    if (isBest) writeNum(BEST_KEY, s.score);
+    if (isBest) {
+      writeNum(BEST_KEY, s.score);
+      notifyRecordChanged();
+    }
     const best = Math.max(prev, s.score);
     setBest(best);
     setResult({
@@ -472,6 +477,7 @@ export default function InboxZero() {
             <p className="mt-3 text-xs text-muted">
               Kỷ lục: {result.best.toLocaleString("vi-VN")} điểm · ván mới sẽ là bộ email khác
             </p>
+            <SaveRecordHint />
           </Overlay>
         )}
       </div>

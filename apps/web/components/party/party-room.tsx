@@ -4,6 +4,7 @@ import { PARTY_GAMES, type GameView, type PartySettings, type PartySlug, type Pl
 import { Check, Copy, Crown, DoorOpen, LogIn, Plus, Share2, UserX, Users, WifiOff, X } from "lucide-react";
 import QRCode from "qrcode";
 import { useEffect, useMemo, useState, type ComponentType, type ReactNode } from "react";
+import { useSession } from "@/lib/auth-client";
 import { useParty, type PartyApi } from "@/lib/party-client";
 
 /** Props every party game screen receives */
@@ -69,7 +70,9 @@ function Entry({ api, slug, title, emoji, accent }: { api: PartyApi; slug: Party
   const [error, setError] = useState<string | null>(null);
   const limits = PARTY_GAMES[slug];
 
-  useEffect(() => setName((n) => n || api.savedName), [api.savedName]);
+  // Prefill: last name used in a room, else the signed-in account's name
+  const account = useSession().data?.user?.name;
+  useEffect(() => setName((n) => n || api.savedName || (account ?? "").slice(0, 20)), [api.savedName, account]);
   useEffect(() => {
     const fromUrl = new URLSearchParams(window.location.search).get("room");
     if (fromUrl) {
