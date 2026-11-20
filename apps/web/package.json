@@ -6,7 +6,8 @@
     "dev": "next dev --port 3000",
     "build": "next build",
     "start": "next start --port 3000",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "thumbnails": "node scripts/capture-thumbnails.mjs"
   },
   "dependencies": {
     "@play4fun/db": "*",
@@ -21,6 +22,8 @@
     "@types/node": "^22.18.0",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
+    "playwright-core": "^1.65.1",
+    "sharp": "^0.35.5",
     "tailwindcss": "^4.1.13",
     "typescript": "^5.9.2"
   }

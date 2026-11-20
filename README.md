@@ -66,6 +66,22 @@ npm run dev:realtime     # http://localhost:3001/health
 
 Đổi schema: sửa `packages/db/src/schema.ts` → `npm run db:generate` → commit file SQL mới trong `packages/db/drizzle/`.
 
+### Thumbnail game
+
+Card trên trang chủ và ảnh preview khi chia sẻ link (`og:image`) dùng ảnh chụp thật từ game. Script mở game bằng Edge có sẵn trên máy, tự chơi vài giây rồi chụp giữa ván:
+
+```bash
+npm run dev:web                                        # terminal 1
+npm run thumbnails -w @play4fun/web                    # terminal 2: chụp lại mọi game
+npm run thumbnails -w @play4fun/web -- deadline-dash   # hoặc chỉ 1 game
+```
+
+Ảnh ra `apps/web/public/thumbnails/<slug>.webp` (hiển thị trên card) và `.jpg` (dùng cho Facebook/Zalo). Ảnh chụp ngẫu nhiên nên chưa ưng thì chạy lại. Khi thêm game mới:
+
+1. Thêm cấu hình chụp (cách chơi, thời điểm chụp, cách cắt) vào `SHOTS` trong [`apps/web/scripts/capture-thumbnails.mjs`](apps/web/scripts/capture-thumbnails.mjs).
+2. Chạy lệnh trên cho slug đó.
+3. Khai báo `thumbnail: "/thumbnails/<slug>.webp"` cho game trong `apps/web/lib/games.ts`. Game chưa có thumbnail vẫn dùng ảnh gradient như cũ.
+
 ## Deploy lên server
 
 ### 1. Lần đầu
@@ -88,6 +104,11 @@ sudo systemctl stop nginx
 sudo certbot certonly --standalone -d play4fun.io.vn -d www.play4fun.io.vn
 sudo systemctl start nginx
 
+# Tắt site mặc định của Ubuntu: config của ta đã có block default_server riêng,
+# để cả hai sẽ lỗi "duplicate default server". Lệnh này chỉ xoá symlink,
+# file gốc vẫn còn trong sites-available.
+sudo rm -f /etc/nginx/sites-enabled/default
+
 sudo cp deploy/nginx/play4fun.io.vn.conf /etc/nginx/conf.d/
 sudo nginx -t && sudo systemctl reload nginx
 
@@ -97,11 +118,36 @@ sudo certbot certonly --webroot -w /var/www/certbot -d play4fun.io.vn -d www.pla
 
 DNS: trỏ bản ghi `A` của `play4fun.io.vn` và `www` về IP server.
 
+Config nginx có sẵn các lớp chặn bot quét lỗ hổng:
+
+- **Block `default_server`**: request nào không gọi đúng domain (truy cập thẳng bằng IP, `Host` lạ) đều bị đóng kết nối (`444`) và bị từ chối TLS, không ghi log. Bot quét theo dải IP sẽ không được redirect sang domain thật.
+- **Chặn dotfile**: `/.env`, `/.git/...` trả `404`, trừ `/.well-known/` (certbot cần).
+
+Kiểm tra sau khi cài:
+
+```bash
+curl -sI https://play4fun.io.vn | head -1                              # HTTP/2 200
+curl -sI http://<IP server>/env                                        # Empty reply from server
+curl -so /dev/null -w '%{http_code}\n' https://play4fun.io.vn/.env     # 404
+```
+
 ### 3. Các lần cập nhật sau
 
 ```bash
 ./deploy/deploy.sh      # git pull → build → up -d → dọn image cũ
 ```
+
+`deploy.sh` không đụng tới nginx. Nếu commit có sửa `deploy/nginx/play4fun.io.vn.conf`, chạy thêm:
+
+```bash
+sudo cp deploy/nginx/play4fun.io.vn.conf /etc/nginx/conf.d/
+sudo nginx -t && sudo systemctl reload nginx
+```
+
+### Xử lý sự cố
+
+- **`nginx -t` báo `duplicate default server`**: site mặc định của Ubuntu vẫn đang bật. Chạy `sudo rm /etc/nginx/sites-enabled/default` rồi chạy lại.
+- **Trình duyệt báo lỗi SSL dù server không đổi gì**: chạy `openssl s_client -connect play4fun.io.vn:443 -servername play4fun.io.vn </dev/null | grep issuer`. Nếu issuer không phải Let's Encrypt (ví dụ Fortinet) thì firewall của mạng đang dùng đang giải mã HTTPS (SSL inspection), server không có lỗi. Thử lại bằng 4G, hoặc nhờ IT thêm domain vào danh sách miễn trừ.
 
 ### Sao lưu database
 

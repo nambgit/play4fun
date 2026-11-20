@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import { GameCard } from "@/components/game-card";
 import { GameCover } from "@/components/game-cover";
 import { GameStage } from "@/components/game-stage";
-import { AUDIENCE_LABEL, GAMES, TYPE_META, getGame, relatedGames } from "@/lib/games";
+import { AUDIENCE_LABEL, GAMES, TYPE_META, getGame, relatedGames, shareImage } from "@/lib/games";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -16,10 +16,16 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const game = getGame((await params).slug);
   if (!game) return {};
+  const image = shareImage(game);
   return {
     title: game.title,
     description: game.tagline,
-    openGraph: { title: `${game.title} | Play4Fun`, description: game.tagline },
+    openGraph: {
+      title: `${game.title} | Play4Fun`,
+      description: game.tagline,
+      // Preview image when the link is shared on Facebook/Zalo (resolved against metadataBase)
+      images: image ? [{ url: image, width: 1200, height: 750, alt: game.title }] : undefined,
+    },
   };
 }
 

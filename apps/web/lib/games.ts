@@ -24,8 +24,13 @@ export type GameEntry = {
   audience: Audience[];
   status: "live" | "soon";
   icon: GameIcon;
-  /** Two-stop gradient for the generated cover art */
+  /** Two-stop gradient for the generated cover art (fallback when there is no thumbnail) */
   cover: [string, string];
+  /**
+   * Real in-game screenshot, 1200×750 (16:10). Generate with
+   * `npm run thumbnails -w @play4fun/web -- <slug>` (see scripts/capture-thumbnails.mjs).
+   */
+  thumbnail?: string;
   duration: string;
   players: string;
   /** Short rules shown next to a playable game */
@@ -48,6 +53,7 @@ export const GAMES: GameEntry[] = [
     status: "live",
     icon: "inbox",
     cover: ["#7b4dff", "#ff6a9a"],
+    thumbnail: "/thumbnails/inbox-zero.webp",
     duration: "1 phút",
     players: "1 người",
     howTo: [
@@ -70,6 +76,7 @@ export const GAMES: GameEntry[] = [
     status: "live",
     icon: "run",
     cover: ["#ff6a3d", "#ffb547"],
+    thumbnail: "/thumbnails/deadline-dash.webp",
     duration: "1–3 phút",
     players: "1 người",
     howTo: [
@@ -105,6 +112,7 @@ export const GAMES: GameEntry[] = [
     status: "live",
     icon: "crosshair",
     cover: ["#1e1b4b", "#7c3aed"],
+    thumbnail: "/thumbnails/pixel-dodge.webp",
     duration: "1–3 phút",
     players: "1 người",
     howTo: [
@@ -262,6 +270,11 @@ export const AUDIENCES: Audience[] = ["office", "student", "gamer", "group"];
 
 export function getGame(slug: string) {
   return GAMES.find((g) => g.slug === slug);
+}
+
+/** og:image for sharing: JPEG twin of the WebP thumbnail (written by the capture script) */
+export function shareImage(game: GameEntry) {
+  return game.thumbnail?.replace(/\.webp$/, ".jpg");
 }
 
 export function relatedGames(game: GameEntry, limit = 3) {
