@@ -8,7 +8,7 @@ export function GameCard({ game }: { game: GameEntry }) {
   return (
     <Link
       href={`/games/${game.slug}`}
-      className="group flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-surface shadow-card transition duration-300 hover:-translate-y-1 hover:border-brand/30 hover:shadow-lift"
+      className="group flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-surface shadow-card transition duration-300 hover:-translate-y-1 hover:border-brand/30 hover:shadow-lift dark:hover:border-brand/50"
     >
       <div className="relative">
         <GameCover game={game} />

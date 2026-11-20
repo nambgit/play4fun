@@ -65,8 +65,8 @@ export function GameBrowser() {
           return (
             <div key={type} id={meta.anchor} className="scroll-mt-24">
               <div className="mb-4 flex items-center gap-3 sm:mb-6 sm:gap-4">
-                <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl sm:h-11 sm:w-11 ${meta.soft}`}>
-                  <span className={`h-3 w-3 rounded-full ${meta.dot}`} />
+                <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl sm:h-11 sm:w-11 ${meta.soft} dark:bg-surface-2 dark:ring-1 dark:ring-white/10 dark:ring-inset`}>
+                  <span className={`h-3 w-3 rounded-full ${meta.dot} ${meta.text} dark:shadow-[0_0_14px_2px_currentColor]`} />
                 </span>
                 <div className="min-w-0 flex-1">
                   <h3 className="text-lg font-bold tracking-tight sm:text-xl">{meta.heading}</h3>

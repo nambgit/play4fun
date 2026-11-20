@@ -6,7 +6,7 @@ const POINTS = ["Tạo phòng trong 3 giây, mời bằng mã 5 ký tự hoặc 
 export function PartyBanner() {
   return (
     <section className="container-page">
-      <div className="relative isolate overflow-hidden rounded-3xl bg-[#120f24] px-5 py-10 text-white sm:rounded-[2rem] sm:px-12 md:py-16">
+      <div className="relative isolate overflow-hidden rounded-3xl bg-[#120f24] px-5 py-10 text-white ring-1 ring-transparent sm:rounded-[2rem] sm:px-12 md:py-16 dark:bg-gradient-to-br dark:from-[#1d1645] dark:to-[#0f1f1a] dark:ring-white/10">
         <div className="absolute -top-24 -left-24 -z-10 h-80 w-80 rounded-full bg-[#6b3cf5]/50 blur-[100px]" />
         <div className="absolute -right-20 -bottom-28 -z-10 h-80 w-80 rounded-full bg-[#16b364]/35 blur-[100px]" />
         <div className="bg-dots absolute inset-0 -z-10 opacity-30" />

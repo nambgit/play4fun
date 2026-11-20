@@ -25,30 +25,38 @@
   --party: #16b364;
   --party-soft: #defbea;
 
+  --grid-line: var(--line);
   --shadow-card: 0 1px 2px rgb(21 19 31 / 0.04), 0 8px 24px -12px rgb(21 19 31 / 0.12);
   --shadow-lift: 0 2px 4px rgb(21 19 31 / 0.05), 0 24px 48px -20px rgb(80 40 200 / 0.28);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #0b0a12;
-    --surface: #14121e;
-    --surface-2: #1c1929;
-    --text: #f2f1f8;
-    --muted: #a29eb9;
-    --line: #29263b;
+    /* Elevation: page < card < raised. Each step is lighter, borders are translucent white
+       so they read on every layer; "soft" tints are translucent so hues stay clean, not muddy. */
+    --bg: #09080f;
+    --surface: #15131f;
+    --surface-2: #1f1c2c;
+    --text: #f4f3fa;
+    --muted: #a9a5bf;
+    --line: rgb(255 255 255 / 0.09);
 
-    --brand: #8c6bff;
-    --brand-strong: #a58bff;
-    --brand-soft: #231b46;
+    --brand: #8f73ff;
+    --brand-strong: #a993ff;
+    --brand-soft: rgb(143 115 255 / 0.16);
     --brand-ink: #ffffff;
 
-    --arcade-soft: #3a1d12;
-    --quiz-soft: #0f2a3b;
-    --party-soft: #0e2e1e;
+    --arcade: #ff7a52;
+    --arcade-soft: rgb(255 122 82 / 0.15);
+    --quiz: #3db1f0;
+    --quiz-soft: rgb(61 177 240 / 0.15);
+    --party: #2fc77a;
+    --party-soft: rgb(47 199 122 / 0.15);
 
-    --shadow-card: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px -12px rgb(0 0 0 / 0.5);
-    --shadow-lift: 0 2px 4px rgb(0 0 0 / 0.3), 0 24px 48px -20px rgb(140 107 255 / 0.35);
+    --grid-line: rgb(255 255 255 / 0.035);
+    /* Cards: a faint top highlight + deep soft shadow instead of a grey drop shadow */
+    --shadow-card: inset 0 1px 0 rgb(255 255 255 / 0.04), 0 10px 30px -14px rgb(0 0 0 / 0.7);
+    --shadow-lift: inset 0 1px 0 rgb(255 255 255 / 0.06), 0 24px 48px -20px rgb(143 115 255 / 0.32);
   }
 }
 
@@ -84,6 +92,14 @@
     scroll-padding-top: 5rem;
     -webkit-tap-highlight-color: transparent;
   }
+  :root {
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      color-scheme: dark;
+    }
+  }
   body {
     background: var(--bg);
     color: var(--text);
@@ -113,7 +129,8 @@
   @apply btn bg-brand text-brand-ink shadow-[0_8px_24px_-8px_var(--brand)] hover:bg-brand-strong;
 }
 @utility btn-ghost {
-  @apply btn border border-line bg-surface text-fg hover:border-brand/40 hover:text-brand;
+  /* Dark mode: frosted glass instead of a black slab on coloured backgrounds */
+  @apply btn border border-line bg-surface text-fg hover:border-brand/40 hover:text-brand dark:bg-white/[0.06] dark:backdrop-blur dark:hover:bg-white/[0.1];
 }
 
 @utility eyebrow {
@@ -128,8 +145,8 @@
 /* Faint grid fading out from the top, used behind the hero */
 @utility bg-grid-faint {
   background-image:
-    linear-gradient(to right, var(--line) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--line) 1px, transparent 1px);
+    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
   background-size: 48px 48px;
   mask-image: radial-gradient(ellipse at 50% 0%, black 30%, transparent 75%);
 }

@@ -1,5 +1,5 @@
 import { ArrowRight, Check, Play, Sparkles, Users } from "lucide-react";
-import Image from "next/image";
+import { GameImage } from "../game-image";
 import Link from "next/link";
 import { FEATURED_SLUG, GAMES, TYPE_META, getGame, type GameEntry } from "@/lib/games";
 
@@ -18,8 +18,11 @@ export function Hero() {
     <section className="relative isolate overflow-hidden">
       {/* Background: faint grid + two soft color blooms */}
       <div className="bg-grid-faint absolute inset-0 -z-10" />
-      <div className="absolute -top-40 left-1/2 -z-10 h-[520px] w-[820px] -translate-x-1/2 rounded-full bg-brand/20 blur-[120px]" />
-      <div className="absolute top-40 -right-40 -z-10 h-72 w-72 rounded-full bg-arcade/20 blur-[100px]" />
+      <div className="absolute -top-40 left-1/2 -z-10 h-[520px] w-[820px] -translate-x-1/2 rounded-full bg-brand/20 blur-[120px] dark:bg-brand/25" />
+      {/* warm bloom in light mode; in dark mode orange over black turns brown, so use a cool one */}
+      <div className="absolute top-40 -right-40 -z-10 h-72 w-72 rounded-full bg-arcade/20 blur-[100px] dark:bg-quiz/15" />
+      {/* Painted after the blooms: fade them into the page so the section has no visible bottom edge */}
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-32 bg-gradient-to-b from-transparent to-bg" />
 
       <div className="container-page grid items-center gap-10 pt-8 pb-12 sm:pt-14 sm:pb-16 md:pt-20 lg:grid-cols-[1fr_1fr] lg:gap-14 lg:pb-24">
         <div>
@@ -102,15 +105,7 @@ function Tile({ game, className = "", large = false, priority = false }: { game:
   return (
     <div className={`group overflow-hidden rounded-2xl border border-line bg-surface shadow-lift ${className}`}>
       <div className="relative aspect-[16/10] overflow-hidden">
-        <Image
-          src={game.thumbnail!}
-          alt=""
-          fill
-          unoptimized
-          priority={priority}
-          sizes={large ? "(min-width: 1024px) 560px, 90vw" : "(min-width: 1024px) 280px, 45vw"}
-          className="object-cover transition-transform duration-500 group-hover:scale-105"
-        />
+        <GameImage src={game.thumbnail!} priority={priority} className="transition-transform duration-500 group-hover:scale-105" />
       </div>
       <div className={`flex items-center gap-2 border-t border-line ${large ? "px-4 py-2.5" : "px-3 py-2"}`}>
         <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${meta.dot}`} />

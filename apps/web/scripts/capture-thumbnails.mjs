@@ -8,7 +8,7 @@
  *   npm run thumbnails -w @play4fun/web      # terminal 2 (mọi game có trong SHOTS)
  *   npm run thumbnails -w @play4fun/web -- pixel-dodge   # chỉ 1 game
  *
- * Ảnh ra: public/thumbnails/<slug>.webp (1200×750, 16:10 khớp với card)
+ * Ảnh ra: public/thumbnails/<slug>.webp (1200×750, 16:10 khớp với card), <slug>-dark.webp (chế độ tối)
  *         + <slug>.jpg cùng nội dung, dùng làm og:image khi chia sẻ.
  * Sau đó khai báo `thumbnail: "/thumbnails/<slug>.webp"` cho game trong lib/games.ts.
  *
@@ -25,6 +25,9 @@ const CHANNEL = process.env.BROWSER_CHANNEL ?? "msedge";
 const OUT_DIR = fileURLToPath(new URL("../public/thumbnails/", import.meta.url));
 const SIZE = { width: 1200, height: 750 };
 const ATTEMPTS = 6;
+/** Themes to capture: light → <slug>.webp (+ .jpg for og:image), dark → <slug>-dark.webp. THEMES=light to skip dark. */
+const THEMES = (process.env.THEMES ?? "light,dark").split(",").map((t) => t.trim()).filter((t) => t === "light" || t === "dark");
+let THEME = "light";
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
@@ -44,6 +47,7 @@ const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
  *  - cropBelow: tuỳ chọn, selector của dải HUD phía trên, ảnh bắt đầu ngay dưới nó
  *  - custom({ browser, page }): tuỳ chọn, tự viết toàn bộ kịch bản và trả về ảnh PNG
  *    (dùng cho party game: cần nhiều người chơi, mỗi người một browser context)
+ *  - darkTone: tuỳ chọn, hệ số độ sáng cho ảnh chế độ tối (game vẽ canvas màu cố định)
  *  - frame: tuỳ chọn, cắt bớt khung theo tỉ lệ {left, top, width, height} trước khi resize
  */
 const SHOTS = {
@@ -70,6 +74,8 @@ const SHOTS = {
 
   "deadline-dash": {
     captureAt: 5200,
+    // The canvas has a fixed daylight palette: dim it for the dark-mode thumbnail
+    darkTone: 0.68,
     position: "left",
     // Dải HUD (mét, thanh "Cách deadline", cà phê) trùng chỗ badge của card
     cropBelow: ":scope > div:first-child",
@@ -287,7 +293,7 @@ async function partyRoom(browser, page, slug, hostName, guestNames) {
   const contexts = [];
   const guests = [];
   for (const name of guestNames) {
-    const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 }, deviceScaleFactor: 1 });
+    const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 }, deviceScaleFactor: 1, colorScheme: THEME });
     contexts.push(ctx);
     const p = await ctx.newPage();
     await p.goto(`${BASE_URL}/games/${slug}?room=${code}`, { waitUntil: "networkidle" });
@@ -433,31 +439,37 @@ async function main() {
 
   await mkdir(OUT_DIR, { recursive: true });
   const browser = await chromium.launch({ channel: CHANNEL });
-  const context = await browser.newContext({
-    viewport: { width: 1280, height: 900 },
-    deviceScaleFactor: 2,
-    colorScheme: "light",
-    reducedMotion: "no-preference",
-  });
 
   let failed = 0;
   try {
-    for (const slug of slugs) {
-      const page = await context.newPage();
-      try {
-        const png = await captureOne(page, slug, SHOTS[slug], browser);
-        if (process.env.KEEP_RAW) await sharp(png).toFile(`${OUT_DIR}${slug}.raw.png`);
-        const webp = await toThumbnail(png, SHOTS[slug]);
-        await sharp(webp).toFile(`${OUT_DIR}${slug}.webp`);
-        // Bản JPEG cho og:image: Facebook/Zalo không phải lúc nào cũng nhận WebP
-        await sharp(webp).jpeg({ quality: 85, mozjpeg: true }).toFile(`${OUT_DIR}${slug}.jpg`);
-        console.log(`✓ ${slug} → public/thumbnails/${slug}.webp + .jpg (${Math.round(webp.length / 1024)} KB)`);
-      } catch (err) {
-        failed++;
-        console.error(`✗ ${slug}: ${err.message}`);
-      } finally {
-        await page.close();
+    for (const theme of THEMES) {
+      THEME = theme;
+      const context = await browser.newContext({
+        viewport: { width: 1280, height: 900 },
+        deviceScaleFactor: 2,
+        colorScheme: theme,
+        reducedMotion: "no-preference",
+      });
+      for (const slug of slugs) {
+        const page = await context.newPage();
+        const name = theme === "dark" ? `${slug}-dark` : slug;
+        try {
+          const png = await captureOne(page, slug, SHOTS[slug], browser);
+          if (process.env.KEEP_RAW) await sharp(png).toFile(`${OUT_DIR}${name}.raw.png`);
+          let webp = await toThumbnail(png, SHOTS[slug]);
+          if (theme === "dark" && SHOTS[slug].darkTone) webp = await sharp(webp).modulate({ brightness: SHOTS[slug].darkTone }).webp({ quality: 82 }).toBuffer();
+          await sharp(webp).toFile(`${OUT_DIR}${name}.webp`);
+          // Bản JPEG cho og:image (chỉ bản sáng): Facebook/Zalo không phải lúc nào cũng nhận WebP
+          if (theme === "light") await sharp(webp).jpeg({ quality: 85, mozjpeg: true }).toFile(`${OUT_DIR}${slug}.jpg`);
+          console.log(`✓ ${name} → public/thumbnails/${name}.webp (${Math.round(webp.length / 1024)} KB)`);
+        } catch (err) {
+          failed++;
+          console.error(`✗ ${name}: ${err.message}`);
+        } finally {
+          await page.close();
+        }
       }
+      await context.close();
     }
   } finally {
     await browser.close();
