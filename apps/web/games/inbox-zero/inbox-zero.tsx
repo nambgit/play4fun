@@ -6,7 +6,6 @@ import {
   Award,
   ArrowRight,
   ArrowUp,
-  CalendarDays,
   Check,
   Forward,
   Heart,
@@ -25,12 +24,12 @@ import {
 import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import { COMPANY_DOMAIN, POWERUPS } from "./content";
 import {
+  FORWARD_UNLOCK_AT,
   MAX_LIVES,
   ROUND_SECONDS,
   accuracy,
   act,
   createGame,
-  dailyInfo,
   emojiGrid,
   multiplier,
   tick,
@@ -38,14 +37,11 @@ import {
   type Action,
   type Card,
   type GameState,
-  type Mode,
 } from "./engine";
 
 type Phase = "ready" | "playing" | "paused" | "over";
 type Leaving = { card: Card; dir: Action; dx: number; dy: number };
 type Result = {
-  mode: Mode;
-  daily: number;
   processed: number;
   correct: number;
   accuracy: number;
@@ -62,7 +58,29 @@ type Result = {
 const SWIPE_X = 90;
 const SWIPE_UP = 80;
 
-const bestKey = (mode: Mode, dayKey: string) => (mode === "daily" ? `p4f:inbox-zero:daily:${dayKey}` : "p4f:inbox-zero:best");
+// v2: round length changed to 90s, so older 60s scores are not comparable
+const BEST_KEY = "p4f:inbox-zero:best:v2";
+const SEEN_KEY = "p4f:inbox-zero:seen";
+/** How many recently shown emails to push to the back of the next round */
+const SEEN_MEMORY = 45;
+
+function readSeen(): Set<string> {
+  try {
+    const raw = JSON.parse(localStorage.getItem(SEEN_KEY) ?? "[]");
+    return new Set(Array.isArray(raw) ? raw.filter((x) => typeof x === "string") : []);
+  } catch {
+    return new Set();
+  }
+}
+function rememberSeen(dealt: string[]) {
+  try {
+    const merged = [...readSeen(), ...dealt];
+    const unique = [...new Set(merged.reverse())].reverse(); // keep latest occurrence order
+    localStorage.setItem(SEEN_KEY, JSON.stringify(unique.slice(-SEEN_MEMORY)));
+  } catch {
+    /* storage blocked — rounds are still shuffled, just without memory */
+  }
+}
 
 function readNum(key: string) {
   try {
@@ -100,47 +118,35 @@ export default function InboxZero() {
   const [drag, setDrag] = useState<{ id: number; x0: number; y0: number; dx: number; dy: number } | null>(null);
   const [result, setResult] = useState<Result | null>(null);
   const [copied, setCopied] = useState(false);
-  const [daily, setDaily] = useState(() => dailyInfo());
-  const [bests, setBests] = useState({ daily: 0, free: 0 });
+  const [best, setBest] = useState(0);
 
   const setPhase = useCallback((p: Phase) => {
     phaseRef.current = p;
     setPhaseState(p);
   }, []);
 
-  useEffect(() => {
-    const info = dailyInfo();
-    setDaily(info);
-    setBests({ daily: readNum(bestKey("daily", info.key)), free: readNum(bestKey("free", info.key)) });
-  }, []);
+  useEffect(() => setBest(readNum(BEST_KEY)), []);
 
-  const start = useCallback(
-    (mode: Mode) => {
-      const info = dailyInfo();
-      setDaily(info);
-      stateRef.current = createGame(mode === "daily" ? info.seed : Date.now(), mode);
-      setLeaving([]);
-      setDrag(null);
-      setResult(null);
-      setCopied(false);
-      setPhase("playing");
-      stageRef.current?.focus({ preventScroll: true });
-    },
-    [setPhase],
-  );
+  /** Every round: new random seed + emails seen in recent rounds pushed to the back of the deck */
+  const start = useCallback(() => {
+    stateRef.current = createGame(Date.now() ^ Math.floor(Math.random() * 2 ** 31), readSeen());
+    setLeaving([]);
+    setDrag(null);
+    setResult(null);
+    setCopied(false);
+    setPhase("playing");
+    stageRef.current?.focus({ preventScroll: true });
+  }, [setPhase]);
 
   const finish = useCallback(() => {
     const s = stateRef.current!;
-    const info = dailyInfo();
-    const key = bestKey(s.mode, info.key);
-    const prev = readNum(key);
+    rememberSeen(s.dealt);
+    const prev = readNum(BEST_KEY);
     const isBest = s.score > prev;
-    if (isBest) writeNum(key, s.score);
+    if (isBest) writeNum(BEST_KEY, s.score);
     const best = Math.max(prev, s.score);
-    setBests((b) => ({ ...b, [s.mode]: best }));
+    setBest(best);
     setResult({
-      mode: s.mode,
-      daily: info.number,
       processed: s.processed,
       correct: s.correct,
       accuracy: accuracy(s),
@@ -223,7 +229,7 @@ export default function InboxZero() {
         }
         return;
       }
-      if (e.code === "KeyR" && p === "over" && focused()) start(result?.mode ?? "free");
+      if (e.code === "KeyR" && p === "over" && focused()) start();
     };
     const onHide = () => {
       if (phaseRef.current === "playing") setPhase("paused");
@@ -237,7 +243,7 @@ export default function InboxZero() {
       window.removeEventListener("blur", onHide);
       document.removeEventListener("visibilitychange", onVisibility);
     };
-  }, [doAction, result?.mode, setPhase, start, togglePause]);
+  }, [doAction, setPhase, start, togglePause]);
 
   // ------------------------------------------------------------ swipe
   const onPointerDown = (e: React.PointerEvent) => {
@@ -261,7 +267,7 @@ export default function InboxZero() {
   const share = async () => {
     if (!result) return;
     const url = `${window.location.origin}/games/inbox-zero`;
-    const head = result.mode === "daily" ? `📥 Inbox Zero #${String(result.daily).padStart(3, "0")}` : "📥 Inbox Zero";
+    const head = "📥 Inbox Zero";
     const text = `${head} — ${result.correct} email / ${ROUND_SECONDS}s · ${result.score.toLocaleString("vi-VN")} điểm\n${result.grid}\nDanh hiệu: ${result.title}`;
     try {
       if (navigator.share) {
@@ -390,28 +396,24 @@ export default function InboxZero() {
                 <b>Xóa</b> — quảng cáo, thư rác và email lừa đảo
               </Rule>
               <Rule icon={<ArrowUp className="h-4 w-4" />} tone="text-quiz bg-quiz-soft">
-                <b>Chuyển tiếp</b> — thư của phòng khác (mở sau 15 giây)
+                <b>Chuyển tiếp</b> — thư của phòng khác (mở sau {FORWARD_UNLOCK_AT} giây)
               </Rule>
             </ul>
             <p className="mx-auto mt-3 max-w-sm rounded-lg bg-arcade-soft px-3 py-2 text-xs text-fg">
               💡 Đồng nghiệp thật luôn dùng đuôi <b className="font-mono">@{COMPANY_DOMAIN}</b> — soi kỹ địa chỉ người gửi!
             </p>
-            <div className="mt-6 flex flex-col justify-center gap-2 sm:flex-row">
-              <button type="button" onClick={() => start("daily")} className="btn-primary px-6">
-                <CalendarDays className="h-4 w-4" aria-hidden="true" />
-                Thử thách hôm nay #{String(daily.number).padStart(3, "0")}
-              </button>
-              <button type="button" onClick={() => start("free")} className="btn-ghost px-6">
-                <Shuffle className="h-4 w-4" aria-hidden="true" />
-                Chơi tự do
-              </button>
-            </div>
-            {(bests.daily > 0 || bests.free > 0) && (
-              <p className="mt-4 inline-flex items-center gap-1.5 text-xs text-muted">
+            <button type="button" onClick={start} className="btn-primary mt-6 px-8 py-3.5 text-base">
+              <Play className="h-4 w-4 fill-current" aria-hidden="true" />
+              Bắt đầu
+            </button>
+            <p className="mt-2 inline-flex items-center gap-1.5 text-xs text-muted">
+              <Shuffle className="h-3.5 w-3.5" aria-hidden="true" />
+              Mỗi ván là một hộp thư ngẫu nhiên mới
+            </p>
+            {best > 0 && (
+              <p className="mt-3 flex items-center justify-center gap-1.5 text-xs text-muted">
                 <Trophy className="h-3.5 w-3.5 text-arcade" aria-hidden="true" />
-                {bests.daily > 0 && `Hôm nay: ${bests.daily.toLocaleString("vi-VN")}`}
-                {bests.daily > 0 && bests.free > 0 && " · "}
-                {bests.free > 0 && `Kỷ lục tự do: ${bests.free.toLocaleString("vi-VN")}`}
+                Kỷ lục của bạn: {best.toLocaleString("vi-VN")} điểm
               </p>
             )}
             <p className="mt-3 text-xs text-muted pointer-coarse:hidden">Bàn phím: ← xóa · → xử lý · ↑ chuyển tiếp · Esc tạm dừng</p>
@@ -438,7 +440,6 @@ export default function InboxZero() {
                 <AlarmClock className="h-4 w-4 text-brand" aria-hidden="true" />
               )}
               {result.reason === "lives" ? "Sếp gọi lên phòng!" : "Hết giờ làm việc!"}
-              {result.mode === "daily" && ` · Thử thách #${String(result.daily).padStart(3, "0")}`}
             </p>
             <p className="mt-1 text-5xl font-extrabold tracking-tight">
               {result.correct}
@@ -463,19 +464,13 @@ export default function InboxZero() {
                 {copied ? <Check className="h-4 w-4" aria-hidden="true" /> : <Share2 className="h-4 w-4" aria-hidden="true" />}
                 {copied ? "Đã sao chép!" : "Khoe kết quả"}
               </button>
-              <button type="button" onClick={() => start(result.mode)} className="btn-ghost px-6">
+              <button type="button" onClick={start} className="btn-ghost px-6">
                 <RotateCcw className="h-4 w-4" aria-hidden="true" />
-                Chơi lại
+                Chơi ván mới
               </button>
-              {result.mode === "daily" && (
-                <button type="button" onClick={() => start("free")} className="btn-ghost px-6">
-                  <Shuffle className="h-4 w-4" aria-hidden="true" />
-                  Chơi tự do
-                </button>
-              )}
             </div>
             <p className="mt-3 text-xs text-muted">
-              Kỷ lục {result.mode === "daily" ? "hôm nay" : "tự do"}: {result.best.toLocaleString("vi-VN")} điểm
+              Kỷ lục: {result.best.toLocaleString("vi-VN")} điểm · ván mới sẽ là bộ email khác
             </p>
           </Overlay>
         )}

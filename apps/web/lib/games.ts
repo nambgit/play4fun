@@ -41,7 +41,7 @@ export const GAMES: GameEntry[] = [
     slug: "inbox-zero",
     title: "Inbox Zero",
     type: "arcade",
-    tagline: "Vuốt trái, vuốt phải — dọn sạch hộp thư trong 60 giây.",
+    tagline: "Vuốt trái, vuốt phải — dọn sạch hộp thư trong 90 giây.",
     description:
       "Email đổ về liên tục: việc gấp của sếp, khách hàng hỏi giá, và cả đống thư rác “trúng thưởng”. Phân loại thật nhanh, né email lừa đảo và giữ combo càng lâu càng tốt.",
     audience: ["office", "student"],
@@ -53,10 +53,10 @@ export const GAMES: GameEntry[] = [
     howTo: [
       "Vuốt phải (→) để xử lý email công việc thật của bạn.",
       "Vuốt trái (←) để xóa quảng cáo, thư rác và email lừa đảo.",
-      "Sau 15 giây mở khóa vuốt lên (↑): chuyển tiếp thư của phòng khác.",
+      "Sau 20 giây mở khóa vuốt lên (↑): chuyển tiếp thư của phòng khác.",
       "Soi kỹ địa chỉ người gửi — đồng nghiệp thật luôn dùng @mayxanh.vn.",
       "Sai hoặc để email quá hạn mất 1 tim; hết 3 tim là “sếp gọi lên phòng”.",
-      "Thử thách hôm nay: mọi người chơi chung bộ đề của ngày — so điểm với bạn bè!",
+      "Mỗi ván là một hộp thư ngẫu nhiên mới — chơi lại không bị lặp đề.",
     ],
   },
   {

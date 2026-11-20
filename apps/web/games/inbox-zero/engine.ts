@@ -1,17 +1,22 @@
 /**
  * Inbox Zero — pure game logic. One email at a time; each has a "patience" timer that
- * shrinks as the round goes on. Seeded RNG so a daily challenge deals the same inbox to everyone.
+ * shrinks as the round goes on. Every round deals a freshly shuffled inbox, preferring
+ * emails the player hasn't seen in recent rounds.
  */
 import { EMAILS, type Answer, type Category, type Email, type PowerUp } from "./content";
 
-export const ROUND_SECONDS = 60;
+export const ROUND_SECONDS = 90;
 export const MAX_LIVES = 3;
-export const FORWARD_UNLOCK_AT = 15;
-const COFFEE_BONUS = 5;
+export const FORWARD_UNLOCK_AT = 20;
+const COFFEE_BONUS = 8;
 const PHISHING_BONUS = 150;
 
+/** Reading time per email: 8s at the start, easing down to 4.5s by the last third of the round */
+const PATIENCE_START = 8;
+const PATIENCE_MIN = 4.5;
+const PATIENCE_DECAY = 0.05; // seconds lost per second of play
+
 export type Action = Answer;
-export type Mode = "daily" | "free";
 
 export type Card =
   | { kind: "email"; uid: number; email: Email; patience: number; total: number; time: string }
@@ -23,7 +28,6 @@ export type Outcome = "fast" | "ok" | "bad" | "power";
 export type Feedback = { text: string; good: boolean; t: number };
 
 export type GameState = {
-  mode: Mode;
   elapsed: number;
   timeLeft: number;
   lives: number;
@@ -44,6 +48,8 @@ export type GameState = {
   sinceLastPower: number;
   rng: () => number;
   decks: Record<Category, { cards: Email[]; i: number }>;
+  /** Subjects of emails dealt this round, so the next round can avoid them */
+  dealt: string[];
 };
 
 export type ActResult = { correct: boolean; card: Card } | null;
@@ -72,11 +78,19 @@ export function multiplier(combo: number) {
   return Math.min(5, 1 + Math.floor(combo / 5));
 }
 
-export function createGame(seed: number, mode: Mode): GameState {
+/**
+ * @param recentlySeen subjects shown in the player's last rounds — dealt only after every unseen email
+ */
+export function createGame(seed = Date.now(), recentlySeen: ReadonlySet<string> = new Set()): GameState {
   const rng = makeRng(seed);
-  const byCat = (c: Category) => ({ cards: shuffle(EMAILS.filter((e) => e.category === c), rng), i: 0 });
+  const byCat = (c: Category) => {
+    const shuffled = shuffle(
+      EMAILS.filter((e) => e.category === c),
+      rng,
+    );
+    return { cards: [...shuffled.filter((e) => !recentlySeen.has(e.subject)), ...shuffled.filter((e) => recentlySeen.has(e.subject))], i: 0 };
+  };
   const s: GameState = {
-    mode,
     elapsed: 0,
     timeLeft: ROUND_SECONDS,
     lives: MAX_LIVES,
@@ -97,13 +111,13 @@ export function createGame(seed: number, mode: Mode): GameState {
     sinceLastPower: 0,
     rng,
     decks: { handle: byCat("handle"), delete: byCat("delete"), forward: byCat("forward"), phishing: byCat("phishing") },
+    dealt: [],
   };
   nextCard(s);
   return s;
 }
 
-/** Seconds the player has for the current email; 5.2s at start → 2.2s at the end of the round */
-const patienceFor = (elapsed: number) => Math.max(2.2, 5.2 - elapsed * 0.05);
+const patienceFor = (elapsed: number) => Math.max(PATIENCE_MIN, PATIENCE_START - elapsed * PATIENCE_DECAY);
 
 function draw(s: GameState, c: Category): Email {
   const deck = s.decks[c];
@@ -111,7 +125,9 @@ function draw(s: GameState, c: Category): Email {
     deck.cards = shuffle(deck.cards, s.rng);
     deck.i = 0;
   }
-  return deck.cards[deck.i++];
+  const email = deck.cards[deck.i++];
+  s.dealt.push(email.subject);
+  return email;
 }
 
 function clockLabel(processed: number) {
@@ -125,14 +141,14 @@ function nextCard(s: GameState) {
   s.uid++;
   s.sinceLastPower++;
 
-  if (s.elapsed > 8 && s.sinceLastPower > 8 && r < 0.08) {
+  if (s.elapsed > 10 && s.sinceLastPower > 8 && r < 0.08) {
     s.sinceLastPower = 0;
     const power: PowerUp = s.lives < MAX_LIVES && s.rng() < 0.5 ? "leave" : "coffee";
-    s.card = { kind: "power", uid: s.uid, power, patience: 2.5, total: 2.5 };
+    s.card = { kind: "power", uid: s.uid, power, patience: 4, total: 4 };
     return;
   }
 
-  const pPhishing = Math.min(0.24, 0.06 + s.elapsed * 0.003);
+  const pPhishing = Math.min(0.24, 0.06 + s.elapsed * 0.002);
   const pForward = s.forwardUnlocked ? 0.2 : 0;
   const roll = s.rng();
   let category: Category;
@@ -148,7 +164,7 @@ function mistake(s: GameState, text: string) {
   s.lives--;
   s.combo = 0;
   s.outcomes.push("bad");
-  s.feedback = { text, good: false, t: 2.2 };
+  s.feedback = { text, good: false, t: 3 };
   if (s.lives <= 0) {
     s.over = true;
     s.overReason = "lives";
@@ -197,7 +213,7 @@ export function act(s: GameState, action: Action): ActResult {
   if (card.kind === "power") {
     if (card.power === "coffee") {
       s.timeLeft += COFFEE_BONUS;
-      s.feedback = { text: "☕ +5 giây! Tỉnh cả người.", good: true, t: 1.4 };
+      s.feedback = { text: `☕ +${COFFEE_BONUS} giây! Tỉnh cả người.`, good: true, t: 1.6 };
     } else {
       s.lives = Math.min(MAX_LIVES, s.lives + 1);
       s.feedback = { text: "🏖️ Nghỉ phép xong, hồi 1 tim!", good: true, t: 1.4 };
@@ -235,10 +251,10 @@ export function accuracy(s: GameState) {
 
 /** Title by correctly handled emails (score inflates fast with the combo multiplier) */
 const TITLES: [number, string][] = [
-  [55, "Huyền thoại Inbox Zero"],
-  [40, "Trợ lý ảo đời thật"],
-  [28, "Trưởng nhóm gánh team"],
-  [14, "Nhân viên chăm chỉ"],
+  [80, "Huyền thoại Inbox Zero"],
+  [55, "Trợ lý ảo đời thật"],
+  [35, "Trưởng nhóm gánh team"],
+  [18, "Nhân viên chăm chỉ"],
   [0, "Thực tập sinh lơ ngơ"],
 ];
 
@@ -248,24 +264,10 @@ export function titleFor(correctEmails: number) {
 
 const EMOJI: Record<Outcome, string> = { fast: "⚡", ok: "✅", bad: "❌", power: "☕" };
 
-/** Wordle-style result grid, rows of 10, capped at 40 cells */
+/** Wordle-style result grid, rows of 10, capped at 50 cells */
 export function emojiGrid(outcomes: Outcome[]) {
-  const cells = outcomes.slice(0, 40).map((o) => EMOJI[o]);
+  const cells = outcomes.slice(0, 50).map((o) => EMOJI[o]);
   const rows: string[] = [];
   for (let i = 0; i < cells.length; i += 10) rows.push(cells.slice(i, i + 10).join(""));
   return rows.join("\n");
-}
-
-// ------------------------------------------------------------ daily challenge
-
-const LAUNCH_UTC = Date.UTC(2026, 10, 19); // 19/11/2026 = thử thách #1
-
-/** Local calendar date → { key: "2026-11-19", number: 1, seed } */
-export function dailyInfo(now = new Date()) {
-  const y = now.getFullYear();
-  const m = now.getMonth();
-  const d = now.getDate();
-  const number = Math.max(1, Math.floor((Date.UTC(y, m, d) - LAUNCH_UTC) / 86_400_000) + 1);
-  const key = `${y}-${String(m + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
-  return { key, number, seed: y * 10_000 + (m + 1) * 100 + d };
 }

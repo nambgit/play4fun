@@ -30,7 +30,7 @@ export function Hero() {
               <Sparkles className="h-3 w-3" aria-hidden="true" />
               Mới
             </span>
-            Thử thách Inbox Zero hằng ngày đã có
+            Mới: Inbox Zero — dọn hộp thư trong 90 giây
             <ArrowRight className="h-3.5 w-3.5 text-muted transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
           </Link>
 
@@ -98,8 +98,8 @@ function HeroVisual() {
       <div className="relative w-full -rotate-1 sm:mt-32 sm:w-[88%] sm:-rotate-2 rounded-3xl border border-line bg-surface p-6 shadow-lift">
         <div className="flex items-center justify-between">
           <div>
-            <p className="eyebrow">Thử thách hôm nay</p>
-            <p className="mt-1 text-xl font-bold">Inbox Zero #001</p>
+            <p className="eyebrow">Ván vừa chơi</p>
+            <p className="mt-1 text-xl font-bold">Inbox Zero</p>
           </div>
           <span className="inline-flex shrink-0 items-center gap-1 rounded-full whitespace-nowrap bg-arcade-soft px-2.5 py-1 text-xs font-bold text-arcade">
             <Flame className="h-3.5 w-3.5" />
@@ -120,9 +120,9 @@ function HeroVisual() {
         <div className="mt-5 flex items-end justify-between border-t border-line pt-4">
           <div>
             <p className="text-3xl font-extrabold tracking-tight">
-              42<span className="text-base font-semibold text-muted"> email / 60s</span>
+              58<span className="text-base font-semibold text-muted"> email / 90s</span>
             </p>
-            <p className="mt-0.5 text-xs text-muted">Hơn 87% người chơi hôm nay</p>
+            <p className="mt-0.5 text-xs text-muted">Chính xác 95% · combo ×4</p>
           </div>
           <span className="shrink-0 rounded-xl bg-brand px-3 py-2 text-xs font-semibold whitespace-nowrap text-brand-ink">Khoe kết quả</span>
         </div>
