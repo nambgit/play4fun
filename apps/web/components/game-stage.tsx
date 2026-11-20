@@ -2,12 +2,14 @@
 
 import dynamic from "next/dynamic";
 import type { ComponentType } from "react";
+import { getGame } from "@/lib/games";
 
 type Frame = "dark" | "light";
 
 const FRAME_CLASS: Record<Frame, string> = {
-  dark: "rounded-3xl bg-[#0b0a12] p-2 shadow-lift sm:p-4",
-  light: "rounded-3xl border border-line bg-surface-2 p-2 shadow-card sm:p-4",
+  dark: "rounded-2xl bg-[#0b0a12] p-1.5 shadow-lift sm:rounded-3xl sm:p-4",
+  // Thin mat on phones (more room for the game), roomier from sm up
+  light: "rounded-2xl border border-line bg-surface-2 p-1.5 shadow-card sm:rounded-3xl sm:p-5",
 };
 
 function skeleton(frame: Frame) {
@@ -76,8 +78,17 @@ const PLAYABLE: Record<string, { Game: ComponentType; frame: Frame }> = {
 export function GameStage({ slug }: { slug: string }) {
   const entry = PLAYABLE[slug];
   if (!entry) return null;
+  // Light frames get a soft tint of the game's own colours, so the space around
+  // narrower games reads as a designed mat rather than an empty grey box
+  const cover = getGame(slug)?.cover;
+  const tint =
+    entry.frame === "light" && cover
+      ? {
+          backgroundImage: `linear-gradient(135deg, color-mix(in srgb, ${cover[0]} 16%, var(--surface-2)), color-mix(in srgb, ${cover[1]} 16%, var(--surface-2)))`,
+        }
+      : undefined;
   return (
-    <div className={`self-start ${FRAME_CLASS[entry.frame]}`}>
+    <div className={`self-start ${FRAME_CLASS[entry.frame]}`} style={tint}>
       <entry.Game />
     </div>
   );

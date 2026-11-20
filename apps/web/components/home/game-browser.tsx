@@ -3,7 +3,8 @@
 import { Briefcase, Gamepad2, GraduationCap, LayoutGrid, Users, type LucideIcon } from "lucide-react";
 import { useState } from "react";
 import { AUDIENCES, AUDIENCE_LABEL, GAMES, GAME_TYPES, TYPE_META, type Audience } from "@/lib/games";
-import { GameCard } from "../game-card";
+import { ChevronRight } from "lucide-react";
+import { CardRail } from "../card-rail";
 
 type Filter = Audience | "all";
 
@@ -22,15 +23,15 @@ export function GameBrowser() {
 
   return (
     <section aria-labelledby="kham-pha" className="container-page">
-      <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between lg:gap-6">
         <div>
           <p className="eyebrow">Thư viện game</p>
-          <h2 id="kham-pha" className="mt-2 text-3xl font-extrabold tracking-tight sm:text-4xl">
+          <h2 id="kham-pha" className="mt-1.5 text-2xl font-extrabold tracking-tight sm:mt-2 sm:text-4xl">
             Hôm nay chơi gì?
           </h2>
         </div>
 
-        <div role="group" aria-label="Lọc theo đối tượng" className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 md:mx-0 md:px-0">
+        <div role="group" aria-label="Lọc theo đối tượng" className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden">
           {filters.map((f) => {
             const Icon = FILTER_ICON[f];
             const active = filter === f;
@@ -56,29 +57,29 @@ export function GameBrowser() {
         </div>
       </div>
 
-      <div className="mt-12 space-y-16">
+      <div className="mt-8 space-y-12 sm:mt-12 sm:space-y-16">
         {GAME_TYPES.map((type) => {
           const games = visible.filter((g) => g.type === type);
           if (games.length === 0) return null;
           const meta = TYPE_META[type];
           return (
             <div key={type} id={meta.anchor} className="scroll-mt-24">
-              <div className="mb-6 flex items-center gap-4">
-                <span className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl ${meta.soft}`}>
+              <div className="mb-4 flex items-center gap-3 sm:mb-6 sm:gap-4">
+                <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl sm:h-11 sm:w-11 ${meta.soft}`}>
                   <span className={`h-3 w-3 rounded-full ${meta.dot}`} />
                 </span>
-                <div>
-                  <h3 className="text-xl font-bold tracking-tight">{meta.heading}</h3>
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-lg font-bold tracking-tight sm:text-xl">{meta.heading}</h3>
                   <p className="text-sm text-muted">{meta.blurb}</p>
                 </div>
+                {games.length > 1 && (
+                  <span className="inline-flex shrink-0 items-center text-xs font-medium text-muted sm:hidden" aria-hidden="true">
+                    Vuốt
+                    <ChevronRight className="h-3.5 w-3.5" />
+                  </span>
+                )}
               </div>
-              <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                {games.map((g) => (
-                  <li key={g.slug}>
-                    <GameCard game={g} />
-                  </li>
-                ))}
-              </ul>
+              <CardRail games={games} label={meta.heading} />
             </div>
           );
         })}

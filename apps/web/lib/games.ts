@@ -279,7 +279,7 @@ export const GAMES: GameEntry[] = [
     cover: ["#6b3cf5", "#1a9fe8"],
     thumbnail: "/thumbnails/do-vui-team-building.webp",
     duration: "10–20 phút",
-    players: "3–50 người",
+    players: "2–50 người",
     howTo: [
       "Chủ phòng mở game trên máy chiếu hoặc TV và tạo phòng.",
       "Mọi người quét QR để vào bằng điện thoại, đến muộn vẫn vào được.",

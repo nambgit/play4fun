@@ -20,9 +20,9 @@ function TikTokIcon(props: React.SVGProps<SVGSVGElement>) {
 
 export function SiteFooter() {
   return (
-    <footer className="mt-24 border-t border-line bg-surface">
-      <div className="container-page grid gap-10 py-14 md:grid-cols-[1.4fr_repeat(3,1fr)]">
-        <div className="max-w-xs">
+    <footer className="mt-16 border-t border-line bg-surface sm:mt-24">
+      <div className="container-page grid grid-cols-3 gap-x-4 gap-y-8 py-10 sm:py-14 md:grid-cols-[1.4fr_repeat(3,1fr)] md:gap-10">
+        <div className="col-span-3 max-w-xs md:col-span-1">
           <div className="flex items-center gap-2.5">
             <LogoMark />
             <span className="text-lg font-extrabold tracking-tight">
@@ -46,12 +46,12 @@ export function SiteFooter() {
         {GAME_TYPES.map((t) => (
           <div key={t}>
             <h3 className="text-sm font-semibold">{TYPE_META[t].label}</h3>
-            <ul className="mt-4 space-y-2.5">
+            <ul className="mt-3 space-y-2 sm:mt-4 sm:space-y-2.5">
               {GAMES.filter((g) => g.type === t)
-                .slice(0, 4)
+                .slice(0, 5)
                 .map((g) => (
                   <li key={g.slug}>
-                    <Link href={`/games/${g.slug}`} className="text-sm text-muted transition-colors hover:text-fg">
+                    <Link href={`/games/${g.slug}`} className="text-[13px] leading-snug text-muted transition-colors hover:text-fg sm:text-sm">
                       {g.title}
                     </Link>
                   </li>

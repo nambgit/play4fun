@@ -30,11 +30,11 @@ export function GameCard({ game }: { game: GameEntry }) {
         )}
       </div>
 
-      <div className="flex flex-1 flex-col p-5">
+      <div className="flex flex-1 flex-col p-4 sm:p-5">
         <h3 className="text-base font-bold leading-snug transition-colors group-hover:text-brand">{game.title}</h3>
-        <p className="mt-1.5 mb-4 line-clamp-2 text-sm leading-relaxed text-muted">{game.tagline}</p>
+        <p className="mt-1 mb-3 line-clamp-2 text-sm leading-relaxed text-muted sm:mt-1.5 sm:mb-4">{game.tagline}</p>
 
-        <div className="mt-auto flex items-center gap-4 border-t border-line pt-4 text-xs text-muted">
+        <div className="mt-auto flex items-center gap-3 border-t border-line pt-3 text-xs text-muted sm:gap-4 sm:pt-4">
           <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
             <Clock className="h-3.5 w-3.5" aria-hidden="true" />
             {game.duration}

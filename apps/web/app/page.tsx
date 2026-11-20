@@ -7,10 +7,10 @@ export default function HomePage() {
   return (
     <>
       <Hero />
-      <div className="space-y-24 md:space-y-32">
+      <div className="space-y-16 sm:space-y-24 md:space-y-28">
         <GameBrowser />
-        <HowItWorks />
         <PartyBanner />
+        <HowItWorks />
       </div>
     </>
   );

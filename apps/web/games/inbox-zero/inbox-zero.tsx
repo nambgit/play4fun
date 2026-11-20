@@ -406,7 +406,7 @@ export default function InboxZero() {
               <Play className="h-4 w-4 fill-current" aria-hidden="true" />
               Bắt đầu
             </button>
-            <p className="mt-2 inline-flex items-center gap-1.5 text-xs text-muted">
+            <p className="mt-2 flex items-center justify-center gap-1.5 text-xs text-muted">
               <Shuffle className="h-3.5 w-3.5" aria-hidden="true" />
               Mỗi ván là một hộp thư ngẫu nhiên mới
             </p>

@@ -1,16 +1,17 @@
-import { ArrowRight, Check, Flame, Play, Sparkles, Users } from "lucide-react";
+import { ArrowRight, Check, Play, Sparkles, Users } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
-import { FEATURED_SLUG } from "@/lib/games";
+import { FEATURED_SLUG, GAMES, TYPE_META, getGame, type GameEntry } from "@/lib/games";
 
 const PERKS = ["Không cần cài đặt", "Không cần đăng ký", "Mượt trên điện thoại"];
 
-// Result grid shown on the "daily challenge" preview card (1 = correct, 0 = wrong, 2 = combo)
-const RESULT_ROWS = [
-  [1, 1, 1, 0, 1, 1],
-  [1, 2, 2, 2, 1, 0],
-  [1, 1, 2, 2, 2, 2],
-];
-const CELL = ["bg-rose-400", "bg-emerald-400", "bg-amber-400"];
+/** Real screenshots shown in the hero collage: one per category */
+const COLLAGE = ["do-vui-team-building", "deadline-dash", "ban-hoc-kieu-gi"]
+  .map((slug) => getGame(slug))
+  .filter((g): g is GameEntry => !!g?.thumbnail);
+
+const NEWEST = getGame("ai-la-gian-diep");
+const LIVE_COUNT = GAMES.filter((g) => g.status === "live").length;
 
 export function Hero() {
   return (
@@ -20,44 +21,42 @@ export function Hero() {
       <div className="absolute -top-40 left-1/2 -z-10 h-[520px] w-[820px] -translate-x-1/2 rounded-full bg-brand/20 blur-[120px]" />
       <div className="absolute top-40 -right-40 -z-10 h-72 w-72 rounded-full bg-arcade/20 blur-[100px]" />
 
-      <div className="container-page grid items-center gap-14 pt-14 pb-20 md:pt-20 lg:grid-cols-[1.1fr_0.9fr] lg:pb-28">
+      <div className="container-page grid items-center gap-10 pt-8 pb-12 sm:pt-14 sm:pb-16 md:pt-20 lg:grid-cols-[1fr_1fr] lg:gap-14 lg:pb-24">
         <div>
-          <Link
-            href="/games/inbox-zero"
-            className="group inline-flex items-center gap-2 rounded-full border border-line bg-surface/80 py-1 pr-3 pl-1 text-xs font-medium shadow-card backdrop-blur"
-          >
-            <span className="inline-flex items-center gap-1 rounded-full bg-brand px-2 py-0.5 text-brand-ink">
-              <Sparkles className="h-3 w-3" aria-hidden="true" />
-              Mới
-            </span>
-            Mới: Inbox Zero — dọn hộp thư trong 90 giây
-            <ArrowRight className="h-3.5 w-3.5 text-muted transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
-          </Link>
+          {NEWEST && (
+            <Link
+              href={`/games/${NEWEST.slug}`}
+              className="group inline-flex max-w-full items-center gap-2 rounded-full border border-line bg-surface/80 py-1 pr-3 pl-1 text-xs font-medium shadow-card backdrop-blur"
+            >
+              <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-brand px-2 py-0.5 text-brand-ink">
+                <Sparkles className="h-3 w-3" aria-hidden="true" />
+                Mới
+              </span>
+              <span className="truncate">Chơi nhóm realtime: {NEWEST.title}</span>
+              <ArrowRight className="h-3.5 w-3.5 shrink-0 text-muted transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+            </Link>
+          )}
 
-          <h1 className="mt-6 text-4xl leading-[1.08] font-extrabold tracking-tight text-balance sm:text-5xl lg:text-6xl">
+          <h1 className="mt-5 text-[2.5rem] leading-[1.05] font-extrabold tracking-tight text-balance sm:mt-6 sm:text-5xl lg:text-6xl">
             Chơi 5 phút,{" "}
-            <span className="bg-gradient-to-r from-brand via-[#c04cf0] to-arcade bg-clip-text text-transparent">
-              xả stress
-            </span>{" "}
-            cả ngày.
+            <span className="bg-gradient-to-r from-brand via-[#c04cf0] to-arcade bg-clip-text text-transparent">xả stress</span> cả ngày.
           </h1>
-          <p className="mt-5 max-w-xl text-lg leading-relaxed text-pretty text-muted">
-            Mini-game giải lao, test tính cách và party game chơi nhóm — dành cho dân văn phòng, học sinh và gamer. Mở
-            trình duyệt là chơi.
+          <p className="mt-4 max-w-xl text-base leading-relaxed text-pretty text-muted sm:mt-5 sm:text-lg">
+            Mini-game giải lao, test tính cách và party game chơi nhóm cho dân văn phòng, học sinh và gamer. Mở trình duyệt là chơi.
           </p>
 
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <Link href={`/games/${FEATURED_SLUG}`} className="btn-primary px-6 py-3.5 text-base">
+          <div className="mt-6 grid grid-cols-2 gap-3 sm:mt-8 sm:flex">
+            <Link href={`/games/${FEATURED_SLUG}`} className="btn-primary px-4 py-3.5 text-base sm:px-6">
               <Play className="h-4 w-4 fill-current" aria-hidden="true" />
-              Chơi ngay — miễn phí
+              Chơi ngay
             </Link>
-            <Link href="/#choi-nhom" className="btn-ghost px-6 py-3.5 text-base">
+            <Link href="/#choi-nhom" className="btn-ghost px-4 py-3.5 text-base sm:px-6">
               <Users className="h-4 w-4" aria-hidden="true" />
-              Chơi cùng nhóm
+              Chơi nhóm
             </Link>
           </div>
 
-          <ul className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted">
+          <ul className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-sm text-muted sm:mt-8">
             {PERKS.map((p) => (
               <li key={p} className="inline-flex items-center gap-2">
                 <span className="grid h-5 w-5 place-items-center rounded-full bg-party-soft text-party">
@@ -69,69 +68,54 @@ export function Hero() {
           </ul>
         </div>
 
-        <HeroVisual />
+        <HeroCollage />
       </div>
     </section>
   );
 }
 
-function HeroVisual() {
+/**
+ * Real game screenshots: one large tile over two small ones, all at their native 16:10.
+ * Hidden on phones, where the swipe rails right below show the same screenshots.
+ */
+function HeroCollage() {
+  const [big, ...small] = COLLAGE;
+  if (!big) return null;
   return (
-    <div className="relative mx-auto w-full max-w-md lg:max-w-none" aria-hidden="true">
-      {/* Back card: party room */}
-      <div className="absolute -top-6 -right-2 hidden w-[62%] rotate-6 sm:block rounded-3xl border border-line bg-surface p-5 shadow-card sm:-right-6">
-        <p className="text-[11px] font-semibold tracking-wider text-party uppercase">Phòng chơi nhóm</p>
-        <p className="mt-1 font-mono text-2xl font-bold tracking-[0.2em]">K7QX2</p>
-        <div className="mt-3 flex -space-x-2">
-          {["bg-brand", "bg-arcade", "bg-quiz", "bg-party", "bg-amber-400"].map((c, i) => (
-            <span key={c} className={`grid h-8 w-8 place-items-center rounded-full border-2 border-surface text-[11px] font-bold text-white ${c}`}>
-              {"MLHTA"[i]}
-            </span>
-          ))}
-          <span className="grid h-8 w-8 place-items-center rounded-full border-2 border-surface bg-surface-2 text-[11px] font-semibold text-muted">
-            +4
-          </span>
-        </div>
+    <div className="relative mx-auto hidden w-full max-w-xl sm:block lg:max-w-none" aria-hidden="true">
+      <div className="absolute inset-[8%] -z-10 rounded-full bg-gradient-to-tr from-brand/25 via-[#c04cf0]/15 to-arcade/25 blur-3xl" />
+      <div className="grid grid-cols-2 gap-3 lg:gap-4">
+        <Tile game={big} className="col-span-2" large priority />
+        {small.map((g) => (
+          <Tile key={g.slug} game={g} />
+        ))}
       </div>
-
-      {/* Front card: daily challenge result */}
-      <div className="relative w-full -rotate-1 sm:mt-32 sm:w-[88%] sm:-rotate-2 rounded-3xl border border-line bg-surface p-6 shadow-lift">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="eyebrow">Ván vừa chơi</p>
-            <p className="mt-1 text-xl font-bold">Inbox Zero</p>
-          </div>
-          <span className="inline-flex shrink-0 items-center gap-1 rounded-full whitespace-nowrap bg-arcade-soft px-2.5 py-1 text-xs font-bold text-arcade">
-            <Flame className="h-3.5 w-3.5" />
-            Combo ×5
-          </span>
-        </div>
-
-        <div className="mt-5 space-y-1.5">
-          {RESULT_ROWS.map((row, r) => (
-            <div key={r} className="flex gap-1.5">
-              {row.map((v, c) => (
-                <span key={c} className={`h-7 flex-1 rounded-md ${CELL[v]}`} />
-              ))}
-            </div>
-          ))}
-        </div>
-
-        <div className="mt-5 flex items-end justify-between border-t border-line pt-4">
-          <div>
-            <p className="text-3xl font-extrabold tracking-tight">
-              58<span className="text-base font-semibold text-muted"> email / 90s</span>
-            </p>
-            <p className="mt-0.5 text-xs text-muted">Chính xác 95% · combo ×4</p>
-          </div>
-          <span className="shrink-0 rounded-xl bg-brand px-3 py-2 text-xs font-semibold whitespace-nowrap text-brand-ink">Khoe kết quả</span>
-        </div>
+      <div className="animate-float absolute -top-4 -right-2 rounded-2xl border border-line bg-surface px-3.5 py-2 shadow-lift lg:-right-4">
+        <p className="text-sm font-bold">🎮 {LIVE_COUNT} game miễn phí</p>
       </div>
+    </div>
+  );
+}
 
-      {/* Floating badge — sits in the empty space above the front card */}
-      <div className="animate-float absolute top-6 left-0 hidden rounded-2xl sm:block border border-line bg-surface px-4 py-3 shadow-card sm:-left-4">
-        <p className="text-[11px] text-muted">Danh hiệu mới</p>
-        <p className="text-sm font-bold">🏆 Trợ lý ảo đời thật</p>
+function Tile({ game, className = "", large = false, priority = false }: { game: GameEntry; className?: string; large?: boolean; priority?: boolean }) {
+  const meta = TYPE_META[game.type];
+  return (
+    <div className={`group overflow-hidden rounded-2xl border border-line bg-surface shadow-lift ${className}`}>
+      <div className="relative aspect-[16/10] overflow-hidden">
+        <Image
+          src={game.thumbnail!}
+          alt=""
+          fill
+          unoptimized
+          priority={priority}
+          sizes={large ? "(min-width: 1024px) 560px, 90vw" : "(min-width: 1024px) 280px, 45vw"}
+          className="object-cover transition-transform duration-500 group-hover:scale-105"
+        />
+      </div>
+      <div className={`flex items-center gap-2 border-t border-line ${large ? "px-4 py-2.5" : "px-3 py-2"}`}>
+        <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${meta.dot}`} />
+        <span className={`truncate font-semibold ${large ? "text-sm" : "text-xs"}`}>{game.title}</span>
+        <span className={`ml-auto shrink-0 text-[11px] font-semibold ${meta.text}`}>{meta.label}</span>
       </div>
     </div>
   );

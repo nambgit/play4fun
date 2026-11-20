@@ -2,7 +2,7 @@ import { ArrowLeft, Bell, ChevronRight, Clock, Tag, Users } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { GameCard } from "@/components/game-card";
+import { CardRail } from "@/components/card-rail";
 import { GameCover } from "@/components/game-cover";
 import { GameStage } from "@/components/game-stage";
 import { AUDIENCE_LABEL, GAMES, TYPE_META, getGame, relatedGames, shareImage } from "@/lib/games";
@@ -42,8 +42,13 @@ export default async function GamePage({ params }: Props) {
   ];
 
   return (
-    <div className="container-page pt-8 md:pt-10">
-      <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-sm text-muted">
+    <div className="container-page pt-4 sm:pt-8">
+      {/* Mobile: one back link; larger screens: full breadcrumb */}
+      <Link href={`/#${meta.anchor}`} className="inline-flex items-center gap-1.5 text-sm font-medium text-muted hover:text-fg sm:hidden">
+        <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+        Tất cả game {meta.label.toLowerCase()}
+      </Link>
+      <nav aria-label="Breadcrumb" className="hidden items-center gap-1.5 text-sm text-muted sm:flex">
         <Link href="/" className="hover:text-fg">
           Trang chủ
         </Link>
@@ -55,15 +60,35 @@ export default async function GamePage({ params }: Props) {
         <span className="truncate text-fg">{game.title}</span>
       </nav>
 
-      <div className="mt-6 grid gap-8 lg:grid-cols-[1fr_340px]">
+      {/* Title row */}
+      <header className="mt-3 flex flex-col gap-3 sm:mt-5 lg:flex-row lg:items-end lg:justify-between lg:gap-8">
+        <div className="min-w-0">
+          <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${meta.soft} ${meta.text}`}>
+            <span className={`h-1.5 w-1.5 rounded-full ${meta.dot}`} />
+            {meta.label}
+          </span>
+          <h1 className="mt-2 text-2xl leading-tight font-extrabold tracking-tight text-balance sm:text-4xl">{game.title}</h1>
+          <p className="mt-1.5 max-w-2xl text-sm text-pretty text-muted sm:text-base">{game.tagline}</p>
+        </div>
+        <ul className="flex flex-wrap gap-2 lg:shrink-0 lg:justify-end" aria-label="Thông tin game">
+          {facts.map((f) => (
+            <li key={f.label} className="inline-flex items-center gap-1.5 rounded-full border border-line bg-surface px-3 py-1.5 text-xs font-medium sm:text-sm" title={f.label}>
+              <f.icon className="h-3.5 w-3.5 text-muted" aria-hidden="true" />
+              <span className="sr-only">{f.label}: </span>
+              {f.value}
+            </li>
+          ))}
+        </ul>
+      </header>
+
+      <div className="mt-4 grid gap-6 sm:mt-6 lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-8">
         {/* Stage */}
         {game.status === "live" ? (
           <GameStage slug={game.slug} />
         ) : (
-        <div className="self-start overflow-hidden rounded-3xl border border-line bg-surface shadow-card">
-          <div className="relative">
-            <GameCover game={game} size="lg" />
-            {game.status === "soon" && (
+          <div className="self-start overflow-hidden rounded-3xl border border-line bg-surface shadow-card">
+            <div className="relative">
+              <GameCover game={game} size="lg" />
               <div className="absolute inset-x-0 bottom-0 flex justify-center bg-gradient-to-t from-black/45 to-transparent p-4 pt-16 sm:p-6 sm:pt-20">
                 <div className="flex items-center gap-3 rounded-2xl bg-surface/95 px-5 py-3 shadow-lift backdrop-blur">
                   <span className="relative flex h-2.5 w-2.5">
@@ -76,40 +101,23 @@ export default async function GamePage({ params }: Props) {
                   </p>
                 </div>
               </div>
-            )}
+            </div>
           </div>
-        </div>
         )}
 
-        {/* Info panel */}
-        <aside className="flex flex-col gap-5">
-          <div className="rounded-3xl border border-line bg-surface p-6 shadow-card">
-            <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${meta.soft} ${meta.text}`}>
-              <span className={`h-1.5 w-1.5 rounded-full ${meta.dot}`} />
-              {meta.label}
-            </span>
-            <h1 className="mt-3 text-2xl font-extrabold tracking-tight sm:text-3xl">{game.title}</h1>
-            <p className="mt-3 text-sm leading-relaxed text-muted">{game.description}</p>
-
-            <dl className="mt-6 divide-y divide-line border-y border-line">
-              {facts.map((f) => (
-                <div key={f.label} className="flex items-center gap-3 py-3 text-sm">
-                  <f.icon className="h-4 w-4 shrink-0 text-muted" aria-hidden="true" />
-                  <dt className="whitespace-nowrap text-muted">{f.label}</dt>
-                  <dd className="ml-auto text-right font-medium">{f.value}</dd>
-                </div>
-              ))}
-            </dl>
+        {/* About & rules — sticks beside the game on large screens */}
+        <aside className="flex flex-col gap-4 self-start lg:sticky lg:top-20">
+          <section className="rounded-3xl border border-line bg-surface p-5 shadow-card sm:p-6">
+            <h2 className="text-sm font-semibold">Giới thiệu</h2>
+            <p className="mt-2 text-sm leading-relaxed text-muted">{game.description}</p>
 
             {game.howTo ? (
-              <div className="mt-6">
+              <div className="mt-5 border-t border-line pt-5">
                 <h2 className="text-sm font-semibold">Cách chơi</h2>
                 <ol className="mt-3 space-y-2.5">
                   {game.howTo.map((rule, i) => (
                     <li key={rule} className="flex gap-3 text-sm leading-relaxed text-muted">
-                      <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-brand-soft text-[11px] font-bold text-brand">
-                        {i + 1}
-                      </span>
+                      <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-brand-soft text-[11px] font-bold text-brand">{i + 1}</span>
                       {rule}
                     </li>
                   ))}
@@ -121,9 +129,9 @@ export default async function GamePage({ params }: Props) {
                 Sắp ra mắt
               </button>
             )}
-          </div>
+          </section>
 
-          <Link href="/" className="inline-flex items-center gap-2 text-sm font-medium text-muted hover:text-fg">
+          <Link href="/" className="hidden items-center gap-2 text-sm font-medium text-muted hover:text-fg lg:inline-flex">
             <ArrowLeft className="h-4 w-4" aria-hidden="true" />
             Xem tất cả game
           </Link>
@@ -131,17 +139,11 @@ export default async function GamePage({ params }: Props) {
       </div>
 
       {related.length > 0 && (
-        <section aria-labelledby="lien-quan" className="mt-20">
-          <h2 id="lien-quan" className="text-2xl font-extrabold tracking-tight">
+        <section aria-labelledby="lien-quan" className="mt-14 sm:mt-20">
+          <h2 id="lien-quan" className="mb-4 text-xl font-extrabold tracking-tight sm:mb-6 sm:text-2xl">
             Cùng thể loại {meta.label.toLowerCase()}
           </h2>
-          <ul className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {related.map((g) => (
-              <li key={g.slug}>
-                <GameCard game={g} />
-              </li>
-            ))}
-          </ul>
+          <CardRail games={related} label={`Cùng thể loại ${meta.label.toLowerCase()}`} />
         </section>
       )}
     </div>
