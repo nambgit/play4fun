@@ -155,11 +155,19 @@ export const GAMES: GameEntry[] = [
     description:
       "Người giữ nhịp cuộc họp, chuyên gia trà sữa hay “chiến thần deadline”? Trả lời 10 tình huống công sở để biết bạn thuộc kiểu nào.",
     audience: ["office"],
-    status: "soon",
+    status: "live",
     icon: "briefcase",
     cover: ["#1a9fe8", "#6b3cf5"],
+    thumbnail: "/thumbnails/ban-la-kieu-dong-nghiep-nao.webp",
     duration: "3 phút",
     players: "1 người",
+    howTo: [
+      "Trả lời 10 tình huống công sở, chọn điều bạn thật sự sẽ làm.",
+      "Không có đáp án đúng sai, mỗi lựa chọn nghiêng về một kiểu đồng nghiệp.",
+      "Bấm nút ← để sửa câu trước nếu đổi ý.",
+      "Nhận kết quả kèm tỉ lệ từng kiểu, điểm mạnh, điểm cần lưu ý và mẹo làm việc.",
+      "Mỗi lần làm là một bộ câu hỏi khác, đáp án cũng được xáo trộn.",
+    ],
   },
   {
     slug: "ban-hoc-kieu-gi",
@@ -169,11 +177,19 @@ export const GAMES: GameEntry[] = [
     description:
       "Khám phá phong cách học của bạn qua những tình huống quen thuộc mùa thi — và nhận vài mẹo học hợp với chính mình.",
     audience: ["student"],
-    status: "soon",
+    status: "live",
     icon: "book",
     cover: ["#f59e0b", "#ef4444"],
+    thumbnail: "/thumbnails/ban-hoc-kieu-gi.webp",
     duration: "3 phút",
     players: "1 người",
+    howTo: [
+      "Trả lời 10 tình huống quen thuộc mùa thi.",
+      "Không có đáp án đúng sai, cứ chọn điều bạn hay làm nhất.",
+      "Bấm nút ← để sửa câu trước nếu đổi ý.",
+      "Nhận phong cách học của bạn kèm mẹo ôn thi hợp với chính mình.",
+      "Mỗi lần làm là một bộ câu hỏi khác, đáp án cũng được xáo trộn.",
+    ],
   },
   {
     slug: "gamer-he-nao",
@@ -183,11 +199,19 @@ export const GAMES: GameEntry[] = [
     description:
       "Từ cách chọn tướng đến phản ứng khi thua liên tiếp — 12 câu hỏi để biết bạn là kiểu gamer nào trong mắt đồng đội.",
     audience: ["gamer"],
-    status: "soon",
+    status: "live",
     icon: "gamepad",
     cover: ["#ec4899", "#8b5cf6"],
+    thumbnail: "/thumbnails/gamer-he-nao.webp",
     duration: "3 phút",
     players: "1 người",
+    howTo: [
+      "Trả lời 12 tình huống từ phòng chờ đến lúc thua trận.",
+      "Không có đáp án đúng sai, chọn phản ứng thật nhất của bạn.",
+      "Bấm nút ← để sửa câu trước nếu đổi ý.",
+      "Nhận hệ gamer của bạn, tỉ lệ từng hệ và hệ hợp cạ nhất để rủ chơi cùng.",
+      "Mỗi lần làm là một bộ câu hỏi khác, đáp án cũng được xáo trộn.",
+    ],
   },
   // --- Party ---
   {

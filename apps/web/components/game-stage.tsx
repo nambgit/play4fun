@@ -41,6 +41,19 @@ const PLAYABLE: Record<string, { Game: ComponentType; frame: Frame }> = {
     Game: dynamic(() => import("@/games/go-phim-nhanh/go-phim-nhanh"), { ssr: false, loading: skeleton("light") }),
     frame: "light",
   },
+  // --- Quizzes (shared engine in games/quiz) ---
+  "ban-la-kieu-dong-nghiep-nao": {
+    Game: dynamic(() => import("@/games/quiz/dong-nghiep"), { ssr: false, loading: skeleton("light") }),
+    frame: "light",
+  },
+  "ban-hoc-kieu-gi": {
+    Game: dynamic(() => import("@/games/quiz/hoc-kieu-gi"), { ssr: false, loading: skeleton("light") }),
+    frame: "light",
+  },
+  "gamer-he-nao": {
+    Game: dynamic(() => import("@/games/quiz/gamer"), { ssr: false, loading: skeleton("light") }),
+    frame: "light",
+  },
 };
 
 export function GameStage({ slug }: { slug: string }) {

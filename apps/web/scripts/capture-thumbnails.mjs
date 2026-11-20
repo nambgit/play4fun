@@ -38,6 +38,7 @@ const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
  *  - goodMoment(page, stage): tuỳ chọn, chỉ chụp khi trả về true
  *  - fit: "cover" (mặc định, cắt cho đầy 16:10) | "contain" (giữ nguyên khung, thêm nền)
  *  - position: với "cover", phần nào được giữ lại khi cắt (sharp `position`)
+ *  - alive: tuỳ chọn, selector (toàn trang) cho biết game đang chạy; mặc định là nút "Tạm dừng"
  *  - hideHud: tuỳ chọn, selector (trong khung game) của HUD nổi đè lên màn chơi, ẩn khi chụp
  *  - cropBelow: tuỳ chọn, selector của dải HUD phía trên, ảnh bắt đầu ngay dưới nó
  *  - frame: tuỳ chọn, cắt bớt khung theo tỉ lệ {left, top, width, height} trước khi resize
@@ -100,6 +101,26 @@ const SHOTS = {
     },
   },
 
+  // --- Quiz: trả lời ngẫu nhiên tới hết rồi chụp phần đầu màn hình kết quả ---
+  ...Object.fromEntries(
+    ["ban-la-kieu-dong-nghiep-nao", "ban-hoc-kieu-gi", "gamer-he-nao"].map((slug) => [
+      slug,
+      {
+        captureAt: 600,
+        alive: "main [data-quiz-active]",
+        position: "top",
+        async play() {},
+        async beforeShot(page, stage) {
+          for (let i = 0; i < 20 && !(await stage.getByText("Bạn là", { exact: true }).isVisible()); i++) {
+            await page.keyboard.press(`Digit${1 + Math.floor(Math.random() * 4)}`);
+            await sleep(320);
+          }
+          await sleep(400); // chờ hiệu ứng hiện kết quả
+        },
+      },
+    ]),
+  ),
+
   "inbox-zero": {
     captureAt: 2500,
     fit: "contain",
@@ -135,6 +156,8 @@ async function captureOne(page, slug, cfg) {
     el.style.boxShadow = "none";
   });
   const pause = stage.getByRole("button", { name: "Tạm dừng" });
+  // "Đang chơi" = nút Tạm dừng đang hiện, hoặc selector riêng (game không có nút tạm dừng, ví dụ quiz)
+  const aliveEl = cfg.alive ? page.locator(cfg.alive) : pause;
 
   // Ẩn nút tạm dừng + HUD nổi trong ảnh (opacity 0 vẫn tính là "visible" nên không ảnh hưởng việc dò trạng thái)
   const hidden = [pause, ...(cfg.hideHud ? [stage.locator(cfg.hideHud)] : [])];
@@ -168,7 +191,7 @@ async function captureOne(page, slug, cfg) {
   for (let attempt = 1; attempt <= attempts; attempt++) {
     // "Bắt đầu…" ở màn chờ, hoặc "Chơi lại / Chơi ván mới / Chạy ván mới" sau khi thua
     await stage.getByRole("button", { name: /^(Bắt đầu|Chơi|Chạy ván)/ }).first().click();
-    await pause.waitFor({ state: "visible", timeout: 10_000 });
+    await aliveEl.first().waitFor({ state: "visible", timeout: 10_000 });
 
     // Chơi tới captureAt. Sau minAt (nếu có) chụp dự phòng định kỳ: lỡ thua sớm
     // vẫn còn ảnh đẹp gần nhất thay vì phải chơi lại từ đầu.
@@ -180,7 +203,7 @@ async function captureOne(page, slug, cfg) {
     while (Date.now() - t0 < cfg.captureAt) {
       await cfg.play(page, stage, Date.now() - t0);
       await sleep(150);
-      if (!(await pause.isVisible())) {
+      if (!(await aliveEl.first().isVisible())) {
         alive = false;
         diedAt = Date.now() - t0;
         break;
@@ -199,7 +222,7 @@ async function captureOne(page, slug, cfg) {
         await cfg.play(page, stage, Date.now() - t0);
         await sleep(100);
       }
-      const png = (await pause.isVisible()) && (await isGood()) ? await shoot() : null;
+      const png = (await aliveEl.first().isVisible()) && (await isGood()) ? await shoot() : null;
       await cfg.afterShot?.(page, stage);
       if (png) return png;
     }
