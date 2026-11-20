@@ -37,6 +37,10 @@ const PLAYABLE: Record<string, { Game: ComponentType; frame: Frame }> = {
     Game: dynamic(() => import("@/games/deadline-dash/deadline-dash"), { ssr: false, loading: skeleton("light") }),
     frame: "light",
   },
+  "go-phim-nhanh": {
+    Game: dynamic(() => import("@/games/go-phim-nhanh/go-phim-nhanh"), { ssr: false, loading: skeleton("light") }),
+    frame: "light",
+  },
 };
 
 export function GameStage({ slug }: { slug: string }) {

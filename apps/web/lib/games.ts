@@ -127,15 +127,24 @@ export const GAMES: GameEntry[] = [
     slug: "go-phim-nhanh",
     title: "Gõ phím thần tốc",
     type: "arcade",
-    tagline: "Đo tốc độ gõ tiếng Việt có dấu — Telex hay VNI đều được.",
+    tagline: "Đo tốc độ gõ tiếng Việt có dấu và tiếng Anh — mỗi ván một đoạn văn mới.",
     description:
-      "Gõ đúng và nhanh các câu tiếng Việt có dấu. Xem tốc độ WPM, độ chính xác và so tài với đồng nghiệp, bạn cùng lớp.",
+      "60 giây gõ càng nhanh càng tốt: chọn tiếng Việt (Telex, VNI đều được) hoặc tiếng Anh. Mỗi ván là các đoạn văn ngẫu nhiên về đời văn phòng, mùa thi, game và đủ thứ chuyện, không lặp lại đoạn vừa gõ. Xem tốc độ WPM, độ chính xác và so tài với đồng nghiệp, bạn cùng lớp.",
     audience: ["office", "student", "gamer"],
-    status: "soon",
+    status: "live",
     icon: "keyboard",
     cover: ["#111827", "#16b364"],
+    thumbnail: "/thumbnails/go-phim-nhanh.webp",
     duration: "1 phút",
     players: "1 người",
+    howTo: [
+      "Chọn ngôn ngữ: Tiếng Việt hoặc English.",
+      "Gõ từ đang được tô sáng, xong mỗi từ thì bấm Space.",
+      "Từ chỉ được tính khi đúng cả chữ lẫn dấu; gõ sai vẫn đi tiếp được.",
+      "Đồng hồ 60 giây chạy từ phím đầu tiên; Esc để tạm dừng.",
+      "WPM = số ký tự gõ đúng ÷ 5 trong một phút.",
+      "Mỗi ván là đoạn văn ngẫu nhiên, đoạn vừa gõ sẽ không quay lại ngay.",
+    ],
   },
   // --- Quiz ---
   {
