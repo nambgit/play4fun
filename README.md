@@ -3,13 +3,31 @@
 Cổng game trên trình duyệt: **mini-game giải lao**, **test vui / quiz** và **party game chơi nhóm realtime**,
 dành cho dân văn phòng, học sinh, gamer.
 
+## Danh sách game
+
+| Mục | Game | Slug | Code |
+|---|---|---|---|
+| Giải lao | Inbox Zero | `inbox-zero` | `apps/web/games/inbox-zero/` |
+| Giải lao | Deadline Dash | `deadline-dash` | `apps/web/games/deadline-dash/` |
+| Giải lao | Kiểm tra 15 phút | `bai-kiem-tra-15-phut` | `apps/web/games/kiem-tra-15-phut/` |
+| Giải lao | Pixel Dodge | `pixel-dodge` | `apps/web/games/pixel-dodge/` |
+| Giải lao | Gõ phím thần tốc (Việt + Anh) | `go-phim-nhanh` | `apps/web/games/go-phim-nhanh/` |
+| Test vui | Bạn là kiểu đồng nghiệp nào? | `ban-la-kieu-dong-nghiep-nao` | `apps/web/games/quiz/content/dong-nghiep.ts` |
+| Test vui | Bạn học kiểu gì? | `ban-hoc-kieu-gi` | `apps/web/games/quiz/content/hoc-kieu-gi.ts` |
+| Test vui | Bạn là gamer hệ nào? | `gamer-he-nao` | `apps/web/games/quiz/content/gamer.ts` |
+| Chơi nhóm | Ai là gián điệp? (3–12 người) | `ai-la-gian-diep` | server `apps/realtime/src/games/spy.ts`, giao diện `apps/web/games/party/spy.tsx` |
+| Chơi nhóm | Vẽ & đoán (2–12 người) | `ve-doan-chu` | server `.../games/draw.ts`, giao diện `.../party/draw.tsx` |
+| Chơi nhóm | Đố vui team building (tối đa 50 người) | `do-vui-team-building` | server `.../games/trivia.ts`, giao diện `.../party/trivia.tsx` |
+
+Nguyên tắc chung: mỗi lần chơi là nội dung ngẫu nhiên và hạn chế lặp lại. Game một người nhớ nội dung vừa gặp trong `localStorage`; party game nhớ nội dung đã dùng trong từng phòng.
+
 ## Stack
 
 | Lớp | Công nghệ | Vai trò |
 |---|---|---|
 | Web | Next.js 16 (App Router) + React 19 + Tailwind 4 | Trang chủ, trang game (SSR/SSG cho SEO), API routes |
-| Game client | Phaser 3 (arcade), React (quiz) | Code game trong trình duyệt |
-| Realtime | Node.js + Socket.IO 4 | Phòng chơi nhóm, mã phòng, đồng bộ trạng thái |
+| Game client | Canvas 2D + React (không dùng game engine ngoài) | Code game chạy trong trình duyệt, nhẹ, mượt trên điện thoại |
+| Realtime | Node.js + Socket.IO 4 | Phòng chơi nhóm (mã phòng, QR), logic party game chạy trên server |
 | Database | PostgreSQL 17 + Drizzle ORM | Người chơi, điểm, thử thách hằng ngày, kết quả ván party |
 | Cache | Valkey 8 (tương thích Redis) | Bảng xếp hạng (sorted set), rate limit, sau này scale realtime |
 | Auth (giai đoạn 2) | Better Auth: khách + Google/Facebook | Chơi ngay không cần đăng nhập, login để lưu điểm |
@@ -21,7 +39,14 @@ dành cho dân văn phòng, học sinh, gamer.
 play4fun/
 ├── apps/
 │   ├── web/            # Next.js
-│   └── realtime/       # Socket.IO server: phòng chơi + logic party game (src/games/)
+│   │   ├── app/                 # route: trang chủ, /games/[slug], /api/health
+│   │   ├── lib/games.ts         # danh mục game: tiêu đề, mô tả, cách chơi, thumbnail, trạng thái live/soon
+│   │   ├── components/          # card, cover, game-stage.tsx (đăng ký game chơi được), party/ (khung phòng chơi)
+│   │   ├── games/               # code từng game; quiz/ = engine quiz dùng chung; party/ = giao diện party game
+│   │   ├── lib/party-client.ts  # kết nối Socket.IO, tự vào lại phòng khi rớt mạng
+│   │   ├── scripts/capture-thumbnails.mjs
+│   │   └── public/thumbnails/   # ảnh card + og:image
+│   └── realtime/       # Socket.IO server: phòng chơi + logic party game (src/games/, nội dung trong src/games/content/)
 ├── packages/
 │   ├── db/             # Drizzle schema, migrations (drizzle/), migrate runner
 │   └── party/          # Protocol dùng chung realtime ↔ web cho party game
@@ -65,7 +90,26 @@ npm run dev:web          # http://localhost:3000
 npm run dev:realtime     # http://localhost:3001/health
 ```
 
+Party game cần chạy **cả hai** lệnh trên. Ở local, web (cổng 3000) tự kết nối realtime ở cổng 3001; trên production thì dùng chung domain qua nginx (`/socket.io/`). Muốn trỏ sang chỗ khác thì đặt `NEXT_PUBLIC_REALTIME_URL`. Thử nhiều người chơi trên một máy: mở thêm cửa sổ ẩn danh hoặc trình duyệt khác (mỗi người cần `localStorage` riêng).
+
+Kiểm tra trước khi commit:
+
+```bash
+npm run typecheck        # web + realtime + packages
+npm run build            # build production tất cả workspace
+```
+
 Đổi schema: sửa `packages/db/src/schema.ts` → `npm run db:generate` → commit file SQL mới trong `packages/db/drizzle/`.
+
+### Thêm game mới
+
+1. Khai báo game trong `apps/web/lib/games.ts` (để `status: "soon"` cho tới khi chơi được).
+2. Viết code:
+   - **Giải lao**: thư mục mới trong `apps/web/games/<tên>/`, tách `engine.ts` (logic thuần) và component React (vẽ bằng canvas hoặc DOM). Làm theo mẫu `inbox-zero` hoặc `kiem-tra-15-phut`.
+   - **Test vui**: chỉ cần thêm một file nội dung trong `apps/web/games/quiz/content/` (kiểu dữ liệu `Quiz`) và một file bọc ngắn như `games/quiz/gamer.tsx`. Kho câu hỏi nên lớn hơn số câu hỏi mỗi lượt.
+   - **Chơi nhóm**: thêm slug và giới hạn người chơi vào `packages/party/src/index.ts`, viết module server trong `apps/realtime/src/games/` (đăng ký ở `MODULES` trong `src/index.ts`), rồi viết giao diện dùng `PartyRoom` trong `apps/web/games/party/`. Thông tin bí mật chỉ để trên server và chỉ đưa vào `view()` của người được phép thấy.
+3. Đăng ký component trong `PLAYABLE` ở `apps/web/components/game-stage.tsx`, đổi `status` sang `"live"`, thêm `howTo`.
+4. Chụp thumbnail (mục dưới).
 
 ### Thumbnail game
 
@@ -139,6 +183,13 @@ curl -so /dev/null -w '%{http_code}\n' https://play4fun.io.vn/.env     # 404
 ./deploy/deploy.sh      # git pull → build → up -d → dọn image cũ
 ```
 
+Lưu ý với party game: phòng chơi nằm trong RAM của container `realtime`, nên mỗi lần deploy thì các phòng đang chơi sẽ mất. Nên deploy lúc ít người chơi. Kiểm tra realtime sau khi deploy:
+
+```bash
+curl -s 127.0.0.1:3001/health                                          # {"status":"ok","rooms":0}
+curl -s 'https://play4fun.io.vn/socket.io/?EIO=4&transport=polling' | head -c 60   # bắt đầu bằng 0{"sid":...
+```
+
 `deploy.sh` không đụng tới nginx. Nếu commit có sửa `deploy/nginx/play4fun.io.vn.conf`, chạy thêm:
 
 ```bash
@@ -149,6 +200,7 @@ sudo nginx -t && sudo systemctl reload nginx
 ### Xử lý sự cố
 
 - **`nginx -t` báo `duplicate default server`**: site mặc định của Ubuntu vẫn đang bật. Chạy `sudo rm /etc/nginx/sites-enabled/default` rồi chạy lại.
+- **Party game báo "Đang kết nối máy chủ…" mãi**: kiểm tra container `realtime` đang chạy (`docker compose ps`), lệnh `curl` kiểm tra `/socket.io/` ở trên, và `CORS_ORIGINS` (lấy từ `PUBLIC_URL` trong `.env`) phải đúng domain đang truy cập.
 - **Trình duyệt báo lỗi SSL dù server không đổi gì**: chạy `openssl s_client -connect play4fun.io.vn:443 -servername play4fun.io.vn </dev/null | grep issuer`. Nếu issuer không phải Let's Encrypt (ví dụ Fortinet) thì firewall của mạng đang dùng đang giải mã HTTPS (SSL inspection), server không có lỗi. Thử lại bằng 4G, hoặc nhờ IT thêm domain vào danh sách miễn trừ.
 
 ### Sao lưu database
@@ -161,6 +213,7 @@ Nên đặt cron chạy hằng ngày và copy file backup ra ngoài server.
 
 ## Lộ trình
 
-1. **MVP**: trang chủ, 3 mini-game, 2 quiz, chia sẻ kết quả (chưa cần đăng nhập)
-2. **Giai đoạn 2**: thử thách hằng ngày, đăng nhập, bảng xếp hạng, ảnh OG tự sinh
-3. **Giai đoạn 3**: party game ("Ai là gián điệp?", "Vẽ & đoán", "Đố vui team building"), gói cho công ty, quảng cáo
+1. ✅ **MVP**: trang chủ, 5 mini-game, 3 quiz, chia sẻ kết quả, thumbnail + `og:image` từ ảnh chụp game (chưa cần đăng nhập)
+2. ✅ **Party game**: "Ai là gián điệp?", "Vẽ & đoán", "Đố vui team building" (phòng chơi realtime, mã phòng + QR)
+3. **Giai đoạn 2**: thử thách hằng ngày, đăng nhập, bảng xếp hạng online (hiện kỷ lục chỉ lưu trên máy người chơi), ảnh OG riêng cho từng kết quả
+4. **Giai đoạn 3**: gói cho công ty (phòng team building có thương hiệu, bộ câu hỏi riêng), quảng cáo; scale realtime nhiều instance (Valkey + socket.io adapter)
