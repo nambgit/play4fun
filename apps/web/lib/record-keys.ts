@@ -19,7 +19,7 @@ export type RecordDef = {
    */
   kind: "best" | "latest";
   unit?: string;
-  /** Sanity cap for self-reported scores */
+  /** Highest plausible score: anything above is rejected (scores are self-reported by the browser) */
   max?: number;
 };
 
@@ -30,12 +30,12 @@ const QUIZZES: [string, string][] = [
 ];
 
 export const RECORDS: RecordDef[] = [
-  { key: "inbox-zero", storage: "p4f:inbox-zero:best:v2", slug: "inbox-zero", label: "Inbox Zero", kind: "best", unit: "điểm", max: 1_000_000 },
-  { key: "deadline-dash", storage: "p4f:deadline-dash:best", slug: "deadline-dash", label: "Deadline Dash", kind: "best", unit: "điểm", max: 10_000_000 },
-  { key: "bai-kiem-tra-15-phut", storage: "p4f:kiem-tra-15-phut:best", slug: "bai-kiem-tra-15-phut", label: "Kiểm tra 15 phút", kind: "best", unit: "câu đúng", max: 1_000 },
-  { key: "pixel-dodge", storage: "p4f:pixel-dodge:best", slug: "pixel-dodge", label: "Pixel Dodge", kind: "best", unit: "điểm", max: 10_000_000 },
-  { key: "go-phim-nhanh:vi", storage: "p4f:go-phim-nhanh:best:vi", slug: "go-phim-nhanh", label: "Gõ phím thần tốc · Tiếng Việt", kind: "best", unit: "WPM", max: 400 },
-  { key: "go-phim-nhanh:en", storage: "p4f:go-phim-nhanh:best:en", slug: "go-phim-nhanh", label: "Gõ phím thần tốc · English", kind: "best", unit: "WPM", max: 400 },
+  { key: "inbox-zero", storage: "p4f:inbox-zero:best:v2", slug: "inbox-zero", label: "Inbox Zero", kind: "best", unit: "điểm", max: 60_000 },
+  { key: "deadline-dash", storage: "p4f:deadline-dash:best", slug: "deadline-dash", label: "Deadline Dash", kind: "best", unit: "điểm", max: 50_000 },
+  { key: "bai-kiem-tra-15-phut", storage: "p4f:kiem-tra-15-phut:best", slug: "bai-kiem-tra-15-phut", label: "Kiểm tra 15 phút", kind: "best", unit: "câu đúng", max: 300 },
+  { key: "pixel-dodge", storage: "p4f:pixel-dodge:best", slug: "pixel-dodge", label: "Pixel Dodge", kind: "best", unit: "điểm", max: 150_000 },
+  { key: "go-phim-nhanh:vi", storage: "p4f:go-phim-nhanh:best:vi", slug: "go-phim-nhanh", label: "Gõ phím thần tốc · Tiếng Việt", kind: "best", unit: "WPM", max: 250 },
+  { key: "go-phim-nhanh:en", storage: "p4f:go-phim-nhanh:best:en", slug: "go-phim-nhanh", label: "Gõ phím thần tốc · English", kind: "best", unit: "WPM", max: 250 },
   ...QUIZZES.map(([slug, label]): RecordDef => ({ key: `quiz:${slug}`, storage: `p4f:quiz:${slug}:last`, slug, label, kind: "latest" })),
 ];
 

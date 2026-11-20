@@ -5,7 +5,11 @@ import { AccountMenu } from "./auth/account-menu";
 import { Logo } from "./logo";
 import { MobileNav } from "./mobile-nav";
 
-export const NAV_LINKS = GAME_TYPES.map((t) => ({ href: `/#${TYPE_META[t].anchor}`, label: TYPE_META[t].label, dot: TYPE_META[t].dot }));
+export const NAV_LINKS = [
+  ...GAME_TYPES.map((t) => ({ href: `/#${TYPE_META[t].anchor}`, label: TYPE_META[t].label, dot: TYPE_META[t].dot })),
+  { href: "/daily", label: "Thử thách", dot: "bg-brand" },
+  { href: "/leaderboard", label: "Xếp hạng", dot: "bg-[#f5a400]" },
+];
 
 export function SiteHeader() {
   return (
@@ -13,7 +17,7 @@ export function SiteHeader() {
       <div className="container-page flex h-16 items-center gap-6">
         <Logo />
 
-        <nav aria-label="Danh mục" className="hidden items-center gap-1 md:flex">
+        <nav aria-label="Danh mục" className="hidden items-center gap-0.5 lg:flex">
           {NAV_LINKS.map((l) => (
             <Link
               key={l.href}

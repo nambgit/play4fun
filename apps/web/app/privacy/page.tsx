@@ -65,11 +65,36 @@ export default function PrivacyPage() {
         </section>
 
         <section>
+          <h2>Bảng xếp hạng</h2>
+          <p className="mt-3">
+            Khi bạn đăng nhập, <b>tên và ảnh đại diện</b> của bạn được hiện công khai cạnh kỷ lục trên bảng xếp hạng và bảng thử thách hằng ngày. Bạn tắt được việc này trong
+            trang Tài khoản (mục &ldquo;Hiện tên tôi trên bảng xếp hạng&rdquo;).
+          </p>
+        </section>
+
+        <section>
+          <h2>Quảng cáo</h2>
+          <p className="mt-3">
+            Một số trang có thể hiển thị quảng cáo của <b>Google AdSense</b> (được ghi rõ chữ &ldquo;Quảng cáo&rdquo;, không bao giờ nằm trong màn chơi). Khi có quảng cáo,
+            Google có thể dùng cookie để hiển thị và đo lường quảng cáo theo{" "}
+            <a href="https://policies.google.com/technologies/ads" className="font-semibold text-brand hover:underline" rel="noopener noreferrer" target="_blank">
+              chính sách của Google
+            </a>
+            ; bạn có thể tắt quảng cáo cá nhân hóa tại{" "}
+            <a href="https://adssettings.google.com" className="font-semibold text-brand hover:underline" rel="noopener noreferrer" target="_blank">
+              Cài đặt quảng cáo của Google
+            </a>
+            .
+          </p>
+        </section>
+
+        <section>
           <h2>Dữ liệu được dùng để làm gì</h2>
           <ul>
             <li>Đăng nhập và nhận ra bạn khi quay lại.</li>
             <li>Hiển thị và đồng bộ kỷ lục của bạn.</li>
             <li>Điền sẵn tên khi bạn vào phòng chơi nhóm.</li>
+            <li>Lưu bộ câu hỏi bạn soạn trong Studio (kèm tên, màu và logo công ty nếu có).</li>
           </ul>
           <p className="mt-3">Dữ liệu được lưu trên máy chủ của Play4Fun và không chia sẻ cho bên thứ ba, trừ khi pháp luật yêu cầu.</p>
         </section>

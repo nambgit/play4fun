@@ -19,6 +19,13 @@ dành cho dân văn phòng, học sinh, gamer.
 | Chơi nhóm | Vẽ & đoán (2–12 người) | `ve-doan-chu` | server `.../games/draw.ts`, giao diện `.../party/draw.tsx` |
 | Chơi nhóm | Đố vui team building (tối đa 50 người) | `do-vui-team-building` | server `.../games/trivia.ts`, giao diện `.../party/trivia.tsx` |
 
+Ngoài ra:
+
+- **Thử thách hằng ngày** (`/daily`): mỗi ngày một game giải lao, cả nước chơi cùng một đề (cùng seed), chỉ lần chơi đầu được tính, có bảng ngày và chuỗi ngày chơi. Logic trong `apps/web/lib/daily.ts`.
+- **Bảng xếp hạng** (`/leaderboard` và thẻ ở trang game): kỷ lục của người đã đăng nhập; người chơi ẩn tên được trong `/accounts`; admin gỡ kỷ lục bất thường trong `/admin`.
+- **Chia sẻ kết quả**: nút "Khoe" tạo link `/s/<game>?v=…` có ảnh preview riêng (`/og/result`, font Be Vietnam Pro trong `apps/web/assets/fonts`).
+- **Studio câu hỏi** (`/studio`, gói công ty, miễn phí cho tài khoản): tự soạn bộ câu hỏi + tên, màu, logo công ty; dùng trong Đố vui team building.
+
 Nguyên tắc chung: mỗi lần chơi là nội dung ngẫu nhiên và hạn chế lặp lại. Game một người nhớ nội dung vừa gặp trong `localStorage`; party game nhớ nội dung đã dùng trong từng phòng.
 
 ## Stack
@@ -117,6 +124,13 @@ UMAMI_WEBSITE_ID=<id website trong Umami local>
 UMAMI_DATABASE_URL=postgres://play4fun:<mật khẩu>@localhost:5432/umami
 REALTIME_INTERNAL_URL=http://localhost:3001
 ADMIN_EMAILS=test@example.com
+```
+
+Server realtime đọc `apps/realtime/.env` (không commit) khi chạy `npm run dev:realtime`:
+
+```bash
+DATABASE_URL=postgres://play4fun:<mật khẩu>@localhost:5432/play4fun   # bộ câu hỏi Studio
+REDIS_URL=redis://localhost:6379                                     # giữ phòng khi khởi động lại (docker compose up -d valkey)
 ```
 
 `AUTH_DEV_PASSWORD` giúp thử toàn bộ luồng (đồng bộ kỷ lục, trang tài khoản, xóa tài khoản) mà không cần app Google/Facebook. Trên production biến này bị bỏ qua.
@@ -231,7 +245,19 @@ Sự kiện được ghi: `game-start`, `game-end` (kèm `seconds`, `score`), `g
 
 `/admin` đọc thẳng các bảng của Umami 3.4.1 (`website_event`, `event_data`, `session`) trong `apps/web/lib/admin-stats.ts`; khi nâng phiên bản Umami, kiểm tra lại các câu truy vấn đó.
 
-### 5. Các lần cập nhật sau
+### 5. Quảng cáo Google AdSense (tùy chọn)
+
+Đã làm sẵn 2 vị trí: trang chủ (`home`) và cột bên của trang game / thử thách / xếp hạng (`sidebar`). Không đặt quảng cáo trong màn chơi hay cạnh nút điều khiển (dễ bấm nhầm, vi phạm chính sách AdSense). Khi chưa điền mã thì không hiện gì và `/ads.txt` trả 404.
+
+1. Đăng ký [AdSense](https://adsense.google.com), thêm site `play4fun.io.vn`, chờ duyệt.
+2. Tạo 2 đơn vị quảng cáo hiển thị (Ads → By ad unit → Display ads), chép **Publisher ID** (`ca-pub-…`) và 2 **ad slot id**.
+3. Điền `ADSENSE_CLIENT`, `ADSENSE_SLOT_HOME`, `ADSENSE_SLOT_SIDEBAR` vào `.env`, chạy `./deploy/deploy.sh`. Kiểm tra `https://play4fun.io.vn/ads.txt`.
+
+### 6. Phòng chơi nhóm khi deploy
+
+Khi container `realtime` dừng (SIGTERM lúc deploy), mọi phòng đang mở được lưu vào Valkey (giữ 15 phút); container mới nạp lại, đồng hồ trong ván được cộng thêm thời gian gián đoạn, điện thoại người chơi tự kết nối lại vào đúng chỗ. Không cần cấu hình gì thêm (dùng `REDIS_URL` sẵn có). Log: `docker compose logs realtime | grep -E "saved|restored"`.
+
+### 7. Các lần cập nhật sau
 
 ```bash
 ./deploy/deploy.sh      # git pull → build → up -d → dọn image cũ
@@ -271,5 +297,6 @@ Nên đặt cron chạy hằng ngày và copy file backup ra ngoài server.
 2. ✅ **Party game**: "Ai là gián điệp?", "Vẽ & đoán", "Đố vui team building" (phòng chơi realtime, mã phòng + QR)
 3. ✅ **Đăng nhập** Google/Facebook (không bắt buộc), kỷ lục đồng bộ giữa các thiết bị, trang tài khoản, xóa tài khoản
 4. ✅ **Thống kê** (Umami tự host) và trang `/admin`
-5. **Giai đoạn 2 (còn lại)**: thử thách hằng ngày, bảng xếp hạng online, ảnh OG riêng cho từng kết quả
-6. **Giai đoạn 3**: gói cho công ty (phòng team building có thương hiệu, bộ câu hỏi riêng), quảng cáo; scale realtime nhiều instance (Valkey + socket.io adapter)
+5. ✅ **Giai đoạn 2**: thử thách hằng ngày, bảng xếp hạng online, ảnh chia sẻ riêng cho từng kết quả
+6. ✅ **Giai đoạn 3**: Studio câu hỏi + phòng có thương hiệu (miễn phí cho tài khoản), vị trí quảng cáo AdSense (bật bằng `.env`), giữ phòng chơi nhóm qua mỗi lần deploy
+7. **Sau này (khi cần)**: chạy nhiều instance realtime (socket.io redis adapter), thu phí gói công ty, chống gian lận điểm bằng kiểm tra phía server

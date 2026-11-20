@@ -18,7 +18,11 @@ import {
   typeDigit,
   type GameState,
 } from "./engine";
+import { DailyBadge } from "@/components/daily-badge";
+import type { DailyInfo } from "@/lib/daily";
+import { finishDaily } from "@/lib/daily-client";
 import { gameEnd, gameStart } from "@/lib/analytics";
+import { resultUrl } from "@/lib/share";
 import { notifyRecordChanged } from "@/lib/record-sync";
 import { SaveRecordHint } from "@/components/auth/save-record-hint";
 
@@ -55,7 +59,7 @@ function writeNum(key: string, v: number) {
 
 const CHALK = "#f4f1e8";
 
-export default function KiemTra15Phut() {
+export default function KiemTra15Phut({ daily }: { daily?: DailyInfo }) {
   const stageRef = useRef<HTMLDivElement>(null);
   const stateRef = useRef<GameState | null>(null);
   const phaseRef = useRef<Phase>("ready");
@@ -74,13 +78,13 @@ export default function KiemTra15Phut() {
 
   /** Every round: new random seed → a fresh set of generated questions */
   const start = useCallback(() => {
-    stateRef.current = createGame(Date.now() ^ Math.floor(Math.random() * 2 ** 31));
+    stateRef.current = createGame(daily ? daily.seed : Date.now() ^ Math.floor(Math.random() * 2 ** 31));
     setResult(null);
     setCopied(false);
     setPhase("playing");
     gameStart("bai-kiem-tra-15-phut");
     stageRef.current?.focus({ preventScroll: true });
-  }, [setPhase]);
+  }, [daily, setPhase]);
 
   const finish = useCallback(() => {
     const s = stateRef.current!;
@@ -105,8 +109,9 @@ export default function KiemTra15Phut() {
       best: Math.max(prev, s.correct),
     });
     gameEnd("bai-kiem-tra-15-phut", { score: s.correct });
+    if (daily) void finishDaily(daily, "bai-kiem-tra-15-phut", s.correct);
     setPhase("over");
-  }, [setPhase]);
+  }, [daily, setPhase]);
 
   // ------------------------------------------------------------ loop
   useEffect(() => {
@@ -189,7 +194,7 @@ export default function KiemTra15Phut() {
 
   const share = async () => {
     if (!result) return;
-    const url = `${window.location.origin}/games/bai-kiem-tra-15-phut`;
+    const url = resultUrl("bai-kiem-tra-15-phut", { v: result.correct, d: daily?.day });
     const text = `📝 Kiểm tra 15 phút — ${result.correct} câu đúng · Điểm ${formatGrade(result.grade)}\n${result.sheet}\nCô phê: ${result.comment}`;
     try {
       if (navigator.share) {
@@ -284,6 +289,7 @@ export default function KiemTra15Phut() {
                 Đề <b>khó dần</b>: cộng trừ, bảng cửu chương, chia, tìm x…
               </Rule>
             </ul>
+            {daily && <DailyBadge daily={daily} where="ready" />}
             <button type="button" onClick={start} className="btn-primary mt-6 px-8 py-3.5 text-base">
               <Play className="h-4 w-4 fill-current" aria-hidden="true" />
               Bắt đầu làm bài
@@ -352,6 +358,7 @@ export default function KiemTra15Phut() {
               </button>
             </div>
             <p className="mt-3 text-xs text-muted">Kỷ lục: {result.best} câu đúng · đề mới sẽ là các phép tính khác</p>
+            {daily && <DailyBadge daily={daily} where="over" />}
             <SaveRecordHint />
           </Overlay>
         )}

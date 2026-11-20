@@ -1,6 +1,6 @@
 "use client";
 
-import { PARTY_GAMES, type GameView, type PartySettings, type PartySlug, type PlayerView, type ServerState } from "@play4fun/party";
+import { PARTY_GAMES, type GameView, type PartySettings, type PartySlug, type PlayerView, type RoomBrand, type RoomPublic, type ServerState } from "@play4fun/party";
 import { Check, Copy, Crown, DoorOpen, LogIn, Plus, Share2, UserX, Users, WifiOff, X } from "lucide-react";
 import QRCode from "qrcode";
 import { useEffect, useMemo, useState, type ComponentType, type ReactNode } from "react";
@@ -22,7 +22,24 @@ export type SettingsProps<S extends PartySettings = PartySettings> = {
   onChange: (s: S) => void;
   disabled: boolean;
   playerCount: number;
+  room: RoomPublic;
 };
+
+/** Company branding (Studio question set): logo + name on the brand colour */
+export function BrandBar({ brand, subtitle }: { brand: RoomBrand; subtitle: string }) {
+  return (
+    <div className="mb-4 flex items-center gap-3 rounded-2xl p-3 text-white shadow-card" style={{ background: brand.color ?? "var(--brand)" }}>
+      {brand.logo && (
+        // eslint-disable-next-line @next/next/no-img-element -- small logo served by /api/sets/<id>/logo
+        <img src={brand.logo} alt="" className="h-10 w-10 shrink-0 rounded-xl bg-white object-contain p-1" />
+      )}
+      <div className="min-w-0">
+        <p className="truncate font-bold">{brand.name ?? "Đố vui team building"}</p>
+        <p className="truncate text-xs text-white/80">{subtitle}</p>
+      </div>
+    </div>
+  );
+}
 
 type Props = {
   slug: PartySlug;
@@ -211,6 +228,7 @@ function Lobby({
 
   return (
     <div>
+      {room.brand && <BrandBar brand={room.brand} subtitle={room.customSet ? `${room.customSet.title} · ${room.customSet.count} câu hỏi` : title} />}
       <div className="flex items-center gap-3">
         <span className="grid h-10 w-10 place-items-center rounded-xl text-xl" style={{ backgroundImage: `linear-gradient(135deg, ${accent[0]}, ${accent[1]})` }} aria-hidden="true">
           {emoji}
@@ -266,7 +284,7 @@ function Lobby({
         <section className="rounded-2xl border border-line bg-surface p-4">
           <h3 className="text-sm font-semibold">Cài đặt {isHost ? "" : "(chủ phòng chỉnh)"}</h3>
           <div className="mt-3">
-            <Settings value={room.settings} onChange={api.settings} disabled={!isHost} playerCount={online} />
+            <Settings value={room.settings} onChange={api.settings} disabled={!isHost} playerCount={online} room={room} />
           </div>
         </section>
         <section className="rounded-2xl border border-line bg-surface p-4 text-sm leading-relaxed text-muted [&_b]:text-fg">
@@ -358,6 +376,7 @@ function InGame({ api, state, Game }: { api: PartyApi; state: ServerState; Game:
 
   return (
     <div>
+      {room.brand && <BrandBar brand={room.brand} subtitle={room.customSet?.title ?? ""} />}
       <div className="mb-3 flex flex-wrap items-center gap-2 text-xs text-muted">
         <span className="rounded-md bg-surface-2 px-2 py-1 font-mono font-bold text-fg">{room.code}</span>
         <span className="inline-flex items-center gap-1">

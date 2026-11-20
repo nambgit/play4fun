@@ -1,7 +1,7 @@
-import { eq, userRecords } from "@play4fun/db";
-import { CalendarDays, LayoutDashboard, Play, Trophy } from "lucide-react";
+import { eq, userRecords, users } from "@play4fun/db";
+import { GameImage } from "@/components/game-image";
+import { Building2, CalendarDays, LayoutDashboard, Play, Trophy } from "lucide-react";
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Avatar } from "@/components/auth/account-menu";
@@ -14,6 +14,7 @@ import { getDb } from "@/lib/db";
 import { getGame } from "@/lib/games";
 import { RECORDS } from "@/lib/record-keys";
 import { AccountActions } from "./account-actions";
+import { LeaderboardToggle } from "./leaderboard-toggle";
 import { DeviceRecords } from "./device-records";
 
 export const metadata: Metadata = { title: "Tài khoản", robots: { index: false } };
@@ -28,7 +29,11 @@ export default async function AccountPage() {
   const user = await currentUser();
   if (!user) redirect("/login?next=/accounts");
 
-  const rows = await getDb().select().from(userRecords).where(eq(userRecords.userId, user.id));
+  const db = getDb();
+  const [rows, [prefs]] = await Promise.all([
+    db.select().from(userRecords).where(eq(userRecords.userId, user.id)),
+    db.select({ showOnLeaderboard: users.showOnLeaderboard }).from(users).where(eq(users.id, user.id)),
+  ]);
   const byKey = new Map(rows.map((r) => [r.key, r]));
   const best = RECORDS.filter((d) => d.kind === "best");
   const quizzes = RECORDS.filter((d) => d.kind === "latest");
@@ -55,9 +60,17 @@ export default async function AccountPage() {
               Bảng điều khiển
             </Link>
           )}
+          <Link href="/studio" className="btn-ghost h-10 px-4">
+            <Building2 className="h-4 w-4" aria-hidden="true" />
+            Studio câu hỏi
+          </Link>
           <AccountActions />
         </div>
       </section>
+
+      <div className="mt-4">
+        <LeaderboardToggle initial={prefs?.showOnLeaderboard ?? true} />
+      </div>
 
       {/* Records */}
       <section aria-labelledby="ky-luc" className="mt-8 sm:mt-10">
@@ -76,7 +89,7 @@ export default async function AccountPage() {
             return (
               <li key={d.key} className="flex items-center gap-3 rounded-2xl border border-line bg-surface p-3 shadow-card">
                 <div className="relative h-14 w-20 shrink-0 overflow-hidden rounded-xl bg-surface-2">
-                  {g?.thumbnail && <Image src={g.thumbnail} alt="" fill unoptimized sizes="80px" className="object-cover" />}
+                  {g?.thumbnail && <GameImage src={g.thumbnail} />}
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-semibold">{d.label}</p>

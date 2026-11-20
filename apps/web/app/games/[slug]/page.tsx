@@ -5,6 +5,9 @@ import { notFound } from "next/navigation";
 import { CardRail } from "@/components/card-rail";
 import { GameCover } from "@/components/game-cover";
 import { GameStage } from "@/components/game-stage";
+import { AdSlot } from "@/components/ad-slot";
+import { LeaderboardCard } from "@/components/leaderboard-card";
+import { RECORDS } from "@/lib/record-keys";
 import { AUDIENCE_LABEL, GAMES, TYPE_META, getGame, relatedGames, shareImage } from "@/lib/games";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -130,6 +133,9 @@ export default async function GamePage({ params }: Props) {
               </button>
             )}
           </section>
+
+          {game.status === "live" && RECORDS.some((r) => r.slug === game.slug && r.kind === "best") && <LeaderboardCard slug={game.slug} />}
+          <AdSlot placement="sidebar" />
 
           <Link href="/" className="hidden items-center gap-2 text-sm font-medium text-muted hover:text-fg lg:inline-flex">
             <ArrowLeft className="h-4 w-4" aria-hidden="true" />

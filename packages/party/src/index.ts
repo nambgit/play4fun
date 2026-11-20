@@ -28,7 +28,8 @@ export const RECONNECT_GRACE_S = 90;
 export type SpySettings = { spies: number; blankSpy: boolean };
 export type DrawSettings = { rounds: number; drawTime: number };
 export type TriviaCategory = "all" | "chung" | "vietnam" | "khoahoc" | "congso";
-export type TriviaSettings = { count: number; seconds: number; category: TriviaCategory };
+/** setId: a Studio question set (company package) instead of the built-in questions */
+export type TriviaSettings = { count: number; seconds: number; category: TriviaCategory; setId: string | null };
 
 export type PartySettings = SpySettings | DrawSettings | TriviaSettings;
 
@@ -55,13 +56,16 @@ export function defaultSettings(slug: PartySlug): PartySettings {
     case "ve-doan-chu":
       return { rounds: 2, drawTime: 80 } satisfies DrawSettings;
     case "do-vui-team-building":
-      return { count: 10, seconds: 20, category: "all" } satisfies TriviaSettings;
+      return { count: 10, seconds: 20, category: "all", setId: null } satisfies TriviaSettings;
   }
 }
 
 // ------------------------------------------------------------ room
 
 export type PlayerView = { id: string; name: string; connected: boolean };
+
+/** Company branding from a Studio question set: shown on the big screen and every phone */
+export type RoomBrand = { name: string | null; color: string | null; logo: string | null };
 
 export type RoomPublic = {
   code: string;
@@ -70,7 +74,12 @@ export type RoomPublic = {
   status: "lobby" | "playing";
   players: PlayerView[];
   settings: PartySettings;
+  brand: RoomBrand | null;
+  /** The Studio question set in use (title and size only — questions stay on the server) */
+  customSet: { id: string; title: string; count: number } | null;
 };
+
+export const isUuid = (s: unknown): s is string => typeof s === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s);
 
 export type ServerState = {
   room: RoomPublic;

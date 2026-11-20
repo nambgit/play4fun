@@ -4,6 +4,7 @@ import { ArrowLeft, Check, Heart, Lightbulb, Play, RotateCcw, Share2, Shuffle, S
 import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import { answer, back, createRun, isDone, result as computeResult, type Quiz, type QuizResult, type QuizRun } from "./engine";
 import { gameEnd, gameStart } from "@/lib/analytics";
+import { resultUrl } from "@/lib/share";
 import { notifyRecordChanged } from "@/lib/record-sync";
 import { SaveRecordHint } from "@/components/auth/save-record-hint";
 
@@ -142,7 +143,7 @@ export function QuizGame({ quiz, accent }: { quiz: Quiz; accent: [string, string
 
   const share = async () => {
     if (!res) return;
-    const url = `${window.location.origin}/games/${quiz.slug}`;
+    const url = resultUrl(quiz.slug, { r: res.type.id });
     const text = `${quiz.emoji} ${quiz.title}\nMình là ${res.type.emoji} ${res.type.name}: ${res.type.tagline}\nCòn bạn thì sao?`;
     try {
       if (navigator.share) {

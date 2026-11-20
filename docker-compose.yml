@@ -33,6 +33,9 @@ services:
     command: ["valkey-server", "--appendonly", "yes"]
     volumes:
       - valkeydata:/data
+    # Chỉ trên localhost (quản trị / dev); realtime dùng nó để giữ phòng chơi qua mỗi lần deploy
+    ports:
+      - "127.0.0.1:${VALKEY_PORT:-6379}:6379"
     healthcheck:
       test: ["CMD", "valkey-cli", "ping"]
       interval: 5s
@@ -76,6 +79,10 @@ services:
       UMAMI_DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/umami
       ADMIN_EMAILS: ${ADMIN_EMAILS:-}
       REALTIME_INTERNAL_URL: http://realtime:3001
+      # Quảng cáo Google AdSense (để trống = tắt)
+      ADSENSE_CLIENT: ${ADSENSE_CLIENT:-}
+      ADSENSE_SLOT_HOME: ${ADSENSE_SLOT_HOME:-}
+      ADSENSE_SLOT_SIDEBAR: ${ADSENSE_SLOT_SIDEBAR:-}
       HOSTNAME: 0.0.0.0
       TZ: Asia/Ho_Chi_Minh
     ports:

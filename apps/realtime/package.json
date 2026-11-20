@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "tsx watch src/index.ts",
+    "dev": "tsx watch --env-file-if-exists=.env src/index.ts",
     "build": "tsup",
     "start": "node dist/index.cjs",
     "typecheck": "tsc -p tsconfig.json"
@@ -11,6 +11,7 @@
   "dependencies": {
     "@play4fun/db": "*",
     "@play4fun/party": "*",
+    "redis": "^6.3.1",
     "socket.io": "^4.8.1"
   },
   "devDependencies": {

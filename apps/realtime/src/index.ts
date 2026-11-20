@@ -12,6 +12,8 @@ import {
   type ServerState,
 } from "@play4fun/party";
 import { Server, type Socket } from "socket.io";
+import { loadQuestionSet } from "./db";
+import { loadRooms, saveRooms } from "./persist";
 import { draw } from "./games/draw";
 import { spy } from "./games/spy";
 import { trivia } from "./games/trivia";
@@ -249,6 +251,7 @@ io.on("connection", (raw) => {
       game: null,
       timers: new Map(),
       used: new Set(),
+      custom: null,
     };
     rooms.set(room.code, room);
     seat(socket, room, pid, name);
@@ -280,11 +283,18 @@ io.on("connection", (raw) => {
     if (cur) removePlayer(cur.room, cur.pid);
   });
 
-  socket.on("room:settings", (settings: unknown) => {
+  socket.on("room:settings", async (settings: unknown) => {
     const cur = currentRoom(socket);
     if (!cur || cur.room.hostId !== cur.pid || cur.room.status !== "lobby" || !allow(socket, "settings", 5)) return;
-    cur.room.settings = MODULES[cur.room.gameSlug].normalizeSettings(settings, connectedIds(cur.room).length);
-    push(cur.room);
+    const { room } = cur;
+    room.settings = MODULES[room.gameSlug].normalizeSettings(settings, connectedIds(room).length);
+    // Đố vui: the host picked a Studio question set → load it (and its branding) from the database
+    const setId = (room.settings as { setId?: string | null }).setId ?? null;
+    if (setId !== (room.custom?.id ?? null)) {
+      room.custom = setId ? await loadQuestionSet(setId) : null;
+      if (setId && !room.custom) (room.settings as { setId?: string | null }).setId = null;
+    }
+    push(room);
   });
 
   socket.on("room:start", (_: unknown, ack?: (r: { ok: boolean; error?: string }) => void) => {
@@ -356,15 +366,7 @@ io.on("connection", (raw) => {
     const p = room.players.get(pid)!;
     p.socketId = null;
     p.leftAt = Date.now();
-    // Keep the seat for a while: phones drop the connection when the screen locks
-    room.timers.set(
-      `gone:${pid}`,
-      setTimeout(() => {
-        room.timers.delete(`gone:${pid}`);
-        const still = room.players.get(pid);
-        if (still && !still.socketId) removePlayer(room, pid);
-      }, RECONNECT_GRACE_S * 1000),
-    );
+    holdSeat(room, pid);
     ensureHost(room);
     if (room.game) room.game.module.onConnectionChange?.(ctxFor(room), room.game.state, pid);
     push(room);
@@ -384,13 +386,69 @@ setInterval(() => {
   }
 }, 60_000).unref();
 
-httpServer.listen(PORT, "0.0.0.0", () => {
-  console.log(`[realtime] listening on :${PORT} (cors: ${CORS_ORIGINS.join(", ")})`);
-});
+/** Keep a disconnected player's seat for a while: phones drop the connection when the screen locks */
+function holdSeat(room: Room, pid: string) {
+  clearTimeout(room.timers.get(`gone:${pid}`));
+  room.timers.set(
+    `gone:${pid}`,
+    setTimeout(() => {
+      room.timers.delete(`gone:${pid}`);
+      const still = room.players.get(pid);
+      if (still && !still.socketId) removePlayer(room, pid);
+    }, RECONNECT_GRACE_S * 1000),
+  );
+}
 
-function shutdown() {
+/** Bring back the rooms saved by the previous process (deploy / restart) */
+async function restoreRooms() {
+  const snap = await loadRooms();
+  if (!snap) return;
+  const now = Date.now();
+  for (const pr of snap.rooms) {
+    if (rooms.has(pr.code) || !isPartySlug(pr.gameSlug)) continue;
+    const room: Room = {
+      code: pr.code,
+      gameSlug: pr.gameSlug,
+      hostId: pr.hostId,
+      status: pr.status,
+      settings: pr.settings,
+      createdAt: pr.createdAt,
+      used: pr.used instanceof Set ? pr.used : new Set(),
+      custom: pr.custom ?? null,
+      players: new Map(pr.players.map((p) => [p.id, { ...p, socketId: null, leftAt: now }])),
+      timers: new Map(),
+      game: null,
+    };
+    rooms.set(room.code, room);
+    if (pr.game && room.status === "playing") {
+      const module = MODULES[room.gameSlug];
+      room.game = { module, state: pr.game.state };
+      module.resume?.(ctxFor(room), room.game.state, snap.pausedMs);
+    } else {
+      room.status = "lobby";
+    }
+    for (const pid of room.players.keys()) holdSeat(room, pid);
+  }
+  console.log(`[realtime] restored ${snap.rooms.length} room(s) after ${Math.round(snap.pausedMs / 1000)}s`);
+}
+
+restoreRooms()
+  .catch((err) => console.error("[realtime] restore failed", err))
+  .finally(() => {
+    httpServer.listen(PORT, "0.0.0.0", () => {
+      console.log(`[realtime] listening on :${PORT} (cors: ${CORS_ORIGINS.join(", ")})`);
+    });
+  });
+
+let shuttingDown = false;
+async function shutdown() {
+  if (shuttingDown) return;
+  shuttingDown = true;
+  setTimeout(() => process.exit(0), 8000).unref();
+  // Save rooms first (Docker gives 10s after SIGTERM), then drop the connections
+  const saved = await saveRooms(rooms.values()).catch(() => 0);
+  if (saved) console.log(`[realtime] saved ${saved} room(s) for the next start`);
   io.close(() => process.exit(0));
-  setTimeout(() => process.exit(0), 5000).unref();
 }
 process.on("SIGTERM", shutdown);
 process.on("SIGINT", shutdown);

@@ -16,7 +16,11 @@ import {
   type CharState,
   type GameState,
 } from "./engine";
+import { DailyBadge } from "@/components/daily-badge";
+import type { DailyInfo } from "@/lib/daily";
+import { finishDaily } from "@/lib/daily-client";
 import { gameEnd, gameStart } from "@/lib/analytics";
+import { resultUrl } from "@/lib/share";
 import { notifyRecordChanged } from "@/lib/record-sync";
 import { SaveRecordHint } from "@/components/auth/save-record-hint";
 
@@ -71,7 +75,7 @@ function writeStr(key: string, v: string) {
   }
 }
 
-export default function GoPhimNhanh() {
+export default function GoPhimNhanh({ daily }: { daily?: DailyInfo }) {
   const stageRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const stateRef = useRef<GameState | null>(null);
@@ -103,13 +107,13 @@ export default function GoPhimNhanh() {
 
   /** Every round: fresh random seed + passages typed in recent rounds pushed to the back */
   const start = useCallback(() => {
-    stateRef.current = createGame(lang, Date.now() ^ Math.floor(Math.random() * 2 ** 31), readSeen(lang));
+    stateRef.current = daily ? createGame("vi", daily.seed) : createGame(lang, Date.now() ^ Math.floor(Math.random() * 2 ** 31), readSeen(lang));
     if (inputRef.current) inputRef.current.value = "";
     setResult(null);
     setCopied(false);
     setPhase("playing");
     gameStart("go-phim-nhanh");
-  }, [lang, setPhase]);
+  }, [daily, lang, setPhase]);
 
   const finish = useCallback(() => {
     const s = stateRef.current!;
@@ -135,8 +139,9 @@ export default function GoPhimNhanh() {
     });
     if (inputRef.current) inputRef.current.value = "";
     gameEnd("go-phim-nhanh", { score: speed });
+    if (daily && s.lang === "vi") void finishDaily(daily, "go-phim-nhanh", speed);
     setPhase("over");
-  }, [setPhase]);
+  }, [daily, setPhase]);
 
   // Focus the input whenever play (re)starts — after React has enabled it
   useEffect(() => {
@@ -210,7 +215,7 @@ export default function GoPhimNhanh() {
 
   const share = async () => {
     if (!result) return;
-    const url = `${window.location.origin}/games/go-phim-nhanh`;
+    const url = resultUrl("go-phim-nhanh", { v: result.wpm, k: result.lang, d: daily && result.lang === "vi" ? daily.day : undefined });
     const text = `⌨️ Gõ phím thần tốc (${LANG_LABEL[result.lang]}) — ${result.wpm} WPM · chính xác ${result.accuracy}%\nDanh hiệu: ${result.title}`;
     try {
       if (navigator.share) {
@@ -324,6 +329,7 @@ export default function GoPhimNhanh() {
                 )}
               </Rule>
             </ul>
+            {daily && <DailyBadge daily={daily} where="ready" />}
             <button type="button" onClick={start} className="btn-primary mt-6 px-8 py-3.5 text-base">
               <Play className="h-4 w-4 fill-current" aria-hidden="true" />
               Bắt đầu
@@ -389,6 +395,7 @@ export default function GoPhimNhanh() {
             <p className="mt-3 text-xs text-muted">
               Kỷ lục {LANG_LABEL[lang]}: {lang === result.lang ? result.best : best} WPM · ván mới sẽ là đoạn văn khác
             </p>
+            {daily && <DailyBadge daily={daily} where="over" />}
             <SaveRecordHint />
           </Overlay>
         )}

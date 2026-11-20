@@ -41,6 +41,8 @@ export const users = pgTable("users", {
   emailVerified: boolean("email_verified").notNull().default(false),
   /** Khách chơi không cần đăng nhập; nâng cấp thành tài khoản thật khi login */
   isGuest: boolean("is_guest").notNull().default(true),
+  /** Hiện tên + ảnh trên bảng xếp hạng công khai (người chơi tắt được trong /accounts) */
+  showOnLeaderboard: boolean("show_on_leaderboard").notNull().default(true),
   createdAt: createdAt(),
   updatedAt: updatedAt(),
 });
@@ -211,4 +213,32 @@ export const partyMatches = pgTable(
     endedAt: timestamp("ended_at", { withTimezone: true }),
   },
   (t) => [index("party_matches_game_idx").on(t.gameId, t.startedAt.desc())],
+);
+
+// ------------------------------------------------------------ Gói công ty (Studio)
+
+export type QuestionSetItem = { q: string; options: string[]; correct: number };
+
+/**
+ * Bộ câu hỏi tự soạn cho Đố vui team building, kèm thương hiệu (tên, màu, logo) hiện trong phòng chơi.
+ * Không công khai: chỉ người có id (uuid, không đoán được) mới dùng được — chủ bộ chọn trong sảnh chờ.
+ */
+export const questionSets = pgTable(
+  "question_sets",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    ownerId: uuid("owner_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    title: varchar("title", { length: 80 }).notNull(),
+    brandName: varchar("brand_name", { length: 60 }),
+    /** "#rrggbb" */
+    brandColor: varchar("brand_color", { length: 7 }),
+    /** Logo nhỏ (PNG/JPEG/WebP ≤ 150 KB) dạng data URL */
+    logo: text("logo"),
+    questions: jsonb("questions").$type<QuestionSetItem[]>().notNull().default([]),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [index("question_sets_owner_idx").on(t.ownerId)],
 );

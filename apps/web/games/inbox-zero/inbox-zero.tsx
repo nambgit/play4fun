@@ -38,7 +38,11 @@ import {
   type Card,
   type GameState,
 } from "./engine";
+import { DailyBadge } from "@/components/daily-badge";
+import type { DailyInfo } from "@/lib/daily";
+import { finishDaily } from "@/lib/daily-client";
 import { gameEnd, gameStart } from "@/lib/analytics";
+import { resultUrl } from "@/lib/share";
 import { notifyRecordChanged } from "@/lib/record-sync";
 import { SaveRecordHint } from "@/components/auth/save-record-hint";
 
@@ -111,7 +115,7 @@ function initials(name: string) {
   return (clean.length > 1 ? clean[0][0] + clean[clean.length - 1][0] : clean[0][0]).toUpperCase();
 }
 
-export default function InboxZero() {
+export default function InboxZero({ daily }: { daily?: DailyInfo }) {
   const stageRef = useRef<HTMLDivElement>(null);
   const stateRef = useRef<GameState | null>(null);
   const phaseRef = useRef<Phase>("ready");
@@ -132,7 +136,8 @@ export default function InboxZero() {
 
   /** Every round: new random seed + emails seen in recent rounds pushed to the back of the deck */
   const start = useCallback(() => {
-    stateRef.current = createGame(Date.now() ^ Math.floor(Math.random() * 2 ** 31), readSeen());
+    // Daily challenge: same inbox for everyone (fixed seed, no "recently seen" reordering)
+    stateRef.current = daily ? createGame(daily.seed) : createGame(Date.now() ^ Math.floor(Math.random() * 2 ** 31), readSeen());
     setLeaving([]);
     setDrag(null);
     setResult(null);
@@ -140,7 +145,7 @@ export default function InboxZero() {
     setPhase("playing");
     gameStart("inbox-zero");
     stageRef.current?.focus({ preventScroll: true });
-  }, [setPhase]);
+  }, [daily, setPhase]);
 
   const finish = useCallback(() => {
     const s = stateRef.current!;
@@ -167,8 +172,9 @@ export default function InboxZero() {
       best,
     });
     gameEnd("inbox-zero", { score: s.score });
+    if (daily) void finishDaily(daily, "inbox-zero", s.score);
     setPhase("over");
-  }, [setPhase]);
+  }, [daily, setPhase]);
 
   // ------------------------------------------------------------ loop
   useEffect(() => {
@@ -274,7 +280,7 @@ export default function InboxZero() {
 
   const share = async () => {
     if (!result) return;
-    const url = `${window.location.origin}/games/inbox-zero`;
+    const url = resultUrl("inbox-zero", { v: result.score, d: daily?.day });
     const head = "📥 Inbox Zero";
     const text = `${head} — ${result.correct} email / ${ROUND_SECONDS}s · ${result.score.toLocaleString("vi-VN")} điểm\n${result.grid}\nDanh hiệu: ${result.title}`;
     try {
@@ -410,6 +416,7 @@ export default function InboxZero() {
             <p className="mx-auto mt-3 max-w-sm rounded-lg bg-arcade-soft px-3 py-2 text-xs text-fg">
               💡 Đồng nghiệp thật luôn dùng đuôi <b className="font-mono">@{COMPANY_DOMAIN}</b> — soi kỹ địa chỉ người gửi!
             </p>
+            {daily && <DailyBadge daily={daily} where="ready" />}
             <button type="button" onClick={start} className="btn-primary mt-6 px-8 py-3.5 text-base">
               <Play className="h-4 w-4 fill-current" aria-hidden="true" />
               Bắt đầu
@@ -480,6 +487,7 @@ export default function InboxZero() {
             <p className="mt-3 text-xs text-muted">
               Kỷ lục: {result.best.toLocaleString("vi-VN")} điểm · ván mới sẽ là bộ email khác
             </p>
+            {daily && <DailyBadge daily={daily} where="over" />}
             <SaveRecordHint />
           </Overlay>
         )}

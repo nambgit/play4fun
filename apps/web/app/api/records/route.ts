@@ -47,8 +47,9 @@ export async function POST(req: Request) {
 
     if (def.kind === "best") {
       const value = Number(r.value);
-      if (!Number.isFinite(value) || value <= 0) continue;
-      const v = Math.min(Math.round(value), def.max ?? 1_000_000_000);
+      // Implausible scores are dropped, not clamped (clamping would put a cheater at the cap, on top of the leaderboard)
+      if (!Number.isFinite(value) || value <= 0 || value > (def.max ?? 1_000_000_000)) continue;
+      const v = Math.round(value);
       await db
         .insert(userRecords)
         .values({ userId: user.id, key: def.key, value: v })

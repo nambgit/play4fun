@@ -378,6 +378,37 @@ export const draw: GameModule<State, DrawSettings> = {
     };
   },
 
+  resume(ctx, s, paused) {
+    s.endsAt += paused;
+    s.drawStart += paused;
+    const now = ctx.now();
+    const left = Math.max(0, s.endsAt - now);
+    if (s.phase === "choosing") {
+      ctx.timer("phase", left, () => {
+        choose(ctx, s, Math.floor(Math.random() * s.choices.length));
+        ctx.push();
+      });
+    } else if (s.phase === "drawing") {
+      for (const [key, frac] of [["hint1", 0.5], ["hint2", 0.75]] as const) {
+        const at = s.drawStart + s.drawMs * frac;
+        if (at > now)
+          ctx.timer(key, at - now, () => {
+            revealHint(s);
+            ctx.push();
+          });
+      }
+      ctx.timer("phase", left, () => {
+        endTurn(ctx, s);
+        ctx.push();
+      });
+    } else if (s.phase === "turnEnd") {
+      ctx.timer("phase", left, () => {
+        nextTurn(ctx, s);
+        ctx.push();
+      });
+    }
+  },
+
   onJoin(_ctx, s, pid) {
     if (!s.scores.has(pid)) s.scores.set(pid, 0);
     if (!s.baseOrder.includes(pid)) s.baseOrder.push(pid);

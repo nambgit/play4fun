@@ -15,6 +15,13 @@
       "when": 1795158875100,
       "tag": "0001_auth_and_records",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1795165612572,
+      "tag": "0002_leaderboard_studio",
+      "breakpoints": true
     }
   ]
 }

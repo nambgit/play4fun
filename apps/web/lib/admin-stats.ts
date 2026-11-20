@@ -169,7 +169,7 @@ export async function accountStats(range: Range) {
       .select({ provider: accounts.providerId, n: sql<number>`count(*)::int` })
       .from(accounts)
       .groupBy(accounts.providerId),
-    db.execute(sql`select distinct on (${userRecords.key}) ${userRecords.key} as key, ${userRecords.value} as value, ${users.displayName} as name
+    db.execute(sql`select distinct on (${userRecords.key}) ${userRecords.key} as key, ${userRecords.value} as value, ${users.displayName} as name, ${users.id} as user_id
                    from ${userRecords} join ${users} on ${users.id} = ${userRecords.userId}
                    where ${userRecords.value} > 0
                    order by ${userRecords.key}, ${userRecords.value} desc`),
@@ -178,7 +178,7 @@ export async function accountStats(range: Range) {
     total: totals[0]?.total ?? 0,
     fresh: totals[0]?.fresh ?? 0,
     providers: providers.map((p) => ({ provider: p.provider, n: p.n })),
-    records: (records as unknown as { key: string; value: number; name: string }[]).map((r) => ({ key: r.key, value: Number(r.value), name: r.name })),
+    records: (records as unknown as { key: string; value: number; name: string; user_id: string }[]).map((r) => ({ key: r.key, value: Number(r.value), name: r.name, userId: r.user_id })),
   };
 }
 

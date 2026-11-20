@@ -1,6 +1,6 @@
 "use client";
 
-import { LogIn, LogOut, Trophy, UserRound } from "lucide-react";
+import { Building2, LogIn, LogOut, Trophy, UserRound } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -88,6 +88,10 @@ export function AccountMenu() {
           <Link role="menuitem" href="/accounts" onClick={() => setOpen(false)} className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm hover:bg-surface-2">
             <Trophy className="h-4 w-4 text-arcade" aria-hidden="true" />
             Kỷ lục & tài khoản
+          </Link>
+          <Link role="menuitem" href="/studio" onClick={() => setOpen(false)} className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm hover:bg-surface-2">
+            <Building2 className="h-4 w-4 text-brand" aria-hidden="true" />
+            Studio câu hỏi (công ty)
           </Link>
           <button
             role="menuitem"

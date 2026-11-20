@@ -1,7 +1,8 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useEffect, type ComponentType } from "react";
+import { useEffect, useState, type ComponentType } from "react";
+import { dailyGame, dailyInfo, type DailyInfo } from "@/lib/daily";
 import { gameLeave } from "@/lib/analytics";
 import { getGame } from "@/lib/games";
 
@@ -27,7 +28,10 @@ function skeleton(frame: Frame) {
 }
 
 /** Playable games, loaded client-side only (they use canvas / window). Add new games here. */
-const PLAYABLE: Record<string, { Game: ComponentType; frame: Frame }> = {
+/** Games receive `daily` when opened as today's challenge (/games/<slug>?daily=1) */
+export type GameProps = { daily?: DailyInfo };
+
+const PLAYABLE: Record<string, { Game: ComponentType<GameProps>; frame: Frame }> = {
   "pixel-dodge": {
     Game: dynamic(() => import("@/games/pixel-dodge/pixel-dodge"), { ssr: false, loading: skeleton("dark") }),
     frame: "dark",
@@ -79,6 +83,11 @@ const PLAYABLE: Record<string, { Game: ComponentType; frame: Frame }> = {
 export function GameStage({ slug }: { slug: string }) {
   // Navigating to another page in the middle of a round counts as "quit" (with play time)
   useEffect(() => () => gameLeave(slug), [slug]);
+  // ?daily=1 on today's challenge game → everyone plays the same seeded round
+  const [daily, setDaily] = useState<DailyInfo | undefined>();
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("daily") === "1" && dailyGame() === slug) setDaily(dailyInfo());
+  }, [slug]);
   const entry = PLAYABLE[slug];
   if (!entry) return null;
   // Light frames get a soft tint of the game's own colours, so the space around
@@ -92,7 +101,7 @@ export function GameStage({ slug }: { slug: string }) {
       : undefined;
   return (
     <div className={`self-start ${FRAME_CLASS[entry.frame]}`} style={tint}>
-      <entry.Game />
+      <entry.Game daily={daily} />
     </div>
   );
 }

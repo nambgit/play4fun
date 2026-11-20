@@ -2,7 +2,10 @@
 
 import { TRIVIA_CATEGORY_LABEL, TRIVIA_COUNT_OPTIONS, TRIVIA_SECONDS_OPTIONS, type TriviaCategory, type TriviaSettings, type TriviaView } from "@play4fun/party";
 import { Check, Flame, RotateCcw, Trophy, X } from "lucide-react";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 import { Choice, HostBar, PartyRoom, nameOf, type GameProps, type SettingsProps } from "@/components/party/party-room";
+import { useSession } from "@/lib/auth-client";
 import { useCountdown } from "@/lib/party-client";
 import { getGame } from "@/lib/games";
 
@@ -43,34 +46,78 @@ export default function Play() {
   );
 }
 
-function TriviaSettingsPanel({ value, onChange, disabled }: SettingsProps<TriviaSettings>) {
+type MySet = { id: string; title: string; count: number };
+
+function TriviaSettingsPanel({ value, onChange, disabled, room }: SettingsProps<TriviaSettings>) {
+  const { data: session } = useSession();
+  const [sets, setSets] = useState<MySet[] | null>(null);
+  // The host's own Studio sets (only they can pick one)
+  useEffect(() => {
+    if (disabled || !session?.user) return;
+    fetch("/api/sets")
+      .then((r) => (r.ok ? r.json() : { sets: [] }))
+      .then((d: { sets: MySet[] }) => setSets(d.sets.filter((x) => x.count > 0)))
+      .catch(() => setSets([]));
+  }, [disabled, session?.user]);
+  const custom = room.customSet;
+
   return (
     <>
-      <Choice label="Số câu hỏi" value={value.count} options={TRIVIA_COUNT_OPTIONS} onChange={(count) => onChange({ ...value, count })} disabled={disabled} />
-      <Choice label="Thời gian mỗi câu" value={value.seconds} options={TRIVIA_SECONDS_OPTIONS} format={(s) => `${s}s`} onChange={(seconds) => onChange({ ...value, seconds })} disabled={disabled} />
       <div className="py-1.5">
-        <label htmlFor="trivia-cat" className="text-sm text-muted">
-          Chủ đề
+        <label htmlFor="trivia-set" className="text-sm text-muted">
+          Bộ câu hỏi
         </label>
-        <select
-          id="trivia-cat"
-          value={value.category}
-          disabled={disabled}
-          onChange={(e) => onChange({ ...value, category: e.target.value as TriviaCategory })}
-          className="mt-1 h-10 w-full rounded-xl border border-line bg-bg px-3 text-sm disabled:opacity-70"
-        >
-          {CATEGORIES.map((c) => (
-            <option key={c} value={c}>
-              {TRIVIA_CATEGORY_LABEL[c]}
-            </option>
-          ))}
-        </select>
+        {disabled ? (
+          <p className="mt-1 text-sm font-medium">{custom ? `${custom.title} (${custom.count} câu)` : "Câu hỏi của Play4Fun"}</p>
+        ) : (
+          <select
+            id="trivia-set"
+            value={value.setId ?? ""}
+            onChange={(e) => onChange({ ...value, setId: e.target.value || null })}
+            className="mt-1 h-10 w-full rounded-xl border border-line bg-bg px-3 text-sm"
+          >
+            <option value="">Câu hỏi của Play4Fun</option>
+            {sets?.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.title} ({s.count} câu)
+              </option>
+            ))}
+          </select>
+        )}
+        {!disabled && (
+          <Link href={session?.user ? "/studio" : "/login?next=%2Fstudio"} className="mt-1 inline-block text-xs font-semibold text-brand hover:underline">
+            {sets?.length ? "Sửa bộ câu hỏi trong Studio →" : "Tạo bộ câu hỏi riêng cho công ty (miễn phí) →"}
+          </Link>
+        )}
       </div>
+      {!custom && <Choice label="Số câu hỏi" value={value.count} options={TRIVIA_COUNT_OPTIONS} onChange={(count) => onChange({ ...value, count })} disabled={disabled} />}
+      <Choice label="Thời gian mỗi câu" value={value.seconds} options={TRIVIA_SECONDS_OPTIONS} format={(s) => `${s}s`} onChange={(seconds) => onChange({ ...value, seconds })} disabled={disabled} />
+      {!custom && (
+        <div className="py-1.5">
+          <label htmlFor="trivia-cat" className="text-sm text-muted">
+            Chủ đề
+          </label>
+          <select
+            id="trivia-cat"
+            value={value.category}
+            disabled={disabled}
+            onChange={(e) => onChange({ ...value, category: e.target.value as TriviaCategory })}
+            className="mt-1 h-10 w-full rounded-xl border border-line bg-bg px-3 text-sm disabled:opacity-70"
+          >
+            {CATEGORIES.map((c) => (
+              <option key={c} value={c}>
+                {TRIVIA_CATEGORY_LABEL[c]}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
     </>
   );
 }
 
-function TriviaGame({ view, api, me, isHost, players }: GameProps<TriviaView>) {
+function TriviaGame({ view, api, me, isHost, players, state }: GameProps<TriviaView>) {
+  const brandColor = state.room.brand?.color ?? null;
   const name = (id: string) => nameOf(players, id);
   const secs = useCountdown(view.phase === "question" ? view.endsAt : undefined, api.now);
   const q = view.question;
@@ -137,7 +184,7 @@ function TriviaGame({ view, api, me, isHost, players }: GameProps<TriviaView>) {
         <div className="mt-2 h-2 overflow-hidden rounded-full bg-surface-2">
           <div
             className="h-full rounded-full bg-brand transition-[width] duration-300 ease-linear"
-            style={{ width: `${Math.min(100, (secs / view.seconds) * 100)}%`, backgroundImage: `linear-gradient(90deg, ${accent[0]}, ${accent[1]})` }}
+            style={{ width: `${Math.min(100, (secs / view.seconds) * 100)}%`, backgroundImage: `linear-gradient(90deg, ${brandColor ?? accent[0]}, ${brandColor ?? accent[1]})` }}
           />
         </div>
       )}

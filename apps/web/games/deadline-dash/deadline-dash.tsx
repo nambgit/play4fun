@@ -4,7 +4,11 @@ import { ArrowDown, ArrowUp, Award, Check, Coffee, Pause, Play, RotateCcw, Share
 import { useCallback, useEffect, useRef, useState } from "react";
 import { H, createGame, createInput, meters, scoreOf, step, titleFor, type GameState } from "./engine";
 import { render } from "./render";
+import { DailyBadge } from "@/components/daily-badge";
+import type { DailyInfo } from "@/lib/daily";
+import { finishDaily } from "@/lib/daily-client";
 import { gameEnd, gameStart } from "@/lib/analytics";
+import { resultUrl } from "@/lib/share";
 import { notifyRecordChanged } from "@/lib/record-sync";
 import { SaveRecordHint } from "@/components/auth/save-record-hint";
 
@@ -34,7 +38,10 @@ function writeStore(key: string, value: string) {
 /** Narrow screens get a shorter arena so obstacles stay readable */
 const arenaWidth = (px: number) => (px < 520 ? 520 : 800);
 
-export default function DeadlineDash() {
+export default function DeadlineDash({ daily }: { daily?: DailyInfo }) {
+  // Read inside the render loop, which is set up once
+  const dailyRef = useRef(daily);
+  dailyRef.current = daily;
   const stageRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const distRef = useRef<HTMLSpanElement>(null);
@@ -65,10 +72,10 @@ export default function DeadlineDash() {
 
   const newGame = useCallback(() => {
     const width = arenaWidth(canvasRef.current?.clientWidth ?? 800);
-    const s = createGame(width, Date.now() ^ Math.floor(Math.random() * 2 ** 31), readStore(LAST_SCENARIO_KEY));
-    writeStore(LAST_SCENARIO_KEY, s.scenario.id);
+    const s = daily ? createGame(width, daily.seed, null) : createGame(width, Date.now() ^ Math.floor(Math.random() * 2 ** 31), readStore(LAST_SCENARIO_KEY));
+    if (!daily) writeStore(LAST_SCENARIO_KEY, s.scenario.id);
     return s;
-  }, []);
+  }, [daily]);
 
   const start = useCallback(() => {
     stateRef.current = newGame();
@@ -123,6 +130,7 @@ export default function DeadlineDash() {
       setBest(Math.max(prev, score));
       setResult({ meters: m, coffees: s.coffeeCount, hits: s.hits, smashed: s.smashed, score, title: titleFor(m), scenario: s.scenario.title, isBest, best: Math.max(prev, score) });
       gameEnd("deadline-dash", { score });
+      if (dailyRef.current) void finishDaily(dailyRef.current, "deadline-dash", score);
       setPhase("over");
     };
 
@@ -247,7 +255,7 @@ export default function DeadlineDash() {
 
   const share = async () => {
     if (!result) return;
-    const url = `${window.location.origin}/games/deadline-dash`;
+    const url = resultUrl("deadline-dash", { v: result.score, d: daily?.day });
     const text = `🏃 Deadline Dash — mình chạy ${result.meters.toLocaleString("vi-VN")}m trước khi bị deadline tóm!\n☕×${result.coffees} · Kịch bản: ${result.scenario}\nDanh hiệu: ${result.title}`;
     try {
       if (navigator.share) {
@@ -350,6 +358,7 @@ export default function DeadlineDash() {
               <Hint icon={<ArrowDown className="h-4 w-4" />} title="Cúi" body="né tin nhắn bay ngang đầu" />
               <Hint icon={<Coffee className="h-4 w-4" />} title="3 ly cà phê" body="= Turbo, húc bay mọi thứ" />
             </div>
+            {daily && <DailyBadge daily={daily} where="ready" />}
             <button type="button" onClick={start} className="btn-primary mt-5 px-8 py-3.5 text-base">
               <Play className="h-4 w-4 fill-current" aria-hidden="true" />
               Bắt đầu chạy
@@ -411,6 +420,7 @@ export default function DeadlineDash() {
               </button>
             </div>
             <p className="mt-2 text-xs text-muted">Kỷ lục: {result.best.toLocaleString("vi-VN")} điểm · ván mới là kịch bản khác</p>
+            {daily && <DailyBadge daily={daily} where="over" />}
             <SaveRecordHint />
           </Overlay>
         )}

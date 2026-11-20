@@ -1,4 +1,4 @@
-import { NAME_MAX, type PartySettings, type PartySlug, type PlayerView, type RoomPublic } from "@play4fun/party";
+import { NAME_MAX, type PartySettings, type PartySlug, type PlayerView, type RoomBrand, type RoomPublic } from "@play4fun/party";
 import type { RunningGame } from "./games/types";
 
 /**
@@ -27,7 +27,11 @@ export type Room = {
   timers: Map<string, NodeJS.Timeout>;
   /** Content ids already used in this room (word pairs, words, questions) to avoid repeats */
   used: Set<string>;
+  /** Studio question set chosen by the host (Đố vui team building) */
+  custom: CustomSet | null;
 };
+
+export type CustomSet = { id: string; title: string; brand: RoomBrand; questions: { q: string; options: string[]; correct: number }[] };
 
 const CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // bỏ O/0/I/1 cho dễ đọc
 const CODE_LENGTH = 5;
@@ -73,6 +77,8 @@ export function publicRoom(room: Room): RoomPublic {
     hostId: room.hostId,
     status: room.status,
     settings: room.settings,
+    brand: room.custom?.brand ?? null,
+    customSet: room.custom ? { id: room.custom.id, title: room.custom.title, count: room.custom.questions.length } : null,
     players: playerList(room).map((p): PlayerView => ({ id: p.id, name: p.name, connected: p.socketId !== null })),
   };
 }

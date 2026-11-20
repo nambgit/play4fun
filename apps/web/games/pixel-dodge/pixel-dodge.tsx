@@ -4,7 +4,11 @@ import { Check, Pause, Play, RotateCcw, Share2, Trophy } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { H, W, createGame, createInput, scoreOf, step, type GameState } from "./engine";
 import { render } from "./render";
+import { DailyBadge } from "@/components/daily-badge";
+import type { DailyInfo } from "@/lib/daily";
+import { finishDaily } from "@/lib/daily-client";
 import { gameEnd, gameStart } from "@/lib/analytics";
+import { resultUrl } from "@/lib/share";
 import { notifyRecordChanged } from "@/lib/record-sync";
 import { SaveRecordHint } from "@/components/auth/save-record-hint";
 
@@ -42,7 +46,10 @@ function writeBest(score: number) {
   }
 }
 
-export default function PixelDodge() {
+export default function PixelDodge({ daily }: { daily?: DailyInfo }) {
+  // Read inside the render loop, which is set up once
+  const dailyRef = useRef(daily);
+  dailyRef.current = daily;
   const stageRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const timeRef = useRef<HTMLSpanElement>(null);
@@ -69,7 +76,7 @@ export default function PixelDodge() {
   useEffect(() => setBest(readBest()), []);
 
   const start = useCallback(() => {
-    stateRef.current = createGame(Date.now());
+    stateRef.current = createGame(daily ? daily.seed : Date.now());
     inputRef.current = createInput();
     keysRef.current.clear();
     setResult(null);
@@ -77,7 +84,7 @@ export default function PixelDodge() {
     setPhase("playing");
     gameStart("pixel-dodge");
     stageRef.current?.focus({ preventScroll: true });
-  }, [setPhase]);
+  }, [daily, setPhase]);
 
   const togglePause = useCallback(() => {
     if (phaseRef.current === "playing") setPhase("paused");
@@ -103,6 +110,7 @@ export default function PixelDodge() {
       }
       setResult({ time: s.t, wave: s.wave + 1, grazes: s.grazes, score, isBest });
       gameEnd("pixel-dodge", { score });
+      if (dailyRef.current) void finishDaily(dailyRef.current, "pixel-dodge", score);
       setPhase("over");
     };
 
@@ -249,7 +257,7 @@ export default function PixelDodge() {
 
   const share = async () => {
     if (!result) return;
-    const url = `${window.location.origin}/games/pixel-dodge`;
+    const url = resultUrl("pixel-dodge", { v: result.score, d: daily?.day });
     const text = `🕹️ Pixel Dodge: mình sống sót ${result.time.toFixed(2)}s, tới đợt ${result.wave}, sượt qua ${result.grazes} viên đạn — ${result.score.toLocaleString("vi-VN")} điểm. Bạn trụ được bao lâu?`;
     try {
       if (navigator.share) {
@@ -347,6 +355,7 @@ export default function PixelDodge() {
             <p className="mx-auto mt-5 hidden max-w-xs text-sm text-white/75 pointer-coarse:block">
               Kéo ngón tay ở bất kỳ đâu trên màn để điều khiển — ngón tay sẽ không che phi thuyền.
             </p>
+            {daily && <DailyBadge daily={daily} where="ready" dark />}
             <button type="button" onClick={start} className="btn-primary mt-6 px-8 py-3.5 text-base">
               <Play className="h-4 w-4 fill-current" aria-hidden="true" />
               Bắt đầu
@@ -400,6 +409,7 @@ export default function PixelDodge() {
               </button>
             </div>
             <p className="mt-4 text-xs text-white/50">Kỷ lục: {best.toLocaleString("vi-VN")} điểm · nhấn R để chơi lại</p>
+            {daily && <DailyBadge daily={daily} where="over" dark />}
             <SaveRecordHint dark />
           </Overlay>
         )}

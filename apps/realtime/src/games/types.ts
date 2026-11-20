@@ -37,6 +37,11 @@ export interface GameModule<S, Settings extends PartySettings = PartySettings> {
   op?(ctx: Ctx, s: S, pid: string, op: DrawOp): void;
   /** Full state a client needs after (re)connecting that is not part of the view (strokes, chat) */
   sync?(ctx: Ctx, s: S, pid: string): unknown;
+  /**
+   * Restored after a server restart (see persist.ts): re-arm timers. Deadlines in the state
+   * should move forward by `pausedMs` so the downtime does not eat anyone's time.
+   */
+  resume?(ctx: Ctx, s: S, pausedMs: number): void;
 }
 
 export type RunningGame = { module: GameModule<unknown>; state: unknown };

@@ -7,6 +7,7 @@ import {
   TRIVIA_CATEGORY_LABEL,
   TRIVIA_COUNT_OPTIONS,
   TRIVIA_SECONDS_OPTIONS,
+  isUuid,
   type TriviaCategory,
   type TriviaPhase,
   type TriviaSettings,
@@ -82,16 +83,24 @@ export const trivia: GameModule<State, TriviaSettings> = {
       count: clampOption(r.count, TRIVIA_COUNT_OPTIONS, 10),
       seconds: clampOption(r.seconds, TRIVIA_SECONDS_OPTIONS, 20),
       category: CATEGORIES.includes(r.category as TriviaCategory) ? (r.category as TriviaCategory) : "all",
+      setId: isUuid(r.setId) ? r.setId : null,
     };
   },
 
   start(ctx, settings) {
-    const pool = settings.category === "all" ? TRIVIA : TRIVIA.filter((q) => q.cat === settings.category);
-    const picked = pickFresh(pool, (q) => `trivia:${q.id}`, ctx.room.used, Math.min(settings.count, pool.length));
-    const questions: Q[] = picked.map((q) => {
-      const options = shuffle(q.a);
-      return { text: q.q, options, correct: options.indexOf(q.a[0]), category: TRIVIA_CATEGORY_LABEL[q.cat] };
-    });
+    const custom = settings.setId && ctx.room.custom?.id === settings.setId ? ctx.room.custom : null;
+    let questions: Q[];
+    if (custom) {
+      // Company set from Studio: every question, in the author's order, options as written
+      questions = custom.questions.map((q) => ({ text: q.q, options: q.options, correct: q.correct, category: custom.title }));
+    } else {
+      const pool = settings.category === "all" ? TRIVIA : TRIVIA.filter((q) => q.cat === settings.category);
+      const picked = pickFresh(pool, (q) => `trivia:${q.id}`, ctx.room.used, Math.min(settings.count, pool.length));
+      questions = picked.map((q) => {
+        const options = shuffle(q.a);
+        return { text: q.q, options, correct: options.indexOf(q.a[0]), category: TRIVIA_CATEGORY_LABEL[q.cat] };
+      });
+    }
     const s: State = {
       questions,
       index: 0,
@@ -161,6 +170,17 @@ export const trivia: GameModule<State, TriviaSettings> = {
         .map(([id, e]) => ({ id, score: e.score, streak: e.streak }))
         .sort((a, b) => b.score - a.score),
     };
+  },
+
+  resume(ctx, s, paused) {
+    if (s.phase !== "question") return;
+    s.openedAt += paused;
+    s.endsAt += paused;
+    for (const a of s.answers.values()) a.at += paused;
+    ctx.timer("close", Math.max(0, s.endsAt - ctx.now()), () => {
+      close(ctx, s);
+      ctx.push();
+    });
   },
 
   onJoin(_ctx, s, pid) {

@@ -11,6 +11,8 @@ const nextConfig: NextConfig = {
   turbopack: { root: monorepoRoot },
   transpilePackages: ["@play4fun/db", "@play4fun/party"],
   poweredByHeader: false,
+  // Fonts for the result images (/og/result) are read from disk at runtime: ship them in the standalone build
+  outputFileTracingIncludes: { "/og/result": ["./assets/fonts/**"] },
 };
 
 export default nextConfig;

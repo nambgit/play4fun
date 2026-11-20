@@ -8,6 +8,7 @@ import { GAMES, getGame } from "@/lib/games";
 import { RECORD_BY_KEY } from "@/lib/record-keys";
 import { BarList, Columns, Stat, fmtDuration, fmtNumber } from "./charts";
 import { ExcludeMe } from "./exclude-me";
+import { RemoveRecord } from "./remove-record";
 
 export const metadata: Metadata = { title: "Quản trị", robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
@@ -250,6 +251,7 @@ export default async function AdminPage({ searchParams }: Props) {
                     <span className="shrink-0 text-right font-mono font-semibold tabular-nums sm:w-24">
                       {fmtNumber(r.value)} <span className="font-sans text-xs font-normal text-muted">{def?.unit}</span>
                     </span>
+                    <RemoveRecord userId={r.userId} recordKey={r.key} />
                   </li>
                 );
               })}
