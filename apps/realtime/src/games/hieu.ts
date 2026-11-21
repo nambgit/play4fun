@@ -86,7 +86,7 @@ function close(ctx: Ctx, s: State) {
 
 function maybeClose(ctx: Ctx, s: State) {
   if (s.phase !== "answer") return;
-  const online = ctx.connected();
+  const online = ctx.active();
   if (online.length && online.every((id) => s.picks.has(id))) close(ctx, s);
 }
 

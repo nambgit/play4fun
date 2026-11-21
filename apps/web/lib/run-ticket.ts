@@ -1,4 +1,5 @@
 import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
+import { kv } from "./kv";
 
 /**
  * Signed, stateless tokens for verified scores (no database table needed):
@@ -9,10 +10,12 @@ import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
  */
 
 export type Ticket = { k: string; s: number; d: string | null; t: number; n: string };
-export type Receipt = { k: string; v: number; t: number };
+export type Receipt = { k: string; v: number; t: number; n: string };
 
 /** A round must finish within this time of its ticket */
 export const TICKET_TTL_MS = 30 * 60_000;
+/** A guest's receipt must be brought to an account within this time */
+export const RECEIPT_TTL_MS = 24 * 3600_000;
 
 const secret = () => process.env.RUN_SECRET || process.env.BETTER_AUTH_SECRET || "";
 export const runsEnabled = () => secret().length >= 16;
@@ -43,5 +46,24 @@ export const issueTicket = (key: string, seed: number, day: string | null) =>
   sign("ticket", { k: key, s: seed, d: day, t: Date.now(), n: randomBytes(6).toString("base64url") } satisfies Ticket);
 export const readTicket = (token: unknown) => open<Ticket>("ticket", token);
 
-export const issueReceipt = (key: string, value: number) => sign("receipt", { k: key, v: value, t: Date.now() } satisfies Receipt);
+export function issueReceipt(key: string, value: number) {
+  const r: Receipt = { k: key, v: value, t: Date.now(), n: randomBytes(9).toString("base64url") };
+  return { token: sign("receipt", r), receipt: r };
+}
 export const readReceipt = (token: unknown) => open<Receipt>("receipt", token);
+
+/**
+ * A receipt belongs to the first account that uses it (kept in Valkey until it expires), so one
+ * guest score cannot be handed to several accounts. The same account may present it again
+ * (every sync re-sends it). Without Valkey only the 24 h expiry applies.
+ */
+export async function claimReceipt(r: Receipt, userId: string): Promise<boolean> {
+  const age = Date.now() - r.t;
+  if (typeof r.n !== "string" || !r.n || age < -60_000 || age > RECEIPT_TTL_MS) return false;
+  const owner = await kv(async (c) => {
+    const key = `p4f:receipt:${r.n}`;
+    const set = await c.set(key, userId, { condition: "NX", expiration: { type: "EX", value: Math.ceil(RECEIPT_TTL_MS / 1000) + 3600 } });
+    return set === "OK" ? userId : await c.get(key);
+  });
+  return owner === null || owner === userId;
+}

@@ -23,7 +23,7 @@ type Props = { searchParams: Promise<Record<string, string | string[] | undefine
 export default async function AdminPage({ searchParams }: Props) {
   const user = await currentUser();
   // Not an admin (or not signed in): behave as if the page did not exist
-  if (!user || !isAdmin(user.email)) notFound();
+  if (!user || !isAdmin(user)) notFound();
 
   const raw = Number((await searchParams).range);
   const range: Range = RANGES.includes(raw as Range) ? (raw as Range) : 7;

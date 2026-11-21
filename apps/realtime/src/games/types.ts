@@ -14,6 +14,11 @@ export type Ctx = {
   clearTimer(key: string): void;
   /** Connected player ids in join order */
   connected(): string[];
+  /**
+   * Players to wait for in "has everyone acted?" checks: connected ones plus those who dropped
+   * a few seconds ago (screen lock, server restart), so the first one back cannot end a phase
+   */
+  active(): string[];
   name(id: string): string;
   isHost(id: string): boolean;
   now(): number;

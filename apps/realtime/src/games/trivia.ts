@@ -72,7 +72,7 @@ function close(ctx: Ctx, s: State) {
 
 function maybeAllAnswered(ctx: Ctx, s: State) {
   if (s.phase !== "question") return;
-  const who = ctx.connected().filter((id) => s.scores.has(id));
+  const who = ctx.active().filter((id) => s.scores.has(id));
   if (who.length > 0 && who.every((id) => s.answers.has(id))) close(ctx, s);
 }
 

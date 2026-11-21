@@ -3,12 +3,14 @@ import { ARTICLES } from "@/lib/articles";
 import { GAMES, GAME_TYPES } from "@/lib/games";
 import { CATEGORY_SEO, SITE_URL } from "@/lib/seo";
 
-/** /sitemap.xml — every public page Google should index */
+/**
+ * /sitemap.xml — every public page Google should index.
+ * lastmod is only given where we know the real date (articles): a build timestamp on every
+ * page would be wrong, and Google ignores lastmod values it cannot trust.
+ */
 export default function sitemap(): MetadataRoute.Sitemap {
-  const now = new Date();
   const page = (path: string, priority: number, changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"]) => ({
     url: SITE_URL + path,
-    lastModified: now,
     changeFrequency,
     priority,
   });

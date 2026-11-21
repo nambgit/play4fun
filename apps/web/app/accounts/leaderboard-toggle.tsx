@@ -6,14 +6,17 @@ import { useState } from "react";
 export function LeaderboardToggle({ initial }: { initial: boolean }) {
   const [on, setOn] = useState(initial);
   const [busy, setBusy] = useState(false);
+  const [failed, setFailed] = useState(false);
   const toggle = async () => {
     setBusy(true);
+    setFailed(false);
     const res = await fetch("/api/me/preferences", {
       method: "PATCH",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ showOnLeaderboard: !on }),
     }).catch(() => null);
     if (res?.ok) setOn(!on);
+    else setFailed(true);
     setBusy(false);
   };
   return (
@@ -21,6 +24,11 @@ export function LeaderboardToggle({ initial }: { initial: boolean }) {
       <span>
         <span className="block text-sm font-semibold">Hiện tên tôi trên bảng xếp hạng</span>
         <span className="block text-xs text-muted">Tên và ảnh đại diện của bạn được hiện công khai cạnh kỷ lục.</span>
+        {failed && (
+          <span role="alert" className="mt-1 block text-xs text-[#e5484d]">
+            Chưa lưu được thay đổi, thử lại nhé.
+          </span>
+        )}
       </span>
       <button
         type="button"

@@ -3,7 +3,7 @@ import { currentUser } from "@/lib/auth";
 import { getDb } from "@/lib/db";
 import { RECORD_BY_KEY, type RecordValue } from "@/lib/record-keys";
 import { saveBest } from "@/lib/records-server";
-import { readReceipt } from "@/lib/run-ticket";
+import { claimReceipt, readReceipt } from "@/lib/run-ticket";
 
 export const dynamic = "force-dynamic";
 
@@ -52,6 +52,8 @@ export async function POST(req: Request) {
       const receipt = readReceipt(r.receipt);
       if (!receipt || receipt.k !== def.key || receipt.v !== r.value) continue;
       if (receipt.v <= 0 || receipt.v > (def.max ?? 1_000_000_000)) continue;
+      // Expired, or already used by another account
+      if (!(await claimReceipt(receipt, user.id))) continue;
       await saveBest(user.id, def.key, receipt.v);
     } else {
       const result = typeof r.meta?.result === "string" ? r.meta.result.slice(0, 40) : "";

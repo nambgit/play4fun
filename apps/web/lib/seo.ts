@@ -11,6 +11,13 @@ import type { GameEntry, GameType } from "./games";
 
 export const SITE_URL = process.env.PUBLIC_URL ?? "https://play4fun.io.vn";
 export const SITE_NAME = "Play4Fun";
+/** Spread into every page's openGraph: Next replaces the layout's openGraph object as a whole */
+export const OG_BASE = {
+  siteName: SITE_NAME,
+  locale: "vi_VN",
+  // Default preview (app/opengraph-image.tsx); pages with their own picture set `images` after this spread
+  images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "Play4Fun – Game online miễn phí" }],
+};
 
 export type Faq = [question: string, answer: string];
 export type GameSeo = { title: string; description: string; genre: string; faq: Faq[] };
@@ -305,4 +312,4 @@ export const CATEGORY_SEO: Record<GameType, CategorySeo> = {
 };
 
 export const gameSeo = (g: GameEntry): GameSeo => GAME_SEO[g.slug] ?? { title: g.title, description: g.tagline, genre: "Casual", faq: [] };
-export const categoryHref = (t: GameType) => CATEGORY_SEO[t].path;
+export { categoryHref } from "./games";

@@ -54,7 +54,7 @@ function toPlain(room: Room) {
     createdAt: room.createdAt,
     used: room.used,
     custom: room.custom,
-    players: [...room.players.values()].map((p) => ({ id: p.id, name: p.name, joinedAt: p.joinedAt })),
+    players: [...room.players.values()].map((p) => ({ id: p.id, secret: p.secret, name: p.name, joinedAt: p.joinedAt })),
     game: room.game ? { state: room.game.state } : null,
   };
 }

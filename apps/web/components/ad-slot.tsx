@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { AdPlacement, AdsConfig } from "@/lib/ads";
 
 declare global {
@@ -9,10 +9,30 @@ declare global {
   }
 }
 
-let configPromise: Promise<AdsConfig> | null = null;
+const CACHE_KEY = "p4f:ads";
+
+/** Last known config, so a returning visitor's slot takes its space before the first paint (no layout shift) */
+function cachedConfig(): AdsConfig | null {
+  try {
+    return JSON.parse(localStorage.getItem(CACHE_KEY) ?? "null");
+  } catch {
+    return null;
+  }
+}
+
+let configPromise: Promise<AdsConfig | null> | null = null;
 const loadConfig = () =>
   (configPromise ??= fetch("/api/ads")
     .then((r) => (r.ok ? (r.json() as Promise<AdsConfig>) : null))
+    .then((c) => {
+      try {
+        if (c?.client) localStorage.setItem(CACHE_KEY, JSON.stringify(c));
+        else localStorage.removeItem(CACHE_KEY);
+      } catch {
+        /* storage blocked */
+      }
+      return c;
+    })
     .catch(() => null));
 
 function loadScript(client: string) {
@@ -30,11 +50,19 @@ export function AdSlot({ placement, className = "" }: { placement: AdPlacement; 
   const [cfg, setCfg] = useState<{ client: string; slot: string } | null>(null);
   const pushed = useRef(false);
 
+  // Before paint: reserve the slot right away when ads were on last time
+  useLayoutEffect(() => {
+    const c = cachedConfig();
+    const slot = c?.slots?.[placement];
+    if (c?.client && slot) setCfg({ client: c.client, slot });
+  }, [placement]);
+
   useEffect(() => {
     let alive = true;
     loadConfig().then((c) => {
       const slot = c?.slots[placement];
-      if (alive && c && slot) setCfg({ client: c.client, slot });
+      if (!alive) return;
+      setCfg(c && slot ? { client: c.client, slot } : null);
     });
     return () => {
       alive = false;
@@ -58,7 +86,7 @@ export function AdSlot({ placement, className = "" }: { placement: AdPlacement; 
       <p className="px-1 pb-1 text-[10px] tracking-wider text-muted uppercase">Quảng cáo</p>
       <ins
         className="adsbygoogle block"
-        style={{ display: "block", minHeight: 100 }}
+        style={{ display: "block", minHeight: 250 }}
         data-ad-client={cfg.client}
         data-ad-slot={cfg.slot}
         data-ad-format="auto"

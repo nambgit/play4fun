@@ -103,6 +103,7 @@ export default function PixelDodge({ daily }: { daily?: DailyInfo }) {
     let last = performance.now();
     let acc = 0;
     let lastHud = "";
+    let lastIdle = 0;
 
     const finish = (s: GameState) => {
       const score = scoreOf(s);
@@ -137,6 +138,12 @@ export default function PixelDodge({ daily }: { daily?: DailyInfo }) {
       } else {
         acc = 0;
       }
+      // Not playing (ready / paused / game over): redraw ~8 times a second instead of 60 to save battery
+      if (!playing && now - lastIdle < 125) {
+        raf = requestAnimationFrame(frame);
+        return;
+      }
+      if (!playing) lastIdle = now;
 
       render(ctx, s, now / 1000, phaseRef.current !== "ready");
 

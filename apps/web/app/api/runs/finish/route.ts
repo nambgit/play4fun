@@ -3,7 +3,7 @@ import { dailyBoard, submitDaily } from "@/lib/daily-server";
 import { RECORD_BY_KEY } from "@/lib/record-keys";
 import { saveBest } from "@/lib/records-server";
 import { RUN_RULES } from "@/lib/run-rules";
-import { TICKET_TTL_MS, issueReceipt, readTicket } from "@/lib/run-ticket";
+import { TICKET_TTL_MS, claimReceipt, issueReceipt, readTicket } from "@/lib/run-ticket";
 
 export const dynamic = "force-dynamic";
 
@@ -38,5 +38,8 @@ export async function POST(req: Request) {
       daily = await dailyBoard(ticket.d, user.id);
     }
   }
-  return Response.json({ score: check.score, receipt: check.score > 0 ? issueReceipt(ticket.k, check.score) : null, daily });
+  const issued = check.score > 0 ? issueReceipt(ticket.k, check.score) : null;
+  // Signed-in: the receipt is theirs from the start, so it cannot be passed to another account
+  if (issued && user) await claimReceipt(issued.receipt, user.id);
+  return Response.json({ score: check.score, receipt: issued?.token ?? null, daily });
 }

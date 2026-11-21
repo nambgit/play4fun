@@ -20,6 +20,7 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright-core";
 import sharp from "sharp";
+import { makeVariant } from "./thumb-variants.mjs";
 
 const BASE_URL = process.env.BASE_URL ?? "http://localhost:3000";
 const CHANNEL = process.env.BROWSER_CHANNEL ?? "msedge";
@@ -659,6 +660,7 @@ async function main() {
           let webp = await toThumbnail(png, SHOTS[slug]);
           if (theme === "dark" && SHOTS[slug].darkTone) webp = await sharp(webp).modulate({ brightness: SHOTS[slug].darkTone }).webp({ quality: 82 }).toBuffer();
           await sharp(webp).toFile(`${OUT_DIR}${name}.webp`);
+          await makeVariant(`${name}.webp`, { force: true });
           // Bản JPEG cho og:image (chỉ bản sáng): Facebook/Zalo không phải lúc nào cũng nhận WebP
           if (theme === "light") await sharp(webp).jpeg({ quality: 85, mozjpeg: true }).toFile(`${OUT_DIR}${slug}.jpg`);
           console.log(`✓ ${name} → public/thumbnails/${name}.webp (${Math.round(webp.length / 1024)} KB)`);

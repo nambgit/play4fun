@@ -87,7 +87,7 @@ export default async function LeaderboardPage({ searchParams }: Props) {
                   <span className="block truncate font-bold">{game.title}</span>
                   <span className="block text-xs text-muted">{me ? `Hạng của bạn: #${me.rank} · ${me.value.toLocaleString("vi-VN")} ${def.unit}` : "Chơi để ghi tên lên bảng"}</span>
                 </span>
-                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-brand text-brand-ink">
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-brand-solid text-brand-ink">
                   <Play className="h-4 w-4 fill-current" aria-hidden="true" />
                 </span>
               </div>

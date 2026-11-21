@@ -17,6 +17,9 @@
   --brand-strong: #5527e0;
   --brand-soft: #eee8ff;
   --brand-ink: #ffffff;
+  /* Filled brand surfaces under white text (buttons, badges): ≥ 4.5:1 in both themes */
+  --brand-solid: #6b3cf5;
+  --brand-solid-strong: #5527e0;
 
   --arcade: #ff6a3d;
   --arcade-soft: #ffebe4;
@@ -45,6 +48,8 @@
     --brand-strong: #a993ff;
     --brand-soft: rgb(143 115 255 / 0.16);
     --brand-ink: #ffffff;
+    --brand-solid: #7a5cf0;
+    --brand-solid-strong: #6a4ee0;
 
     --arcade: #ff7a52;
     --arcade-soft: rgb(255 122 82 / 0.15);
@@ -74,6 +79,8 @@
   --color-brand-strong: var(--brand-strong);
   --color-brand-soft: var(--brand-soft);
   --color-brand-ink: var(--brand-ink);
+  --color-brand-solid: var(--brand-solid);
+  --color-brand-solid-strong: var(--brand-solid-strong);
 
   --color-arcade: var(--arcade);
   --color-arcade-soft: var(--arcade-soft);
@@ -126,7 +133,7 @@
   @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold whitespace-nowrap transition duration-200 active:scale-[0.98];
 }
 @utility btn-primary {
-  @apply btn bg-brand text-brand-ink shadow-[0_8px_24px_-8px_var(--brand)] hover:bg-brand-strong;
+  @apply btn bg-brand-solid text-brand-ink shadow-[0_8px_24px_-8px_var(--brand)] hover:bg-brand-solid-strong;
 }
 @utility btn-ghost {
   /* Dark mode: frosted glass instead of a black slab on coloured backgrounds */
@@ -209,9 +216,22 @@
   }
 }
 
+/* Reduced motion: every animation/transition becomes (almost) instant site-wide. Durations are
+   shortened rather than removed, so end states (a flipped card, a coloured tile) still apply and
+   animationend/transitionend handlers still fire. */
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+    scroll-behavior: auto !important;
   }
   .animate-float {
     animation: none;

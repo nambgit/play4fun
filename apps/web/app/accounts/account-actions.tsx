@@ -13,15 +13,21 @@ export function AccountActions() {
 
   const logout = async () => {
     setBusy(true);
-    await signOut();
-    router.push("/");
-    router.refresh();
+    setError(null);
+    try {
+      await signOut();
+      router.push("/");
+      router.refresh();
+    } catch {
+      setBusy(false);
+      setError("Chưa đăng xuất được, kiểm tra mạng rồi thử lại.");
+    }
   };
 
   const remove = async () => {
     setBusy(true);
     setError(null);
-    const { error } = await authClient.deleteUser();
+    const { error } = await authClient.deleteUser().catch(() => ({ error: true }));
     if (error) {
       setBusy(false);
       // Deleting needs a recent login; ask to sign in again
@@ -59,6 +65,11 @@ export function AccountActions() {
           </div>
           {error && <p className="mt-2 text-xs text-[#e5484d]">{error}</p>}
         </div>
+      )}
+      {!confirming && error && (
+        <p role="alert" className="text-xs text-[#e5484d]">
+          {error}
+        </p>
       )}
     </div>
   );

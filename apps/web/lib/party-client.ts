@@ -112,7 +112,11 @@ export function useParty(slug: PartySlug) {
     socket.on("connect_error", () => setConn((c) => (c === "online" ? "connecting" : c === "connecting" && !socket.active ? "offline" : c)));
     socket.on("room:state", apply);
     socket.on("room:kicked", () => drop("Bạn đã được mời ra khỏi phòng."));
-    socket.on("room:replaced", () => drop("Bạn đã mở phòng này ở một tab khác."));
+    // Another tab took the seat: leave the saved room alone (localStorage is shared, that tab needs it to reconnect)
+    socket.on("room:replaced", () => {
+      setState(null);
+      setNotice("Bạn đã mở phòng này ở một tab khác.");
+    });
     socket.on("chat:msg", (m: ChatMsg) => listeners.current.chat.forEach((fn) => fn(m)));
     socket.on("draw:op", (o: DrawOp) => listeners.current.op.forEach((fn) => fn(o)));
     return () => {

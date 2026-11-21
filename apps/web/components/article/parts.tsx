@@ -29,7 +29,7 @@ export function PlayCta({ slug, text }: { slug: string; text?: string }) {
     >
       {game.thumbnail && (
         <span className="relative block aspect-[16/10] w-28 shrink-0 overflow-hidden rounded-xl bg-surface-2 sm:w-36">
-          <GameImage src={game.thumbnail} alt="" />
+          <GameImage src={game.thumbnail} alt="" sizes="150px" />
         </span>
       )}
       <span className="min-w-0 flex-1">

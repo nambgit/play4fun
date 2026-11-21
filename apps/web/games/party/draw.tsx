@@ -74,7 +74,16 @@ function DrawGame({ view, api, me, isHost, players }: GameProps<DrawView>) {
   // Chat history after (re)connecting, then live messages
   useEffect(() => {
     let alive = true;
-    api.sync<{ chat: ChatMsg[] }>().then((d) => alive && d && setChat(d.chat));
+    // Merge by id: messages that arrived while the sync was in flight must not be lost
+    api.sync<{ chat: ChatMsg[] }>().then(
+      (d) =>
+        alive &&
+        d &&
+        setChat((c) => {
+          const byId = new Map([...d.chat, ...c].map((m) => [m.id, m]));
+          return [...byId.values()].sort((a, b) => a.id - b.id).slice(-60);
+        }),
+    );
     const off = api.onChat((m) => setChat((c) => [...c.slice(-60), m]));
     return () => {
       alive = false;

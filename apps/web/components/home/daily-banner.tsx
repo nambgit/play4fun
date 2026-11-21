@@ -36,7 +36,7 @@ export function DailyBanner() {
       >
         {game.thumbnail && (
           <span className="relative hidden aspect-[16/10] w-28 shrink-0 overflow-hidden rounded-xl border border-white/25 sm:block">
-            <GameImage src={game.thumbnail} />
+            <GameImage src={game.thumbnail} sizes="120px" />
           </span>
         )}
         <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-black/20 sm:hidden" aria-hidden="true">

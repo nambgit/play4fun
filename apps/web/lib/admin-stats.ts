@@ -17,13 +17,26 @@ const MAX_ROUND_SECONDS = 1800;
 export type Range = 1 | 7 | 30;
 export const RANGES: Range[] = [1, 7, 30];
 
-export function isAdmin(email: string | null | undefined) {
-  if (!email) return false;
-  const list = (process.env.ADMIN_EMAILS ?? "")
+const envList = (name: string) =>
+  (process.env[name] ?? "")
     .split(",")
     .map((s) => s.trim().toLowerCase())
     .filter(Boolean);
-  return list.includes(email.toLowerCase());
+
+type MaybeUser = { id?: string; email?: string | null; emailVerified?: boolean } | null | undefined;
+
+/**
+ * Admin = user id listed in ADMIN_USER_IDS (strongest), or email listed in ADMIN_EMAILS **and
+ * verified** by the provider: accounts are linked by email, so an unverified address must
+ * never grant admin rights. The dev-only password login has no verification step, so it is
+ * accepted there (it is disabled in production).
+ */
+export function isAdmin(user: MaybeUser) {
+  if (!user) return false;
+  if (user.id && envList("ADMIN_USER_IDS").includes(user.id.toLowerCase())) return true;
+  if (!user.email || !envList("ADMIN_EMAILS").includes(user.email.toLowerCase())) return false;
+  const devLogin = process.env.AUTH_DEV_PASSWORD === "1" && process.env.NODE_ENV !== "production";
+  return user.emailVerified === true || devLogin;
 }
 
 const globalForUmami = globalThis as unknown as { __umamiSql?: Sql };

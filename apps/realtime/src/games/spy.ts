@@ -50,7 +50,7 @@ function newRound(s: State) {
 }
 
 /** Alive players who are connected must act; disconnected ones are not waited for */
-const mustAct = (ctx: Ctx, s: State) => [...s.alive].filter((id) => ctx.connected().includes(id));
+const mustAct = (ctx: Ctx, s: State) => [...s.alive].filter((id) => ctx.active().includes(id));
 
 function maybeFinishReveal(ctx: Ctx, s: State) {
   if (s.phase !== "reveal") return;

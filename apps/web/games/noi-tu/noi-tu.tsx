@@ -168,7 +168,7 @@ export default function NoiTu() {
                   )}
                   <span
                     className={`max-w-[75%] animate-[card-in_160ms_ease-out] rounded-2xl px-3.5 py-2 text-base font-semibold ${
-                      e.by === "me" ? "rounded-br-md bg-brand text-brand-ink" : "rounded-bl-md border border-line bg-surface"
+                      e.by === "me" ? "rounded-br-md bg-brand-solid text-brand-ink" : "rounded-bl-md border border-line bg-surface"
                     }`}
                   >
                     {e.word}

@@ -31,7 +31,7 @@ export function Hero() {
               href={`/games/${NEWEST.slug}`}
               className="group inline-flex max-w-full items-center gap-2 rounded-full border border-line bg-surface/80 py-1 pr-3 pl-1 text-xs font-medium shadow-card backdrop-blur"
             >
-              <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-brand px-2 py-0.5 text-brand-ink">
+              <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-brand-solid px-2 py-0.5 text-brand-ink">
                 <Sparkles className="h-3 w-3" aria-hidden="true" />
                 Mới
               </span>

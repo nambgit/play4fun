@@ -16,8 +16,8 @@ export function NewSetButton() {
         onClick={async () => {
           setBusy(true);
           setError(null);
-          const res = await fetch("/api/sets", { method: "POST", headers: { "content-type": "application/json" }, body: "{}" });
-          const data = (await res.json().catch(() => ({}))) as { id?: string; error?: string };
+          const res = await fetch("/api/sets", { method: "POST", headers: { "content-type": "application/json" }, body: "{}" }).catch(() => null);
+          const data = ((await res?.json().catch(() => ({}))) ?? {}) as { id?: string; error?: string };
           if (data.id) router.push(`/studio/${data.id}`);
           else {
             setError(data.error ?? "Chưa tạo được, thử lại nhé.");

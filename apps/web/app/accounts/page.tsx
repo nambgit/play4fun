@@ -56,7 +56,7 @@ export default async function AccountPage() {
           </p>
         </div>
         <div className="flex flex-col gap-2 sm:items-end">
-          {isAdmin(user.email) && (
+          {isAdmin(user) && (
             <Link href="/admin" className="btn-primary h-10 px-4">
               <LayoutDashboard className="h-4 w-4" aria-hidden="true" />
               Bảng điều khiển
@@ -91,7 +91,7 @@ export default async function AccountPage() {
             return (
               <li key={d.key} className="flex items-center gap-3 rounded-2xl border border-line bg-surface p-3 shadow-card">
                 <div className="relative h-14 w-20 shrink-0 overflow-hidden rounded-xl bg-surface-2">
-                  {g?.thumbnail && <GameImage src={g.thumbnail} />}
+                  {g?.thumbnail && <GameImage src={g.thumbnail} sizes="120px" />}
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-semibold">{d.label}</p>
@@ -105,7 +105,7 @@ export default async function AccountPage() {
                     <p className="mt-0.5 text-sm text-muted">Chưa có kỷ lục</p>
                   )}
                 </div>
-                <Link href={`/games/${d.slug}`} aria-label={`Chơi ${d.label}`} className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-brand text-brand-ink transition hover:bg-brand-strong">
+                <Link href={`/games/${d.slug}`} aria-label={`Chơi ${d.label}`} className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-brand-solid text-brand-ink transition hover:bg-brand-strong">
                   <Play className="h-4 w-4 fill-current" aria-hidden="true" />
                 </Link>
               </li>

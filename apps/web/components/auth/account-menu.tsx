@@ -28,7 +28,7 @@ export function Avatar({ name, image, size = 32 }: { name: string; image?: strin
     );
   }
   return (
-    <span className="grid shrink-0 place-items-center rounded-full bg-brand text-sm font-bold text-brand-ink" style={{ width: size, height: size }} aria-hidden="true">
+    <span className="grid shrink-0 place-items-center rounded-full bg-brand-solid text-sm font-bold text-brand-ink" style={{ width: size, height: size }} aria-hidden="true">
       {(name.trim()[0] ?? "?").toUpperCase()}
     </span>
   );

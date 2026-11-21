@@ -28,6 +28,9 @@ const CHOOSE_MS = 15_000;
 const TURN_END_MS = 5_000;
 const MAX_STROKES = 600;
 const MAX_POINTS_PER_STROKE = 4_000;
+/** All strokes of one drawing together (numbers, x and y each count): keeps a sync small */
+const MAX_TURN_NUMBERS = 40_000;
+const turnNumbers = (s: State) => s.strokes.reduce((n, st) => n + st.pts.length, 0);
 const CHAT_KEEP = 40;
 
 type StoredMsg = ChatMsg & { to: string[] | null };
@@ -80,7 +83,7 @@ function revealHint(s: State) {
 }
 
 function guessers(ctx: Ctx, s: State) {
-  return ctx.connected().filter((id) => id !== s.drawerId);
+  return ctx.active().filter((id) => id !== s.drawerId);
 }
 
 function addGain(s: State, id: string, pts: number) {
@@ -256,6 +259,7 @@ function validOp(s: State, op: DrawOp): boolean {
         op.pts.length % 2 === 0 &&
         op.pts.length <= 200 &&
         st.pts.length + op.pts.length <= MAX_POINTS_PER_STROKE &&
+        turnNumbers(s) + op.pts.length <= MAX_TURN_NUMBERS &&
         op.pts.every(inRange)
       );
     }
@@ -329,23 +333,29 @@ export const draw: GameModule<State, DrawSettings> = {
 
   op(ctx, s, pid, op) {
     if (pid !== s.drawerId || s.phase !== "drawing" || !validOp(s, op)) return;
+    // Relay a rebuilt op with only the checked fields (never the object the client sent)
+    let clean: DrawOp;
     switch (op.op) {
       case "begin":
+        clean = { op: "begin", id: op.id, color: op.color, size: op.size, x: op.x, y: op.y };
         s.strokes.push({ id: op.id, color: op.color, size: op.size, pts: [op.x, op.y] });
         break;
       case "points":
+        clean = { op: "points", id: op.id, pts: [...op.pts] };
         s.strokes.at(-1)!.pts.push(...op.pts);
         break;
       case "undo":
+        clean = { op: "undo" };
         s.strokes.pop();
         break;
       case "clear":
+        clean = { op: "clear" };
         s.strokes = [];
         break;
     }
     ctx.emit(
       "draw:op",
-      op,
+      clean,
       ctx.connected().filter((id) => id !== pid),
     );
   },

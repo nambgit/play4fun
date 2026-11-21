@@ -178,7 +178,7 @@ Kỷ lục chỉ lên tài khoản, bảng xếp hạng và thử thách ngày k
    - **Inbox Zero, Deadline Dash, Pixel Dodge**: các chỉ số tạo nên điểm phải khớp với điểm và phải vừa với thời gian thật đã trôi qua.
 3. Điểm hợp lệ được lưu ngay nếu đã đăng nhập. Khách nhận một **biên nhận** lưu trên máy, khi đăng nhập thì biên nhận đưa kỷ lục lên tài khoản. Điểm sửa tay trong localStorage (không có biên nhận) sẽ không bao giờ lên server.
 
-Vé và biên nhận được ký bằng `RUN_SECRET`, hoặc `BETTER_AUTH_SECRET` nếu không đặt. Không cần bảng DB nào thêm. Giới hạn còn lại: với 3 game hành động, một bản game bị sửa code vẫn có thể gửi chỉ số "đẹp" trong giới hạn thời gian thật. Muốn chặn triệt để thì cần server chạy lại toàn bộ thao tác của ván.
+Vé và biên nhận được ký bằng `RUN_SECRET`, hoặc `BETTER_AUTH_SECRET` nếu không đặt. Biên nhận hết hạn sau 24 giờ và thuộc về tài khoản đầu tiên dùng nó (ghi trong Valkey), nên không chia được một điểm cho nhiều tài khoản. Không cần bảng DB nào thêm. Giới hạn còn lại: với 3 game hành động, một bản game bị sửa code vẫn có thể gửi chỉ số "đẹp" trong giới hạn thời gian thật. Muốn chặn triệt để thì cần server chạy lại toàn bộ thao tác của ván.
 
 ### Thumbnail game
 
@@ -269,7 +269,7 @@ Dữ liệu: bảng `users` (tên, ảnh, email), `accounts` (liên kết Google
 
 Container `umami` (thống kê mã nguồn mở, không cookie) chạy cùng docker-compose, dùng database `umami` riêng trong Postgres sẵn có (tự tạo bởi `umami-db-init`). Dashboard Umami chỉ mở trên `127.0.0.1:3002`; người chơi gửi dữ liệu qua `https://play4fun.io.vn/stats/*` (web chuyển tiếp vào container). Trang `/admin` gom số liệu từ Umami, tài khoản và phòng chơi nhóm.
 
-1. Thêm vào `.env`: `UMAMI_APP_SECRET` (chạy `openssl rand -base64 32`) và `ADMIN_EMAILS=email-google-cua-ban@gmail.com` (nhiều email cách nhau bởi dấu phẩy), rồi `./deploy/deploy.sh`.
+1. Thêm vào `.env`: `UMAMI_APP_SECRET` (bắt buộc, chạy `openssl rand -base64 32`) và `ADMIN_EMAILS=email-google-cua-ban@gmail.com` (nhiều email cách nhau bởi dấu phẩy; email phải được Google/Facebook xác minh), rồi `./deploy/deploy.sh`. Chắc hơn nữa: dùng `ADMIN_USER_IDS` (id trong bảng `users`).
 2. Mở dashboard Umami qua SSH tunnel từ máy bạn: `ssh -L 3002:127.0.0.1:3002 user@IP-server`, rồi vào `http://localhost:3002`.
 3. Đăng nhập `admin` / `umami` → **đổi mật khẩu ngay** (Settings → Profile).
 4. Settings → Websites → *Add website*: tên `Play4Fun`, domain `play4fun.io.vn` → mở website vừa tạo, sao chép **Website ID**.
@@ -277,6 +277,8 @@ Container `umami` (thống kê mã nguồn mở, không cookie) chạy cùng doc
 6. Đăng nhập trang web bằng email trong `ADMIN_EMAILS` → menu tài khoản → **Bảng điều khiển** (`/admin`). Người khác vào `/admin` chỉ thấy trang 404. Bấm "Không tính lượt truy cập của tôi" để loại lượt xem của chính bạn khỏi số liệu.
 
 Sự kiện được ghi: `game-start`, `game-end` (kèm `seconds`, `score`), `game-quit` (đóng tab / chuyển trang giữa ván), `party-start` (kèm số người). Code ở `apps/web/lib/analytics.ts`; game mới chỉ cần gọi `gameStart(slug)` và `gameEnd(slug, { score })`. Bot và trình duyệt tự động bị Umami loại khỏi số liệu.
+
+Nên cho `/admin` đọc Umami bằng role chỉ-đọc: chạy `deploy/sql/umami-reader.sql` (hướng dẫn ở đầu file), đặt `UMAMI_READER_URL` trong `.env` rồi deploy lại.
 
 `/admin` đọc thẳng các bảng của Umami 3.4.1 (`website_event`, `event_data`, `session`) trong `apps/web/lib/admin-stats.ts`; khi nâng phiên bản Umami, kiểm tra lại các câu truy vấn đó.
 
@@ -286,11 +288,14 @@ Sự kiện được ghi: `game-start`, `game-end` (kèm `seconds`, `score`), `g
 
 1. Đăng ký [AdSense](https://adsense.google.com), thêm site `play4fun.io.vn`, chờ duyệt.
 2. Tạo 2 đơn vị quảng cáo hiển thị (Ads → By ad unit → Display ads), chép **Publisher ID** (`ca-pub-…`) và 2 **ad slot id**.
-3. Điền `ADSENSE_CLIENT`, `ADSENSE_SLOT_HOME`, `ADSENSE_SLOT_SIDEBAR` vào `.env`, chạy `./deploy/deploy.sh`. Kiểm tra `https://play4fun.io.vn/ads.txt`.
+3. **Bật thông báo đồng ý (CMP)** trước khi chạy quảng cáo: AdSense → *Privacy & messaging* → tạo thông báo GDPR (EU/UK) và bật. Google bắt buộc điều này với người xem ở châu Âu.
+4. Điền `ADSENSE_CLIENT`, `ADSENSE_SLOT_HOME`, `ADSENSE_SLOT_SIDEBAR` vào `.env`, chạy `./deploy/deploy.sh`. Kiểm tra `https://play4fun.io.vn/ads.txt`.
 
 ### 6. Phòng chơi nhóm khi deploy
 
 Khi container `realtime` dừng (SIGTERM lúc deploy), mọi phòng đang mở được lưu vào Valkey (giữ 15 phút); container mới nạp lại, đồng hồ trong ván được cộng thêm thời gian gián đoạn, điện thoại người chơi tự kết nối lại vào đúng chỗ. Không cần cấu hình gì thêm (dùng `REDIS_URL` sẵn có). Log: `docker compose logs realtime | grep -E "saved|restored"`.
+
+Bảo vệ realtime: ghế được nhận lại bằng một mã bí mật chỉ server biết (người cùng phòng chỉ thấy id công khai), mỗi IP mở tối đa `MAX_ROOMS_PER_IP` phòng (mặc định 15) và toàn server `MAX_ROOMS` (3000). Nginx giới hạn tần suất `/api/`, `/api/auth/`, `/og/` và số kết nối socket mỗi IP; khi đổi `deploy/nginx/play4fun.io.vn.conf` nhớ chép lại lên server, chạy `sudo nginx -t && sudo systemctl reload nginx`.
 
 ### 7. Các lần cập nhật sau
 

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { ArticleCard } from "@/components/article/article-card";
 import { JsonLd } from "@/components/json-ld";
 import { ARTICLES } from "@/lib/articles";
-import { SITE_URL } from "@/lib/seo";
+import { SITE_URL, OG_BASE } from "@/lib/seo";
 
 const TITLE = "Cẩm nang: mẹo gõ phím, tính nhẩm, trò chơi team building";
 const DESCRIPTION =
@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   title: TITLE,
   description: DESCRIPTION,
   alternates: { canonical: "/cam-nang" },
-  openGraph: { title: `${TITLE} | Play4Fun`, description: DESCRIPTION, url: "/cam-nang" },
+  openGraph: { ...OG_BASE, title: `${TITLE} | Play4Fun`, description: DESCRIPTION, url: "/cam-nang" },
 };
 
 export default function ArticlesIndex() {

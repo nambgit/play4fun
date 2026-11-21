@@ -235,13 +235,7 @@ function WolfGame({ view, api, me, isHost, players }: GameProps<WolfView>) {
               Đã soi: {view.seerLog.map((l) => `${name(l.id)} ${l.wolf ? "🐺" : "🙂"}`).join(" · ")}
             </p>
           )}
-          {isHost && (
-            <p className="mt-4 text-center">
-              <button type="button" onClick={() => api.act({ type: "wolf:next" })} className="text-xs text-white/60 underline hover:text-white">
-                Không chờ nữa, gọi trời sáng
-              </button>
-            </p>
-          )}
+          <p className="mt-4 text-center text-xs text-white/60">Trời sáng khi mọi vai đã chọn xong, hoặc sau {secs}s.</p>
         </div>
       )}
 

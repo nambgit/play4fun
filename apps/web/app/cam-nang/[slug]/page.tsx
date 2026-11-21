@@ -9,7 +9,7 @@ import { JsonLd } from "@/components/json-ld";
 import { ARTICLE_BODY } from "@/content/articles";
 import { ARTICLES, formatDate, getArticle } from "@/lib/articles";
 import { getGame, shareImage } from "@/lib/games";
-import { SITE_URL } from "@/lib/seo";
+import { SITE_URL, OG_BASE } from "@/lib/seo";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -33,13 +33,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description: a.description,
     alternates: { canonical: path },
     openGraph: {
+      ...OG_BASE,
       type: "article",
       title: a.title,
       description: a.description,
       url: path,
       publishedTime: a.published,
       modifiedTime: a.updated,
-      images: image ? [{ url: image, width: 1200, height: 750, alt: a.title }] : undefined,
+      images: image ? [{ url: image, width: 1200, height: 750, alt: a.title }] : OG_BASE.images,
     },
     twitter: { card: "summary_large_image", title: a.title, description: a.description, images: image ? [image] : undefined },
   };

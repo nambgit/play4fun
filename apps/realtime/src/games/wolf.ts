@@ -49,11 +49,11 @@ function checkWinner(s: State): State["winner"] {
 
 /** Alive connected players with a night job (werewolves, seer, guard) */
 function nightActors(ctx: Ctx, s: State) {
-  const online = new Set(ctx.connected());
+  const online = new Set(ctx.active());
   return [...s.alive].filter((id) => online.has(id) && roleOf(s, id) !== "villager");
 }
 
-const mustAct = (ctx: Ctx, s: State) => [...s.alive].filter((id) => ctx.connected().includes(id));
+const mustAct = (ctx: Ctx, s: State) => [...s.alive].filter((id) => ctx.active().includes(id));
 
 function setPhase(ctx: Ctx, s: State, phase: WolfPhase, ms: number, then?: () => void) {
   s.phase = phase;
@@ -242,7 +242,8 @@ export const wolf: GameModule<State, WolfSettings> = {
         if (s.phase === "reveal") startNight(ctx, s);
         else if (s.phase === "dawn") startDay(ctx, s);
         else if (s.phase === "result") startNight(ctx, s);
-        else if (s.phase === "night") resolveNight(ctx, s);
+        // No host shortcut at night: a werewolf host could end it before the seer/guard act.
+        // The night ends when every night role has picked, or when its timer runs out.
         break;
       default:
         return;

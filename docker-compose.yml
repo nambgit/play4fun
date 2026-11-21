@@ -67,7 +67,8 @@ services:
       PUBLIC_URL: ${PUBLIC_URL}
       # Đăng nhập (không bắt buộc với người chơi). Thiếu khóa nhà cung cấp nào thì nút đó tự ẩn.
       BETTER_AUTH_URL: ${PUBLIC_URL}
-      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-}
+      # Bắt buộc: ký phiên đăng nhập VÀ vé/biên nhận điểm. Thiếu là compose báo lỗi ngay, không âm thầm tắt chấm điểm.
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?Dat BETTER_AUTH_SECRET trong .env (openssl rand -base64 32)}
       RUN_SECRET: ${RUN_SECRET:-}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
@@ -77,8 +78,10 @@ services:
       UMAMI_INTERNAL_URL: http://umami:3000
       UMAMI_WEBSITE_ID: ${UMAMI_WEBSITE_ID:-}
       # /admin đọc số liệu trực tiếp từ database của Umami (chỉ SELECT)
-      UMAMI_DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/umami
+      # /admin chỉ ĐỌC số liệu Umami: nên dùng role read-only (deploy/sql/umami-reader.sql, xem README)
+      UMAMI_DATABASE_URL: ${UMAMI_READER_URL:-postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/umami}
       ADMIN_EMAILS: ${ADMIN_EMAILS:-}
+      ADMIN_USER_IDS: ${ADMIN_USER_IDS:-}
       REALTIME_INTERNAL_URL: http://realtime:3001
       # Quảng cáo Google AdSense (để trống = tắt)
       ADSENSE_CLIENT: ${ADSENSE_CLIENT:-}
@@ -146,8 +149,8 @@ services:
     restart: unless-stopped
     environment:
       DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/umami
-      # Ký phiên đăng nhập dashboard. Chưa đặt UMAMI_APP_SECRET thì dùng tạm mật khẩu Postgres (vẫn là bí mật)
-      APP_SECRET: ${UMAMI_APP_SECRET:-${POSTGRES_PASSWORD}}
+      # Ký phiên đăng nhập dashboard Umami. Bắt buộc, riêng biệt với mật khẩu Postgres.
+      APP_SECRET: ${UMAMI_APP_SECRET:?Dat UMAMI_APP_SECRET trong .env (openssl rand -base64 32)}
       DISABLE_TELEMETRY: 1
       TZ: Asia/Ho_Chi_Minh
     ports:

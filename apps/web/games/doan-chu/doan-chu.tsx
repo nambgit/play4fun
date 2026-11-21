@@ -185,7 +185,7 @@ export default function DoanChu() {
                 role="tab"
                 aria-selected={mode === m}
                 onClick={() => switchMode(m)}
-                className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 transition-colors ${mode === m ? "bg-brand text-brand-ink" : "text-muted hover:text-fg"}`}
+                className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 transition-colors ${mode === m ? "bg-brand-solid text-brand-ink" : "text-muted hover:text-fg"}`}
               >
                 <Icon className="h-4 w-4" aria-hidden="true" />
                 {label}

@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/privacy" },
 };
 
-const UPDATED = "20/11/2026";
+const UPDATED = "21/11/2026";
 
 export default function PrivacyPage() {
   return (
@@ -29,12 +29,17 @@ export default function PrivacyPage() {
           <h2>Khi bạn chơi mà không đăng nhập</h2>
           <ul>
             <li>
-              Kỷ lục, lựa chọn (ví dụ ngôn ngữ của game gõ phím) và danh sách nội dung bạn vừa gặp được lưu <b>ngay trên trình duyệt của bạn</b> (localStorage),
-              không gửi về máy chủ.
+              Kỷ lục, lựa chọn (ví dụ ngôn ngữ của game gõ phím) và danh sách nội dung bạn vừa gặp được lưu <b>ngay trên trình duyệt của bạn</b> (localStorage).
             </li>
             <li>
-              Khi chơi nhóm, tên bạn nhập và một mã ngẫu nhiên của trình duyệt được gửi tới máy chủ phòng chơi để những người cùng phòng thấy bạn. Phòng chơi chỉ tồn tại
-              trong bộ nhớ máy chủ và biến mất khi mọi người rời đi.
+              Khi một ván có tính kỷ lục kết thúc, trình duyệt gửi <b>điểm và dữ liệu của ván đó</b> lên máy chủ để kiểm tra điểm là thật: ví dụ các từ đã gõ (Gõ phím
+              thần tốc), các đáp án và thời điểm trả lời (Kiểm tra 15 phút), thời gian chơi (các game khác). Nếu bạn chưa đăng nhập, máy chủ chỉ kiểm tra rồi trả về một
+              biên nhận có chữ ký để lưu trên máy bạn, không lưu dữ liệu ván chơi. Biên nhận hết hạn sau 24 giờ.
+            </li>
+            <li>
+              Khi chơi nhóm, tên bạn nhập và một mã ngẫu nhiên của trình duyệt được gửi tới máy chủ phòng chơi để những người cùng phòng thấy bạn. Mã này chỉ máy chủ
+              biết, người khác trong phòng không thấy. Phòng chơi nằm trong bộ nhớ máy chủ; khi máy chủ khởi động lại (cập nhật phiên bản), phòng đang mở được lưu tạm
+              tối đa 15 phút để mọi người vào lại chơi tiếp, rồi tự xóa.
             </li>
           </ul>
         </section>

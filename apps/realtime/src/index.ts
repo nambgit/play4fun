@@ -26,7 +26,9 @@ import {
   cleanPid,
   connectedIds,
   ensureHost,
+  newPlayerId,
   newRoomCode,
+  playerBySecret,
   playerList,
   publicRoom,
   rooms,
@@ -38,6 +40,16 @@ const CORS_ORIGINS = (process.env.CORS_ORIGINS ?? "http://localhost:3000")
   .split(",")
   .map((s) => s.trim())
   .filter(Boolean);
+
+/** Hard caps so one client (or many sockets from one IP) cannot fill the server's memory */
+const MAX_ROOMS = Number(process.env.MAX_ROOMS ?? 3000);
+const MAX_ROOMS_PER_IP = Number(process.env.MAX_ROOMS_PER_IP ?? 15);
+/**
+ * A player who just dropped (screen locked, deploy restart) still counts as "present" this long
+ * when a game checks whether everyone has acted, so the first person back cannot end a phase
+ * for the whole room.
+ */
+const ACTIVE_GRACE_MS = 20_000;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const MODULES: Record<PartySlug, GameModule<any, any>> = {
@@ -74,8 +86,33 @@ const io = new Server(httpServer, {
   maxHttpBufferSize: 64 * 1024,
 });
 
-type SocketData = { pid: string | null; code: string | null; buckets: Record<string, { tokens: number; at: number }> };
+type SocketData = { pid: string | null; code: string | null; ip: string; buckets: Record<string, { tokens: number; at: number }> };
 type S = Socket & { data: SocketData };
+
+// ------------------------------------------------------------ safety
+
+function logError(where: string, err: unknown) {
+  console.error(`[realtime] ${where} failed:`, err instanceof Error ? (err.stack ?? err.message) : err);
+}
+
+const noop = () => {};
+
+/**
+ * Register a socket event safely: the ack is always a function (a client may send anything as
+ * the last argument) and an exception in one handler is logged instead of killing the process
+ * (socket.io runs listeners on process.nextTick, outside any try/catch).
+ */
+function on<P, R>(socket: S, event: string, handler: (payload: P, ack: (r: R) => void) => void | Promise<void>) {
+  socket.on(event, (payload: P, ack?: unknown) => {
+    const reply = typeof ack === "function" ? (ack as (r: R) => void) : noop;
+    try {
+      const r = handler(payload, reply);
+      if (r instanceof Promise) r.catch((e) => logError(event, e));
+    } catch (e) {
+      logError(event, e);
+    }
+  });
+}
 
 // ------------------------------------------------------------ rate limit (token bucket per socket)
 
@@ -87,6 +124,12 @@ function allow(socket: S, key: string, perSec: number, burst = perSec * 2) {
   if (b.tokens < 1) return false;
   b.tokens -= 1;
   return true;
+}
+
+/** Client IP: nginx sets X-Real-IP (and overwrites anything the client sent); direct connections use the socket address */
+function clientIp(socket: Socket) {
+  const real = socket.handshake.headers["x-real-ip"];
+  return (typeof real === "string" && real) || socket.handshake.address || "unknown";
 }
 
 // ------------------------------------------------------------ room helpers
@@ -112,6 +155,14 @@ function socketsOf(room: Room, ids?: string[]) {
   return list.map((p) => p?.socketId).filter((x): x is string => !!x);
 }
 
+/** Connected players, plus those who dropped less than ACTIVE_GRACE_MS ago */
+function activeIds(room: Room) {
+  const now = Date.now();
+  return playerList(room)
+    .filter((p) => p.socketId || (p.leftAt !== null && now - p.leftAt < ACTIVE_GRACE_MS))
+    .map((p) => p.id);
+}
+
 function ctxFor(room: Room): Ctx {
   return {
     room,
@@ -127,7 +178,12 @@ function ctxFor(room: Room): Ctx {
         k,
         setTimeout(() => {
           room.timers.delete(k);
-          if (rooms.get(room.code) === room && room.game) fn();
+          if (rooms.get(room.code) !== room || !room.game) return;
+          try {
+            fn();
+          } catch (e) {
+            logError(`timer ${key}`, e);
+          }
         }, ms),
       );
     },
@@ -136,6 +192,7 @@ function ctxFor(room: Room): Ctx {
       room.timers.delete(`g:${key}`);
     },
     connected: () => connectedIds(room),
+    active: () => activeIds(room),
     name: (id) => room.players.get(id)?.name ?? "Ai đó",
     isHost: (id) => room.hostId === id,
     now: () => Date.now(),
@@ -166,8 +223,11 @@ function removePlayer(room: Room, pid: string) {
   if (!p) return;
   clearTimeout(room.timers.get(`gone:${pid}`));
   room.timers.delete(`gone:${pid}`);
-  if (room.game) room.game.module.onRemove?.(ctxFor(room), room.game.state, pid);
+  clearTimeout(room.timers.get(`idle:${pid}`));
+  room.timers.delete(`idle:${pid}`);
+  // Remove first, then tell the game: its "has everyone acted?" checks must not wait for this seat
   room.players.delete(pid);
+  if (room.game) room.game.module.onRemove?.(ctxFor(room), room.game.state, pid);
   if (p.socketId) {
     const sock = io.sockets.sockets.get(p.socketId) as S | undefined;
     sock?.leave(room.code);
@@ -189,15 +249,17 @@ function removePlayer(room: Room, pid: string) {
   push(room);
 }
 
-/** Bind a socket to a seat (new or existing) */
-function seat(socket: S, room: Room, pid: string, name: string) {
+/** Bind a socket to a seat (new or existing, found by the client secret). Returns the public id. */
+function seat(socket: S, room: Room, secret: string, name: string): string {
   // This socket was in another room: leave it for good
   if (socket.data.code && socket.data.code !== room.code) {
     const old = rooms.get(socket.data.code);
     if (old && socket.data.pid) removePlayer(old, socket.data.pid);
   }
-  const existing = room.players.get(pid);
+  const existing = playerBySecret(room, secret);
+  let pid: string;
   if (existing) {
+    pid = existing.id;
     // Same player on a new connection (reconnect, or a second tab: the newest wins)
     if (existing.socketId && existing.socketId !== socket.id) {
       const prev = io.sockets.sockets.get(existing.socketId) as S | undefined;
@@ -210,8 +272,11 @@ function seat(socket: S, room: Room, pid: string, name: string) {
     existing.name = name;
     clearTimeout(room.timers.get(`gone:${pid}`));
     room.timers.delete(`gone:${pid}`);
+    clearTimeout(room.timers.get(`idle:${pid}`));
+    room.timers.delete(`idle:${pid}`);
   } else {
-    room.players.set(pid, { id: pid, name, socketId: socket.id, joinedAt: Date.now(), leftAt: null });
+    pid = newPlayerId(room);
+    room.players.set(pid, { id: pid, secret, name, socketId: socket.id, joinedAt: Date.now(), leftAt: null });
   }
   socket.data.pid = pid;
   socket.data.code = room.code;
@@ -222,6 +287,7 @@ function seat(socket: S, room: Room, pid: string, name: string) {
     if (!existing) room.game.module.onJoin?.(ctx, room.game.state, pid);
     room.game.module.onConnectionChange?.(ctx, room.game.state, pid);
   }
+  return pid;
 }
 
 function currentRoom(socket: S): { room: Room; pid: string } | null {
@@ -231,23 +297,44 @@ function currentRoom(socket: S): { room: Room; pid: string } | null {
   return { room, pid };
 }
 
+/** When a dropped player stops counting as present, let the game re-check "has everyone acted?" */
+function scheduleIdleCheck(room: Room, pid: string) {
+  clearTimeout(room.timers.get(`idle:${pid}`));
+  room.timers.set(
+    `idle:${pid}`,
+    setTimeout(() => {
+      room.timers.delete(`idle:${pid}`);
+      const p = room.players.get(pid);
+      if (!p || p.socketId || !room.game || rooms.get(room.code) !== room) return;
+      try {
+        room.game.module.onConnectionChange?.(ctxFor(room), room.game.state, pid);
+        push(room);
+      } catch (e) {
+        logError("idle check", e);
+      }
+    }, ACTIVE_GRACE_MS + 50),
+  );
+}
+
 // ------------------------------------------------------------ socket events
 
 io.on("connection", (raw) => {
   const socket = raw as S;
-  socket.data = { pid: null, code: null, buckets: {} };
+  socket.data = { pid: null, code: null, ip: clientIp(socket), buckets: {} };
 
-  socket.on("room:create", (payload: { gameSlug?: unknown; name?: unknown; pid?: unknown }, ack?: (r: JoinResult) => void) => {
-    if (!allow(socket, "join", 1, 5)) return ack?.({ ok: false, error: "invalid_input" });
+  on<{ gameSlug?: unknown; name?: unknown; pid?: unknown }, JoinResult>(socket, "room:create", (payload, ack) => {
+    if (!allow(socket, "join", 1, 5)) return ack({ ok: false, error: "invalid_input" });
     const name = cleanName(payload?.name);
-    const pid = cleanPid(payload?.pid);
-    if (!name || !pid) return ack?.({ ok: false, error: "invalid_input" });
-    if (!isPartySlug(payload?.gameSlug)) return ack?.({ ok: false, error: "unknown_game" });
+    const secret = cleanPid(payload?.pid);
+    if (!name || !secret) return ack({ ok: false, error: "invalid_input" });
+    if (!isPartySlug(payload?.gameSlug)) return ack({ ok: false, error: "unknown_game" });
+    const mine = [...rooms.values()].filter((r) => r.creatorIp === socket.data.ip).length;
+    if (rooms.size >= MAX_ROOMS || mine >= MAX_ROOMS_PER_IP) return ack({ ok: false, error: "room_full" });
 
     const room: Room = {
       code: newRoomCode(),
       gameSlug: payload.gameSlug,
-      hostId: pid,
+      hostId: "",
       players: new Map(),
       status: "lobby",
       settings: defaultSettings(payload.gameSlug),
@@ -256,38 +343,39 @@ io.on("connection", (raw) => {
       timers: new Map(),
       used: new Set(),
       custom: null,
+      creatorIp: socket.data.ip,
     };
     rooms.set(room.code, room);
-    seat(socket, room, pid, name);
-    ack?.({ ok: true, state: stateFor(room, pid) });
+    const pid = seat(socket, room, secret, name);
+    room.hostId = pid;
+    ack({ ok: true, state: stateFor(room, pid) });
   });
 
-  socket.on("room:join", (payload: { code?: unknown; name?: unknown; pid?: unknown; gameSlug?: unknown }, ack?: (r: JoinResult) => void) => {
-    if (!allow(socket, "join", 1, 5)) return ack?.({ ok: false, error: "invalid_input" });
+  on<{ code?: unknown; name?: unknown; pid?: unknown; gameSlug?: unknown }, JoinResult>(socket, "room:join", (payload, ack) => {
+    if (!allow(socket, "join", 1, 5)) return ack({ ok: false, error: "invalid_input" });
     const name = cleanName(payload?.name);
-    const pid = cleanPid(payload?.pid);
+    const secret = cleanPid(payload?.pid);
     const room = rooms.get(cleanCode(payload?.code));
-    if (!name || !pid) return ack?.({ ok: false, error: "invalid_input" });
-    if (!room) return ack?.({ ok: false, error: "room_not_found" });
-    if (payload?.gameSlug !== undefined && payload.gameSlug !== room.gameSlug) return ack?.({ ok: false, error: "unknown_game" });
+    if (!name || !secret) return ack({ ok: false, error: "invalid_input" });
+    if (!room) return ack({ ok: false, error: "room_not_found" });
+    if (payload?.gameSlug !== undefined && payload.gameSlug !== room.gameSlug) return ack({ ok: false, error: "unknown_game" });
 
-    const returning = room.players.has(pid);
-    if (!returning) {
+    if (!playerBySecret(room, secret)) {
       const limits = PARTY_GAMES[room.gameSlug];
-      if (room.status === "playing" && !limits.lateJoin) return ack?.({ ok: false, error: "game_in_progress" });
-      if (room.players.size >= limits.maxPlayers) return ack?.({ ok: false, error: "room_full" });
+      if (room.status === "playing" && !limits.lateJoin) return ack({ ok: false, error: "game_in_progress" });
+      if (room.players.size >= limits.maxPlayers) return ack({ ok: false, error: "room_full" });
     }
-    seat(socket, room, pid, name);
-    ack?.({ ok: true, state: stateFor(room, pid) });
+    const pid = seat(socket, room, secret, name);
+    ack({ ok: true, state: stateFor(room, pid) });
     push(room);
   });
 
-  socket.on("room:leave", () => {
+  on(socket, "room:leave", () => {
     const cur = currentRoom(socket);
     if (cur) removePlayer(cur.room, cur.pid);
   });
 
-  socket.on("room:settings", async (settings: unknown) => {
+  on<unknown, never>(socket, "room:settings", async (settings) => {
     const cur = currentRoom(socket);
     if (!cur || cur.room.hostId !== cur.pid || cur.room.status !== "lobby" || !allow(socket, "settings", 5)) return;
     const { room } = cur;
@@ -295,29 +383,33 @@ io.on("connection", (raw) => {
     // Đố vui: the host picked a Studio question set → load it (and its branding) from the database
     const setId = (room.settings as { setId?: string | null }).setId ?? null;
     if (setId !== (room.custom?.id ?? null)) {
-      room.custom = setId ? await loadQuestionSet(setId) : null;
-      if (setId && !room.custom) (room.settings as { setId?: string | null }).setId = null;
+      const loaded = setId ? await loadQuestionSet(setId) : null;
+      // Settings may have changed while the database answered: only apply if this is still the chosen set
+      const now = (room.settings as { setId?: string | null }).setId ?? null;
+      if (now !== setId || rooms.get(room.code) !== room) return;
+      room.custom = loaded;
+      if (setId && !loaded) (room.settings as { setId?: string | null }).setId = null;
     }
     push(room);
   });
 
-  socket.on("room:start", (_: unknown, ack?: (r: { ok: boolean; error?: string }) => void) => {
+  on<unknown, { ok: boolean; error?: string }>(socket, "room:start", (_, ack) => {
     const cur = currentRoom(socket);
-    if (!cur || cur.room.hostId !== cur.pid) return ack?.({ ok: false, error: "Chỉ chủ phòng mới bắt đầu được." });
+    if (!cur || cur.room.hostId !== cur.pid) return ack({ ok: false, error: "Chỉ chủ phòng mới bắt đầu được." });
     const { room } = cur;
     const module = MODULES[room.gameSlug];
     const n = connectedIds(room).length;
     const min = PARTY_GAMES[room.gameSlug].minPlayers;
-    if (n < min) return ack?.({ ok: false, error: `Cần ít nhất ${min} người đang online để bắt đầu.` });
+    if (n < min) return ack({ ok: false, error: `Cần ít nhất ${min} người đang online để bắt đầu.` });
     room.settings = module.normalizeSettings(room.settings, n);
     const err = module.canStart?.(ctxFor(room), room.settings);
-    if (err) return ack?.({ ok: false, error: err });
+    if (err) return ack({ ok: false, error: err });
     startGame(room);
-    ack?.({ ok: true });
+    ack({ ok: true });
     push(room);
   });
 
-  socket.on("room:lobby", () => {
+  on(socket, "room:lobby", () => {
     const cur = currentRoom(socket);
     if (!cur || cur.room.hostId !== cur.pid) return;
     clearGameTimers(cur.room);
@@ -326,7 +418,7 @@ io.on("connection", (raw) => {
     push(cur.room);
   });
 
-  socket.on("room:kick", (target: unknown) => {
+  on<unknown, never>(socket, "room:kick", (target) => {
     const cur = currentRoom(socket);
     if (!cur || cur.room.hostId !== cur.pid || typeof target !== "string" || target === cur.pid) return;
     const victim = cur.room.players.get(target);
@@ -335,7 +427,7 @@ io.on("connection", (raw) => {
     removePlayer(cur.room, target);
   });
 
-  socket.on("game:action", (a: GameAction) => {
+  on<GameAction, never>(socket, "game:action", (a) => {
     const cur = currentRoom(socket);
     if (!cur?.room.game || typeof a?.type !== "string" || !allow(socket, "action", 6, 12)) return;
     const { room, pid } = cur;
@@ -351,19 +443,21 @@ io.on("connection", (raw) => {
     room.game!.module.action(ctxFor(room), room.game!.state, pid, a);
   });
 
-  socket.on("draw:op", (op: DrawOp) => {
+  on<DrawOp, never>(socket, "draw:op", (op) => {
     const cur = currentRoom(socket);
     if (!cur?.room.game?.module.op || !allow(socket, "draw", 60, 120)) return;
     cur.room.game.module.op(ctxFor(cur.room), cur.room.game.state, cur.pid, op);
   });
 
-  socket.on("game:sync", (_: unknown, ack?: (data: unknown) => void) => {
+  on<unknown, unknown>(socket, "game:sync", (_, ack) => {
     const cur = currentRoom(socket);
-    const g = cur?.room.game;
-    ack?.(g?.module.sync ? g.module.sync(ctxFor(cur!.room), g.state, cur!.pid) : null);
+    // A sync can be large (all strokes of a drawing): a few per second is plenty for reconnects
+    if (!cur || !allow(socket, "sync", 0.5, 3)) return ack(null);
+    const g = cur.room.game;
+    ack(g?.module.sync ? g.module.sync(ctxFor(cur.room), g.state, cur.pid) : null);
   });
 
-  socket.on("disconnect", () => {
+  on(socket, "disconnect", () => {
     const cur = currentRoom(socket);
     if (!cur) return;
     const { room, pid } = cur;
@@ -371,6 +465,7 @@ io.on("connection", (raw) => {
     p.socketId = null;
     p.leftAt = Date.now();
     holdSeat(room, pid);
+    scheduleIdleCheck(room, pid);
     ensureHost(room);
     if (room.game) room.game.module.onConnectionChange?.(ctxFor(room), room.game.state, pid);
     push(room);
@@ -398,7 +493,12 @@ function holdSeat(room: Room, pid: string) {
     setTimeout(() => {
       room.timers.delete(`gone:${pid}`);
       const still = room.players.get(pid);
-      if (still && !still.socketId) removePlayer(room, pid);
+      if (!still || still.socketId) return;
+      try {
+        removePlayer(room, pid);
+      } catch (e) {
+        logError("remove after grace", e);
+      }
     }, RECONNECT_GRACE_S * 1000),
   );
 }
@@ -419,7 +519,8 @@ async function restoreRooms() {
       createdAt: pr.createdAt,
       used: pr.used instanceof Set ? pr.used : new Set(),
       custom: pr.custom ?? null,
-      players: new Map(pr.players.map((p) => [p.id, { ...p, socketId: null, leftAt: now }])),
+      // Snapshots from before the secret/public split used the client id for both
+      players: new Map(pr.players.map((p) => [p.id, { ...p, secret: p.secret ?? p.id, socketId: null, leftAt: now }])),
       timers: new Map(),
       game: null,
     };
@@ -431,7 +532,10 @@ async function restoreRooms() {
     } else {
       room.status = "lobby";
     }
-    for (const pid of room.players.keys()) holdSeat(room, pid);
+    for (const pid of room.players.keys()) {
+      holdSeat(room, pid);
+      scheduleIdleCheck(room, pid);
+    }
   }
   console.log(`[realtime] restored ${snap.rooms.length} room(s) after ${Math.round(snap.pausedMs / 1000)}s`);
 }
@@ -445,14 +549,20 @@ restoreRooms()
   });
 
 let shuttingDown = false;
-async function shutdown() {
+async function shutdown(code = 0) {
   if (shuttingDown) return;
   shuttingDown = true;
-  setTimeout(() => process.exit(0), 8000).unref();
+  setTimeout(() => process.exit(code), 8000).unref();
   // Save rooms first (Docker gives 10s after SIGTERM), then drop the connections
   const saved = await saveRooms(rooms.values()).catch(() => 0);
   if (saved) console.log(`[realtime] saved ${saved} room(s) for the next start`);
-  io.close(() => process.exit(0));
+  io.close(() => process.exit(code));
 }
-process.on("SIGTERM", shutdown);
-process.on("SIGINT", shutdown);
+process.on("SIGTERM", () => shutdown(0));
+process.on("SIGINT", () => shutdown(0));
+// Last line of defence: log, keep the rooms, and let Docker restart us (rooms come back on boot)
+process.on("uncaughtException", (err) => {
+  logError("uncaught exception", err);
+  void shutdown(1);
+});
+process.on("unhandledRejection", (err) => logError("unhandled rejection", err));

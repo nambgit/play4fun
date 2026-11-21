@@ -4,7 +4,7 @@ import type { QuestionSetItem } from "@play4fun/db";
 import { ArrowDown, ArrowLeft, ArrowUp, Check, ClipboardPaste, ImagePlus, Play, Plus, Save, Trash2, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { SET_LIMITS, parseBulk } from "@/lib/question-sets";
 
 type SetData = { id: string; title: string; brandName: string | null; brandColor: string | null; logo: string | null; questions: QuestionSetItem[] };
@@ -45,17 +45,36 @@ export function SetEditor({ initial }: { initial: SetData }) {
   const [bulk, setBulk] = useState<string | null>(null);
   const [status, setStatus] = useState<{ kind: "idle" | "saving" | "saved" | "error"; text?: string }>({ kind: "idle" });
   const [dirty, setDirty] = useState(false);
+  /** Bumped on every edit: a save only clears "unsaved" if nothing changed while it was in flight */
+  const version = useRef(0);
 
-  // Warn before leaving with unsaved changes
+  // Warn before leaving with unsaved changes: reload/close (beforeunload) and in-app links,
+  // which navigate client-side without ever firing beforeunload
   useEffect(() => {
     if (!dirty) return;
     const onBeforeUnload = (e: BeforeUnloadEvent) => e.preventDefault();
+    const onClick = (e: MouseEvent) => {
+      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      const a = (e.target as Element | null)?.closest?.("a[href]") as HTMLAnchorElement | null;
+      if (!a || a.target === "_blank" || a.hasAttribute("download")) return;
+      const url = new URL(a.href, window.location.href);
+      if (url.origin !== window.location.origin || url.pathname === window.location.pathname) return;
+      if (!window.confirm("Bạn có thay đổi chưa lưu. Rời trang và bỏ các thay đổi này?")) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    };
     window.addEventListener("beforeunload", onBeforeUnload);
-    return () => window.removeEventListener("beforeunload", onBeforeUnload);
+    document.addEventListener("click", onClick, true);
+    return () => {
+      window.removeEventListener("beforeunload", onBeforeUnload);
+      document.removeEventListener("click", onClick, true);
+    };
   }, [dirty]);
 
   const touch = <T,>(fn: (v: T) => void) => (v: T) => {
     fn(v);
+    version.current++;
     setDirty(true);
     setStatus({ kind: "idle" });
   };
@@ -69,6 +88,7 @@ export function SetEditor({ initial }: { initial: SetData }) {
   };
 
   const save = async () => {
+    const at = version.current;
     setStatus({ kind: "saving" });
     const res = await fetch(`/api/sets/${initial.id}`, {
       method: "PUT",
@@ -77,7 +97,8 @@ export function SetEditor({ initial }: { initial: SetData }) {
     }).catch(() => null);
     const data = (await res?.json().catch(() => ({}))) as { ok?: boolean; count?: number; error?: string };
     if (res?.ok && data.ok) {
-      setDirty(false);
+      // Edits typed while saving are still unsaved
+      setDirty(version.current !== at);
       setStatus({ kind: "saved", text: `Đã lưu ${data.count} câu hỏi` });
       router.refresh();
     } else setStatus({ kind: "error", text: data?.error ?? "Chưa lưu được, thử lại nhé." });
@@ -85,7 +106,11 @@ export function SetEditor({ initial }: { initial: SetData }) {
 
   const remove = async () => {
     if (!confirm(`Xóa bộ "${title}"? Không thể hoàn tác.`)) return;
-    await fetch(`/api/sets/${initial.id}`, { method: "DELETE" });
+    const res = await fetch(`/api/sets/${initial.id}`, { method: "DELETE" }).catch(() => null);
+    if (!res?.ok) {
+      setStatus({ kind: "error", text: "Chưa xóa được, thử lại nhé." });
+      return;
+    }
     setDirty(false);
     router.push("/studio");
     router.refresh();

@@ -9,9 +9,10 @@ import { AdSlot } from "@/components/ad-slot";
 import { ArticleCard } from "@/components/article/article-card";
 import { FaqSection, faqJsonLd } from "@/components/faq-section";
 import { articlesForGame } from "@/lib/articles";
+import { gameDetails } from "@/lib/game-details";
 import { JsonLd } from "@/components/json-ld";
 import { LeaderboardCard } from "@/components/leaderboard-card";
-import { CATEGORY_SEO, SITE_URL, gameSeo } from "@/lib/seo";
+import { CATEGORY_SEO, SITE_URL, gameSeo, OG_BASE } from "@/lib/seo";
 import { RECORDS } from "@/lib/record-keys";
 import { AUDIENCE_LABEL, GAMES, TYPE_META, getGame, relatedGames, shareImage } from "@/lib/games";
 
@@ -32,11 +33,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description: seo.description,
     alternates: { canonical: `/games/${game.slug}` },
     openGraph: {
+      ...OG_BASE,
       title: `${seo.title} | Play4Fun`,
       description: seo.description,
       url: `/games/${game.slug}`,
       // Preview image when the link is shared on Facebook/Zalo (resolved against metadataBase)
-      images,
+      images: images ?? OG_BASE.images,
     },
     twitter: { card: "summary_large_image", title: seo.title, description: seo.description, images: image ? [image] : undefined },
   };
@@ -48,6 +50,7 @@ export default async function GamePage({ params }: Props) {
   const meta = TYPE_META[game.type];
   const related = relatedGames(game);
   const seo = gameSeo(game);
+  const details = gameDetails(game.slug);
   const category = CATEGORY_SEO[game.type];
   const url = `${SITE_URL}/games/${game.slug}`;
   const image = shareImage(game);
@@ -163,13 +166,13 @@ export default async function GamePage({ params }: Props) {
         <aside className="flex flex-col gap-4 self-start lg:sticky lg:top-20">
           <section className="rounded-3xl border border-line bg-surface p-5 shadow-card sm:p-6">
             <h2 className="text-sm font-semibold">Giới thiệu</h2>
-            <p className="mt-2 text-sm leading-relaxed text-muted">{game.description}</p>
+            <p className="mt-2 text-sm leading-relaxed text-muted">{details.description}</p>
 
-            {game.howTo ? (
+            {details.howTo ? (
               <div className="mt-5 border-t border-line pt-5">
                 <h2 className="text-sm font-semibold">Cách chơi</h2>
                 <ol className="mt-3 space-y-2.5">
-                  {game.howTo.map((rule, i) => (
+                  {details.howTo.map((rule, i) => (
                     <li key={rule} className="flex gap-3 text-sm leading-relaxed text-muted">
                       <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-brand-soft text-[11px] font-bold text-brand">{i + 1}</span>
                       {rule}

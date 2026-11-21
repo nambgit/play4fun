@@ -110,6 +110,7 @@ export default function DeadlineDash({ daily }: { daily?: DailyInfo }) {
     let last = performance.now();
     let acc = 0;
     let lastHud = "";
+    let lastIdle = 0;
 
     const resize = () => {
       const dpr = Math.min(2, window.devicePixelRatio || 1);
@@ -145,7 +146,8 @@ export default function DeadlineDash({ daily }: { daily?: DailyInfo }) {
       const dt = Math.min(0.1, (now - last) / 1000);
       last = now;
       const s = stateRef.current!;
-      if (phaseRef.current === "playing") {
+      const playing = phaseRef.current === "playing";
+      if (playing) {
         acc += dt;
         while (acc >= STEP) {
           step(s, STEP, inputRef.current);
@@ -153,6 +155,12 @@ export default function DeadlineDash({ daily }: { daily?: DailyInfo }) {
         }
         if (s.over && s.deadFor > 1.1) finish(s);
       } else acc = 0;
+      // Not playing (ready / paused / game over): redraw ~8 times a second instead of 60 to save battery
+      if (!playing && now - lastIdle < 125) {
+        raf = requestAnimationFrame(frame);
+        return;
+      }
+      if (!playing) lastIdle = now;
 
       ctx.setTransform(canvas.width / s.W, 0, 0, canvas.height / H, 0, 0);
       render(ctx, s, now / 1000, fontRef.current, phaseRef.current !== "ready");
@@ -347,7 +355,7 @@ export default function DeadlineDash({ daily }: { daily?: DailyInfo }) {
               jump();
             }}
             onContextMenu={(e) => e.preventDefault()}
-            className="flex touch-none items-center justify-center gap-2 rounded-xl bg-brand py-4 text-base font-bold text-brand-ink active:scale-95"
+            className="flex touch-none items-center justify-center gap-2 rounded-xl bg-brand-solid py-4 text-base font-bold text-brand-ink active:scale-95"
           >
             <ArrowUp className="h-5 w-5" aria-hidden="true" />
             Nhảy

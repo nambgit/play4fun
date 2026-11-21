@@ -1,6 +1,7 @@
 import { Play } from "lucide-react";
 import { GameImage } from "@/components/game-image";
 import type { Metadata } from "next";
+import { OG_BASE } from "@/lib/seo";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { dayOf } from "@/lib/daily";
@@ -25,7 +26,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
     title,
     description: c.subtitle,
     robots: { index: false },
-    openGraph: { title, description: c.subtitle, images: [{ url: image, width: 1200, height: 630, alt: title }] },
+    openGraph: { ...OG_BASE, title, description: c.subtitle, images: [{ url: image, width: 1200, height: 630, alt: title }] },
     twitter: { card: "summary_large_image", title, description: c.subtitle, images: [image] },
   };
 }

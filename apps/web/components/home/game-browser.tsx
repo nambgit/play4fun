@@ -3,9 +3,8 @@
 import { Briefcase, Gamepad2, GraduationCap, LayoutGrid, Users, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { AUDIENCES, AUDIENCE_LABEL, GAMES, GAME_TYPES, TYPE_META, type Audience } from "@/lib/games";
+import { AUDIENCES, AUDIENCE_LABEL, GAMES, GAME_TYPES, TYPE_META, categoryHref, type Audience } from "@/lib/games";
 import { ChevronRight } from "lucide-react";
-import { categoryHref } from "@/lib/seo";
 import { CardRail } from "../card-rail";
 
 type Filter = Audience | "all";
