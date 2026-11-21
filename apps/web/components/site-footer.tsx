@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { GAMES, GAME_TYPES, TYPE_META } from "@/lib/games";
+import { categoryHref } from "@/lib/seo";
 import { LogoMark } from "./logo";
 
 function FacebookIcon(props: React.SVGProps<SVGSVGElement>) {
@@ -45,7 +46,11 @@ export function SiteFooter() {
 
         {GAME_TYPES.map((t) => (
           <div key={t}>
-            <h3 className="text-sm font-semibold">{TYPE_META[t].label}</h3>
+            <h3 className="text-sm font-semibold">
+              <Link href={categoryHref(t)} className="hover:text-brand">
+                {TYPE_META[t].label}
+              </Link>
+            </h3>
             <ul className="mt-3 space-y-2 sm:mt-4 sm:space-y-2.5">
               {GAMES.filter((g) => g.type === t)
                 .slice(0, 5)

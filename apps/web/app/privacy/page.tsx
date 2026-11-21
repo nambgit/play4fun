@@ -4,6 +4,7 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Chính sách quyền riêng tư",
   description: "Play4Fun lưu những dữ liệu gì, dùng để làm gì và cách xóa dữ liệu của bạn.",
+  alternates: { canonical: "/privacy" },
 };
 
 const UPDATED = "20/11/2026";

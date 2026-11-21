@@ -14,6 +14,7 @@ import { Countdown, LocalResult } from "./daily-client";
 export const metadata: Metadata = {
   title: "Thử thách hôm nay",
   description: "Mỗi ngày một mini-game, cả nước chơi cùng một đề. Ai đứng đầu bảng hôm nay?",
+  alternates: { canonical: "/daily" },
 };
 export const dynamic = "force-dynamic";
 

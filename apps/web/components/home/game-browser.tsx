@@ -1,9 +1,11 @@
 "use client";
 
 import { Briefcase, Gamepad2, GraduationCap, LayoutGrid, Users, type LucideIcon } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
 import { AUDIENCES, AUDIENCE_LABEL, GAMES, GAME_TYPES, TYPE_META, type Audience } from "@/lib/games";
 import { ChevronRight } from "lucide-react";
+import { categoryHref } from "@/lib/seo";
 import { CardRail } from "../card-rail";
 
 type Filter = Audience | "all";
@@ -69,7 +71,11 @@ export function GameBrowser() {
                   <span className={`h-3 w-3 rounded-full ${meta.dot} ${meta.text} dark:shadow-[0_0_14px_2px_currentColor]`} />
                 </span>
                 <div className="min-w-0 flex-1">
-                  <h3 className="text-lg font-bold tracking-tight sm:text-xl">{meta.heading}</h3>
+                  <h3 className="text-lg font-bold tracking-tight sm:text-xl">
+                    <Link href={categoryHref(type)} className="hover:text-brand">
+                      {meta.heading}
+                    </Link>
+                  </h3>
                   <p className="text-sm text-muted">{meta.blurb}</p>
                 </div>
                 {games.length > 1 && (

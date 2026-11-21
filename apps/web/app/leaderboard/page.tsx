@@ -12,6 +12,7 @@ import { RECORDS, RECORD_BY_KEY } from "@/lib/record-keys";
 export const metadata: Metadata = {
   title: "Bảng xếp hạng",
   description: "Kỷ lục cao nhất của người chơi Play4Fun ở từng mini-game.",
+  alternates: { canonical: "/leaderboard" },
 };
 export const dynamic = "force-dynamic";
 

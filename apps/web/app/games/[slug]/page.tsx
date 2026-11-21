@@ -6,7 +6,10 @@ import { CardRail } from "@/components/card-rail";
 import { GameCover } from "@/components/game-cover";
 import { GameStage } from "@/components/game-stage";
 import { AdSlot } from "@/components/ad-slot";
+import { FaqSection, faqJsonLd } from "@/components/faq-section";
+import { JsonLd } from "@/components/json-ld";
 import { LeaderboardCard } from "@/components/leaderboard-card";
+import { CATEGORY_SEO, SITE_URL, gameSeo } from "@/lib/seo";
 import { RECORDS } from "@/lib/record-keys";
 import { AUDIENCE_LABEL, GAMES, TYPE_META, getGame, relatedGames, shareImage } from "@/lib/games";
 
@@ -20,15 +23,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const game = getGame((await params).slug);
   if (!game) return {};
   const image = shareImage(game);
+  const seo = gameSeo(game);
+  const images = image ? [{ url: image, width: 1200, height: 750, alt: game.title }] : undefined;
   return {
-    title: game.title,
-    description: game.tagline,
+    title: seo.title,
+    description: seo.description,
+    alternates: { canonical: `/games/${game.slug}` },
     openGraph: {
-      title: `${game.title} | Play4Fun`,
-      description: game.tagline,
+      title: `${seo.title} | Play4Fun`,
+      description: seo.description,
+      url: `/games/${game.slug}`,
       // Preview image when the link is shared on Facebook/Zalo (resolved against metadataBase)
-      images: image ? [{ url: image, width: 1200, height: 750, alt: game.title }] : undefined,
+      images,
     },
+    twitter: { card: "summary_large_image", title: seo.title, description: seo.description, images: image ? [image] : undefined },
   };
 }
 
@@ -37,6 +45,46 @@ export default async function GamePage({ params }: Props) {
   if (!game) notFound();
   const meta = TYPE_META[game.type];
   const related = relatedGames(game);
+  const seo = gameSeo(game);
+  const category = CATEGORY_SEO[game.type];
+  const url = `${SITE_URL}/games/${game.slug}`;
+  const image = shareImage(game);
+  const [minPlayers, maxPlayers] = (game.players.match(/\d+/g) ?? ["1"]).map(Number);
+  const ld = [
+    {
+      "@context": "https://schema.org",
+      "@type": game.type === "quiz" ? "Quiz" : "VideoGame",
+      name: game.title,
+      alternateName: seo.title,
+      description: seo.description,
+      url,
+      image: image ? SITE_URL + image : undefined,
+      inLanguage: "vi",
+      isAccessibleForFree: true,
+      ...(game.type === "quiz"
+        ? { educationalUse: "Trắc nghiệm vui", timeRequired: "PT3M" }
+        : {
+            genre: seo.genre,
+            gamePlatform: ["Trình duyệt web", "Điện thoại", "Máy tính"],
+            applicationCategory: "Game",
+            operatingSystem: "Mọi hệ điều hành có trình duyệt",
+            playMode: game.type === "party" ? "MultiPlayer" : "SinglePlayer",
+            numberOfPlayers: { "@type": "QuantitativeValue", minValue: minPlayers, maxValue: maxPlayers ?? minPlayers },
+            offers: { "@type": "Offer", price: 0, priceCurrency: "VND", availability: "https://schema.org/InStock" },
+          }),
+      publisher: { "@type": "Organization", name: "Play4Fun", url: SITE_URL },
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Trang chủ", item: SITE_URL + "/" },
+        { "@type": "ListItem", position: 2, name: meta.label, item: SITE_URL + category.path },
+        { "@type": "ListItem", position: 3, name: game.title, item: url },
+      ],
+    },
+    ...(seo.faq.length ? [faqJsonLd(seo.faq)] : []),
+  ];
 
   const facts = [
     { icon: Clock, label: "Thời lượng", value: game.duration },
@@ -46,8 +94,9 @@ export default async function GamePage({ params }: Props) {
 
   return (
     <div className="container-page pt-4 sm:pt-8">
+      <JsonLd data={ld} />
       {/* Mobile: one back link; larger screens: full breadcrumb */}
-      <Link href={`/#${meta.anchor}`} className="inline-flex items-center gap-1.5 text-sm font-medium text-muted hover:text-fg sm:hidden">
+      <Link href={category.path} className="inline-flex items-center gap-1.5 text-sm font-medium text-muted hover:text-fg sm:hidden">
         <ArrowLeft className="h-4 w-4" aria-hidden="true" />
         Tất cả game {meta.label.toLowerCase()}
       </Link>
@@ -56,7 +105,7 @@ export default async function GamePage({ params }: Props) {
           Trang chủ
         </Link>
         <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
-        <Link href={`/#${meta.anchor}`} className="hover:text-fg">
+        <Link href={category.path} className="hover:text-fg">
           {meta.label}
         </Link>
         <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
@@ -143,6 +192,8 @@ export default async function GamePage({ params }: Props) {
           </Link>
         </aside>
       </div>
+
+      <FaqSection faq={seo.faq} title={`Hỏi đáp về ${game.title}`} />
 
       {related.length > 0 && (
         <section aria-labelledby="lien-quan" className="mt-14 sm:mt-20">

@@ -144,7 +144,8 @@ REDIS_URL=redis://localhost:6379                                     # giữ ph�
    - **Chơi nhóm**: thêm slug và giới hạn người chơi vào `packages/party/src/index.ts`, viết module server trong `apps/realtime/src/games/` (đăng ký ở `MODULES` trong `src/index.ts`), rồi viết giao diện dùng `PartyRoom` trong `apps/web/games/party/`. Thông tin bí mật chỉ để trên server và chỉ đưa vào `view()` của người được phép thấy.
 3. Đăng ký component trong `PLAYABLE` ở `apps/web/components/game-stage.tsx`, đổi `status` sang `"live"`, thêm `howTo`.
 4. Nếu game có kỷ lục (bảng xếp hạng): thêm khóa vào `apps/web/lib/record-keys.ts` và một luật kiểm tra trong `apps/web/lib/run-rules.ts`, rồi trong game gọi `startRun()` lúc bắt đầu ván và `run.finish(score, proof)` lúc kết thúc (xem mục *Điểm số được kiểm tra trên server*).
-5. Chụp thumbnail (mục dưới).
+5. Viết nội dung SEO trong `apps/web/lib/seo.ts`: title theo đúng cụm từ người ta hay tìm, mô tả khoảng 150–160 ký tự, 3–4 câu hỏi đáp. Sitemap, JSON-LD và trang danh mục tự cập nhật theo.
+6. Chụp thumbnail (mục dưới).
 
 ### Điểm số được kiểm tra trên server
 

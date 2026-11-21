@@ -1,12 +1,13 @@
 import { Play } from "lucide-react";
 import Link from "next/link";
 import { FEATURED_SLUG, GAME_TYPES, TYPE_META } from "@/lib/games";
+import { categoryHref } from "@/lib/seo";
 import { AccountMenu } from "./auth/account-menu";
 import { Logo } from "./logo";
 import { MobileNav } from "./mobile-nav";
 
 export const NAV_LINKS = [
-  ...GAME_TYPES.map((t) => ({ href: `/#${TYPE_META[t].anchor}`, label: TYPE_META[t].label, dot: TYPE_META[t].dot })),
+  ...GAME_TYPES.map((t) => ({ href: categoryHref(t), label: TYPE_META[t].label, dot: TYPE_META[t].dot })),
   { href: "/daily", label: "Thử thách", dot: "bg-brand" },
   { href: "/leaderboard", label: "Xếp hạng", dot: "bg-[#f5a400]" },
 ];

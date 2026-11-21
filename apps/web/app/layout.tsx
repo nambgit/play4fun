@@ -17,10 +17,13 @@ const siteUrl = process.env.PUBLIC_URL ?? "https://play4fun.io.vn";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: { default: "Play4Fun – Chơi 5 phút, xả stress cả ngày", template: "%s | Play4Fun" },
+  title: { default: "Play4Fun – Game online miễn phí: giải lao, trắc nghiệm, chơi nhóm", template: "%s | Play4Fun" },
   description:
-    "Mini-game giải lao, test vui và party game chơi nhóm ngay trên trình duyệt. Không cần cài đặt, không cần đăng ký, chơi mượt trên điện thoại.",
+    "Game online miễn phí trên trình duyệt: gõ phím tiếng Việt, tính nhẩm, trắc nghiệm tính cách, Ai là gián điệp, vẽ đoán chữ, đố vui team building. Không cần cài.",
+  applicationName: "Play4Fun",
   openGraph: { siteName: "Play4Fun", locale: "vi_VN", type: "website" },
+  twitter: { card: "summary_large_image" },
+  formatDetection: { telephone: false },
 };
 
 export const viewport: Viewport = {
