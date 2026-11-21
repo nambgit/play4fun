@@ -3,6 +3,7 @@ import CauHoiDoVui from "./cau-hoi-do-vui-team-building";
 import GiaiLao from "./giai-lao-van-phong";
 import AiLaGianDiep from "./luat-choi-ai-la-gian-diep";
 import LuyenGoPhim from "./luyen-go-phim-10-ngon";
+import MaSoi from "./luat-choi-ma-soi";
 import TinhNham from "./meo-tinh-nham-nhanh";
 import TocDoGoPhim from "./toc-do-go-phim";
 import TeamBuilding from "./tro-choi-team-building-trong-phong-hop";
@@ -15,6 +16,7 @@ export const ARTICLE_BODY: Record<string, ComponentType> = {
   "tro-choi-team-building-trong-phong-hop": TeamBuilding,
   "cau-hoi-do-vui-team-building": CauHoiDoVui,
   "luat-choi-ai-la-gian-diep": AiLaGianDiep,
+  "luat-choi-ma-soi": MaSoi,
   "tu-khoa-ve-doan-chu": VeDoanChu,
   "meo-tinh-nham-nhanh": TinhNham,
   "giai-lao-van-phong": GiaiLao,

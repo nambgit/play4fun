@@ -15,8 +15,10 @@ import { Server, type Socket } from "socket.io";
 import { loadQuestionSet } from "./db";
 import { loadRooms, saveRooms } from "./persist";
 import { draw } from "./games/draw";
+import { hieu } from "./games/hieu";
 import { spy } from "./games/spy";
 import { trivia } from "./games/trivia";
+import { wolf } from "./games/wolf";
 import type { Ctx, GameModule } from "./games/types";
 import {
   cleanCode,
@@ -42,6 +44,8 @@ const MODULES: Record<PartySlug, GameModule<any, any>> = {
   "ai-la-gian-diep": spy,
   "ve-doan-chu": draw,
   "do-vui-team-building": trivia,
+  "ma-soi": wolf,
+  "ai-hieu-ai": hieu,
 };
 
 const httpServer = createServer((req, res) => {

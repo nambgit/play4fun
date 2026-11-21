@@ -25,6 +25,20 @@ export type ArticleMeta = {
 
 export const ARTICLES: ArticleMeta[] = [
   {
+    slug: "luat-choi-ma-soi",
+    title: "Luật chơi Ma sói chi tiết cho người mới: các vai, cách chơi, mẹo",
+    description: "Luật chơi Ma sói từ A đến Z: vai Sói, Tiên tri, Bảo vệ, Dân làng, diễn biến ngày đêm, chia vai theo số người và mẹo cho từng phe. Chơi online miễn phí.",
+    kicker: "Chơi nhóm",
+    games: ["ma-soi", "ai-la-gian-diep"],
+    published: "2026-11-21",
+    updated: "2026-11-21",
+    readMinutes: 7,
+    faq: [
+      ["Chơi Ma sói cần ít nhất bao nhiêu người?", "Từ 5 người trở lên. Dưới 5 người, phe sói hoặc phe dân sẽ quá dễ thắng. Nhóm nhỏ hơn có thể chơi Ai là gián điệp (từ 3 người)."],
+      ["Người chết có được nói không?", "Theo luật phổ biến, người chết không được tiết lộ vai hay gợi ý gì thêm, chỉ được ngồi xem. Vai của người bị treo cổ được lật cho cả làng biết."],
+    ],
+  },
+  {
     slug: "luyen-go-phim-10-ngon",
     title: "Cách luyện gõ phím 10 ngón tiếng Việt cho người mới bắt đầu",
     description: "Luyện gõ 10 ngón từ con số 0: tư thế, vị trí ngón tay, cách gõ Telex có dấu, lộ trình 4 tuần và cách đo tiến bộ bằng WPM. Tập miễn phí trên trình duyệt.",
@@ -53,7 +67,7 @@ export const ARTICLES: ArticleMeta[] = [
     title: "12 trò chơi team building trong phòng họp, không cần đạo cụ",
     description: "12 trò chơi team building trong phòng họp: khởi động 5 phút, trò chơi nhóm 15–30 phút, cách chơi cho team làm việc từ xa. Có game điện thoại miễn phí.",
     kicker: "Team building",
-    games: ["do-vui-team-building", "ai-la-gian-diep", "ve-doan-chu"],
+    games: ["do-vui-team-building", "ai-hieu-ai", "ma-soi", "ai-la-gian-diep", "ve-doan-chu"],
     published: "2026-11-21",
     updated: "2026-11-21",
     readMinutes: 8,
@@ -97,7 +111,7 @@ export const ARTICLES: ArticleMeta[] = [
     title: "10 mẹo tính nhẩm nhanh ai cũng học được",
     description: "10 mẹo tính nhẩm nhanh có ví dụ: nhân với 5, 9, 11, bình phương số tận cùng bằng 5, tính phần trăm. Luyện ngay với game tính nhẩm miễn phí.",
     kicker: "Tính nhẩm",
-    games: ["bai-kiem-tra-15-phut"],
+    games: ["bai-kiem-tra-15-phut", "lat-the"],
     published: "2026-11-21",
     updated: "2026-11-21",
     readMinutes: 6,
@@ -107,7 +121,7 @@ export const ARTICLES: ArticleMeta[] = [
     title: "Giải lao 5 phút ở văn phòng: làm gì để đầu óc tỉnh táo lại?",
     description: "Giải lao 5 phút ở văn phòng cho đúng: nghỉ mắt, vận động nhẹ, đổi hoạt động cho não và vài mini-game ngắn giúp xả stress mà không quá giờ nghỉ.",
     kicker: "Giải lao",
-    games: ["inbox-zero", "deadline-dash", "pixel-dodge"],
+    games: ["inbox-zero", "thang-may", "phan-xa", "doan-chu"],
     published: "2026-11-21",
     updated: "2026-11-21",
     readMinutes: 5,

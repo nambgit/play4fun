@@ -52,6 +52,14 @@ const PLAYABLE: Record<string, { Game: ComponentType<GameProps>; frame: Frame }>
     Game: dynamic(() => import("@/games/go-phim-nhanh/go-phim-nhanh"), { ssr: false, loading: skeleton("light") }),
     frame: "light",
   },
+  "doan-chu": { Game: dynamic(() => import("@/games/doan-chu/doan-chu"), { ssr: false, loading: skeleton("light") }), frame: "light" },
+  "noi-tu": { Game: dynamic(() => import("@/games/noi-tu/noi-tu"), { ssr: false, loading: skeleton("light") }), frame: "light" },
+  "phan-xa": { Game: dynamic(() => import("@/games/phan-xa/phan-xa"), { ssr: false, loading: skeleton("light") }), frame: "light" },
+  "lat-the": { Game: dynamic(() => import("@/games/lat-the/lat-the"), { ssr: false, loading: skeleton("light") }), frame: "light" },
+  "thang-may": { Game: dynamic(() => import("@/games/thang-may/thang-may"), { ssr: false, loading: skeleton("light") }), frame: "light" },
+  "kien-thuc-viet-nam": { Game: dynamic(() => import("@/games/kien-thuc/kien-thuc"), { ssr: false, loading: skeleton("light") }), frame: "light" },
+  "ban-hop-nghe-gi": { Game: dynamic(() => import("@/games/quiz/nghe-nghiep"), { ssr: false, loading: skeleton("light") }), frame: "light" },
+  "ban-la-mon-an-viet-nao": { Game: dynamic(() => import("@/games/quiz/mon-an"), { ssr: false, loading: skeleton("light") }), frame: "light" },
   // --- Quizzes (shared engine in games/quiz) ---
   "ban-la-kieu-dong-nghiep-nao": {
     Game: dynamic(() => import("@/games/quiz/dong-nghiep"), { ssr: false, loading: skeleton("light") }),
@@ -78,6 +86,8 @@ const PLAYABLE: Record<string, { Game: ComponentType<GameProps>; frame: Frame }>
     Game: dynamic(() => import("@/games/party/trivia"), { ssr: false, loading: skeleton("light") }),
     frame: "light",
   },
+  "ma-soi": { Game: dynamic(() => import("@/games/party/wolf"), { ssr: false, loading: skeleton("light") }), frame: "light" },
+  "ai-hieu-ai": { Game: dynamic(() => import("@/games/party/hieu"), { ssr: false, loading: skeleton("light") }), frame: "light" },
 };
 
 export function GameStage({ slug }: { slug: string }) {

@@ -16,6 +16,7 @@
  * Đổi bằng BROWSER_CHANNEL=chrome; đổi server bằng BASE_URL=http://...
  */
 import { mkdir } from "node:fs/promises";
+import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright-core";
 import sharp from "sharp";
@@ -256,6 +257,192 @@ const SHOTS = {
       await page.mouse.up();
     },
   },
+  // --- Second batch: scripted scenes (game root = the bg-bg panel inside the stage frame) ---
+  "doan-chu": {
+    position: "top",
+    async custom({ page }) {
+      await page.goto(`${BASE_URL}/games/doan-chu`, { waitUntil: "networkidle" });
+      // Practice mode: the thumbnail must not give away today's word
+      await page.getByRole("tab", { name: "Luyện tập" }).click();
+      for (const w of ["thanh", "nguoi", "khong"]) {
+        await page.keyboard.type(w, { delay: 40 });
+        await page.keyboard.press("Enter");
+        await sleep(500);
+      }
+      await page.keyboard.type("tr", { delay: 40 });
+      await sleep(400);
+      return await gameRoot(page).screenshot();
+    },
+  },
+
+  "noi-tu": {
+    position: "top",
+    async custom({ page }) {
+      await page.goto(`${BASE_URL}/games/noi-tu`, { waitUntil: "networkidle" });
+      await page.getByRole("button", { name: "Bắt đầu" }).click();
+      const words = dictionaryWords();
+      for (let turn = 0; turn < 3; turn++) {
+        await sleep(400);
+        const need = (await gameRoot(page).locator("form label > span").first().innerText()).trim();
+        const next = words.find((w) => w.startsWith(`${need} `) && !w.endsWith(` ${need}`));
+        if (!next) break;
+        await page.keyboard.type(next.split(" ")[1], { delay: 50 });
+        await page.keyboard.press("Enter");
+      }
+      await sleep(500);
+      await page.keyboard.type("v", { delay: 50 });
+      return await gameRoot(page).screenshot();
+    },
+  },
+
+  "phan-xa": {
+    position: "center",
+    async custom({ page }) {
+      await page.goto(`${BASE_URL}/games/phan-xa`, { waitUntil: "networkidle" });
+      await page.getByRole("button", { name: "Bắt đầu" }).click();
+      const go = gameRoot(page).getByText("CHẠM!", { exact: true });
+      for (let i = 0; i < 3; i++) {
+        await go.waitFor({ timeout: 10_000 });
+        await sleep(180 + Math.random() * 80);
+        await gameRoot(page).locator("button[aria-live]").dispatchEvent("pointerdown");
+        await sleep(400);
+        await gameRoot(page).locator("button[aria-live]").dispatchEvent("pointerdown");
+      }
+      await go.waitFor({ timeout: 10_000 });
+      return await gameRoot(page).screenshot();
+    },
+  },
+
+  "lat-the": {
+    position: "center",
+    async custom({ page }) {
+      await page.goto(`${BASE_URL}/games/lat-the`, { waitUntil: "networkidle" });
+      await page.getByRole("button", { name: "Bắt đầu" }).click();
+      await sleep(400);
+      const cards = gameRoot(page).locator("button[data-card]");
+      const flip = async (i) => {
+        await cards.nth(i).dispatchEvent("pointerdown");
+        await sleep(330);
+        return cards.nth(i).getAttribute("aria-label");
+      };
+      // Pass 1: flip cards two by two and remember every picture
+      const where = new Map();
+      for (let i = 0; i < 12; i += 2) {
+        const a = await flip(i);
+        const b = await flip(i + 1);
+        where.set(a, [...(where.get(a) ?? []), i]);
+        where.set(b, [...(where.get(b) ?? []), i + 1]);
+        await sleep(a === b ? 300 : 1000);
+      }
+      // Pass 2: match three known pairs, then leave one card face up
+      let done = 0;
+      for (const [, idx] of where) {
+        if (done >= 3 || idx.length < 2) continue;
+        if (!(await cards.nth(idx[0]).getAttribute("aria-label")).startsWith("Thẻ")) continue;
+        await flip(idx[0]);
+        await flip(idx[1]);
+        done++;
+      }
+      for (let i = 11; i >= 0; i--) {
+        if ((await cards.nth(i).getAttribute("aria-label"))?.startsWith("Thẻ")) {
+          await flip(i);
+          break;
+        }
+      }
+      await sleep(400);
+      return await gameRoot(page).screenshot();
+    },
+  },
+
+  "thang-may": {
+    position: "top",
+    async custom({ page }) {
+      await page.goto(`${BASE_URL}/games/thang-may`, { waitUntil: "networkidle" });
+      await page.getByRole("button", { name: "Mở cửa tòa nhà" }).click();
+      await sleep(4500);
+      const people = gameRoot(page).locator("button[aria-pressed]");
+      for (let i = 0; i < 4; i++) await people.nth(i).dispatchEvent("pointerdown");
+      await page.getByRole("button", { name: "Đi thôi!" }).click();
+      await sleep(2500);
+      for (let i = 0; i < 3; i++) await people.nth(i).dispatchEvent("pointerdown");
+      await sleep(300);
+      return await gameRoot(page).screenshot();
+    },
+  },
+
+  "kien-thuc-viet-nam": {
+    position: "top",
+    async custom({ page }) {
+      await page.goto(`${BASE_URL}/games/kien-thuc-viet-nam`, { waitUntil: "networkidle" });
+      await page.getByRole("button", { name: "Bắt đầu làm bài" }).click();
+      await sleep(1500);
+      return await gameRoot(page).screenshot();
+    },
+  },
+
+  ...Object.fromEntries(
+    ["ban-hop-nghe-gi", "ban-la-mon-an-viet-nao"].map((slug) => [
+      slug,
+      {
+        captureAt: 600,
+        alive: "main [data-quiz-active]",
+        position: "top",
+        async play() {},
+        async beforeShot(page, stage) {
+          for (let i = 0; i < 20 && !(await stage.getByText("Bạn là", { exact: true }).isVisible()); i++) {
+            await page.keyboard.press(`Digit${1 + Math.floor(Math.random() * 4)}`);
+            await sleep(320);
+          }
+          await sleep(400);
+        },
+      },
+    ]),
+  ),
+
+  "ma-soi": {
+    position: "top",
+    async custom({ browser, page }) {
+      const room = await partyRoom(browser, page, "ma-soi", "Hùng", ["Lan", "Minh", "Ngọc", "Tú"]);
+      try {
+        await page.getByRole("button", { name: "Bắt đầu chơi" }).click();
+        for (const p of [page, ...room.guests]) await p.getByRole("button", { name: "Tôi đã xem vai" }).click();
+        await sleep(800);
+        // The werewolf's phone at night: dark panel with the target list
+        for (const p of [page, ...room.guests]) {
+          if (await p.getByText("Chọn người bầy sói sẽ tấn công đêm nay").isVisible()) {
+            const targets = partyStage(p).locator("ul button");
+            await targets.nth(1).click();
+            await sleep(400);
+            return await partyStage(p).screenshot({ animations: "allow" });
+          }
+        }
+        throw new Error("no werewolf view found");
+      } finally {
+        await room.close();
+      }
+    },
+  },
+
+  "ai-hieu-ai": {
+    position: "top",
+    async custom({ browser, page }) {
+      const room = await partyRoom(browser, page, "ai-hieu-ai", "Hà", ["Khoa", "Linh", "Mai"]);
+      try {
+        await page.getByRole("button", { name: "Bắt đầu chơi" }).click();
+        await sleep(1500);
+        const all = [page, ...room.guests];
+        for (const [i, p] of all.entries()) {
+          await partyStage(p).locator("div.grid button").nth(i % 2 === 0 ? 1 : 2).click();
+          await sleep(150);
+        }
+        await sleep(800);
+        return await partyStage(room.guests[1]).screenshot({ animations: "allow" });
+      } finally {
+        await room.close();
+      }
+    },
+  },
+
 };
 
 /** Kiểm tra 15 phút: giải phép tính trên bảng, ô trống (nbsp) là ẩn số */
@@ -276,6 +463,19 @@ function solveBoard(text) {
     }
   }
   return null;
+}
+
+/** Root panel of a game inside the stage frame (works for games without a focusable stage) */
+const gameRoot = (page) => page.locator("main .rounded-2xl.bg-bg").first();
+
+/** Nối từ dictionary, read from the source file (the script cannot import TypeScript) */
+let WORD_CACHE = null;
+function dictionaryWords() {
+  if (!WORD_CACHE) {
+    const src = readFileSync(fileURLToPath(new URL("../games/noi-tu/dictionary.ts", import.meta.url)), "utf8");
+    WORD_CACHE = [...src.matchAll(/"([^"]+ [^"]+)"/g)].map((m) => m[1]);
+  }
+  return WORD_CACHE;
 }
 
 // ------------------------------------------------------------ party helpers

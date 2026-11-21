@@ -142,6 +142,116 @@ export const GAME_SEO: Record<string, GameSeo> = {
       PARTY_REMOTE,
     ],
   },
+  "doan-chu": {
+    title: "Đoán chữ hằng ngày – Game đoán từ tiếng Việt 5 chữ cái",
+    description: "Mỗi ngày một từ tiếng Việt 5 chữ cái, đoán trong 6 lượt với gợi ý ô xanh, ô vàng. Gõ không dấu, giữ chuỗi ngày thắng và khoe kết quả. Miễn phí, chơi ngay.",
+    genre: "Word game",
+    faq: [
+      ["Đoán chữ chơi như thế nào?", "Gõ một từ tiếng Việt 5 chữ cái (không dấu) rồi bấm Đoán. Ô xanh là chữ đúng và đúng chỗ, ô vàng là từ có chữ đó nhưng ở chỗ khác, ô xám là không có. Bạn có 6 lượt."],
+      ["Có phải gõ dấu không?", "Không. Chữ được so sánh không dấu và chữ đ tính là d, nên gõ “nguoi” là “người”, “duong” là “đường”. Đáp án có dấu được hiện ở cuối lượt."],
+      ["Bao giờ có từ mới?", "Mỗi ngày lúc 0 giờ (giờ Việt Nam) có một từ mới, giống nhau cho tất cả mọi người. Muốn chơi thêm thì chọn chế độ Luyện tập với từ ngẫu nhiên."],
+      FREE,
+    ],
+  },
+  "noi-tu": {
+    title: "Nối từ online – Chơi nối từ tiếng Việt với máy",
+    description: "Trò chơi nối từ tiếng Việt: máy nói một từ, bạn nối tiếng cuối thành từ mới trong thời gian ngắn dần. Hơn 5.000 từ ghép thông dụng, làm máy bí để ăn điểm. Miễn phí.",
+    genre: "Word game",
+    faq: [
+      ["Luật chơi nối từ là gì?", "Mỗi từ có hai tiếng. Từ tiếp theo phải bắt đầu bằng tiếng cuối của từ trước, ví dụ “học sinh” → “sinh viên” → “viên chức”. Mỗi từ chỉ dùng một lần trong ván."],
+      ["Tôi phải gõ cả từ hay chỉ một tiếng?", "Chỉ gõ tiếng thứ hai, có dấu. Tiếng đầu đã được điền sẵn theo từ của máy. Kiểu đặt dấu cũ hay mới (“hòa” hay “hoà”) đều được chấp nhận."],
+      ["Gõ từ không có trong từ điển thì sao?", "Không bị trừ điểm, bạn gõ lại từ khác khi đồng hồ còn chạy. Hết giờ hoặc bấm bỏ qua mới mất 1 tim, và game gợi ý vài từ có thể đã dùng được."],
+      FREE,
+    ],
+  },
+  "phan-xa": {
+    title: "Test phản xạ online – Đo thời gian phản xạ (ms)",
+    description: "Kiểm tra tốc độ phản xạ: màn hình chuyển xanh là chạm, đo bằng mili-giây, lấy trung bình 5 lần. Xem bạn nhanh hơn số đông không. Miễn phí, chơi trên điện thoại.",
+    genre: "Reflex",
+    faq: [
+      ["Thời gian phản xạ bao nhiêu là nhanh?", "Trên điện thoại hay máy tính, khoảng 250–300 ms là mức phổ biến, dưới 240 ms là rất nhanh, dưới 200 ms là hiếm. Con số này gồm cả độ trễ của màn hình và thiết bị."],
+      ["Vì sao kết quả mỗi máy một khác?", "Màn hình, chuột, cảm ứng và trình duyệt đều có độ trễ riêng. So với chính mình trên cùng một thiết bị là chính xác nhất."],
+      ["Chạm sớm có bị trừ điểm không?", "Không trừ điểm, nhưng lần đó phải làm lại. Chạm nhanh hơn 90 ms sau khi chuyển xanh cũng được tính là chạm sớm, vì đó là đoán mò chứ không phải phản xạ."],
+      FREE,
+    ],
+  },
+  "lat-the": {
+    title: "Game lật hình tìm cặp – Nhớ thẻ bài rèn trí nhớ",
+    description: "Trò chơi trí nhớ lật thẻ tìm cặp hình chủ đề Việt Nam qua 4 cấp độ, từ 12 đến 24 thẻ. Tính giờ và số lượt, hợp cho cả trẻ em và người lớn. Miễn phí, không cần cài.",
+    genre: "Memory",
+    faq: [
+      ["Chơi nhớ thẻ bài thế nào?", "Lật 2 thẻ mỗi lượt. Hai hình giống nhau thì giữ lại, khác nhau thì úp xuống sau một chút. Tìm hết các cặp để qua cấp; có 4 cấp với bàn chơi to dần."],
+      ["Điểm được tính ra sao?", "Điểm là tổng thời gian hoàn thành cả 4 cấp, càng ít càng tốt. Game cũng tính độ chính xác: số cặp chia cho số lượt lật."],
+      ["Game có giúp rèn trí nhớ không?", "Lật thẻ tìm cặp là bài luyện trí nhớ ngắn hạn quen thuộc. Mỗi ván hình và vị trí được xáo mới nên không thể học thuộc."],
+      FREE,
+    ],
+  },
+  "thang-may": {
+    title: "Thang máy giờ cao điểm – Game điều phối văn phòng",
+    description: "8 giờ sáng, cả tòa nhà đổ về sảnh: chọn ai lên thang, gom người cùng tầng để chở kịp mọi người trước 9 giờ. Game giải trí văn phòng miễn phí, chơi trong 2 phút.",
+    genre: "Puzzle",
+    faq: [
+      ["Thang máy giờ cao điểm chơi thế nào?", "Chạm vào nhân viên ở sảnh để chọn tối đa 6 người rồi bấm “Đi thôi!”. Thang quay lại sau khi chở xong. Chơi từ 8:00 đến 9:00 hoặc đến khi hết 3 tim."],
+      ["Làm sao để được nhiều điểm?", "Mỗi điểm dừng tốn nhiều thời gian hơn việc đi cao thêm một tầng. Hãy chở đầy thang nhưng chỉ dừng ở 1–2 tầng: thang về nhanh hơn, và 3 người trở lên chỉ đi 1–2 tầng là “chuyến đẹp” có điểm thưởng."],
+      ["Khi nào bị mất tim?", "Thanh màu dưới mỗi người là độ kiên nhẫn. Ai chờ hết kiên nhẫn sẽ bỏ đi thang bộ và bạn mất 1 tim."],
+      FREE,
+    ],
+  },
+  "ban-hop-nghe-gi": {
+    title: "Trắc nghiệm hướng nghiệp: Bạn hợp nghề gì?",
+    description: "Trắc nghiệm nghề nghiệp 12 câu: biết nhóm nghề hợp với bạn (sáng tạo, kỹ thuật, phân tích, chăm sóc, kinh doanh, tổ chức) kèm gợi ý ngành học. Miễn phí.",
+    genre: "Quiz",
+    faq: [
+      ["Bài trắc nghiệm này dành cho ai?", "Học sinh đang chọn ngành, sinh viên và người đi làm muốn hiểu mình hợp kiểu công việc nào. 12 tình huống quen thuộc, mất khoảng 3 phút."],
+      ["Kết quả gồm những gì?", "Nhóm nghề hợp nhất với bạn, tỉ lệ của cả 6 nhóm, điểm mạnh, điểm cần lưu ý, kỹ năng nên thử và gợi ý ngành học."],
+      ["Kết quả có chính xác không?", "Đây là trắc nghiệm tham khảo cho vui, giúp bạn có thêm góc nhìn. Khi chọn ngành thật, hãy kết hợp với tư vấn hướng nghiệp, trải nghiệm thực tế và ý kiến của người đi trước."],
+      FREE,
+    ],
+  },
+  "ban-la-mon-an-viet-nao": {
+    title: "Test tính cách: Bạn là món ăn Việt nào?",
+    description: "Bài test vui 10 câu: bạn là phở ấm áp, bánh mì năng động, bún bò cá tính hay trà sữa vui vẻ? Nhận kết quả kèm món hợp cạ nhất và khoe ngay với bạn bè. Miễn phí.",
+    genre: "Quiz",
+    faq: [
+      ["Bài test có bao nhiêu câu?", "10 câu hỏi về thói quen và cách bạn đối xử với mọi người, mất khoảng 2 phút. Không có đáp án đúng sai."],
+      ["Có những món nào?", "Phở, bánh mì, bún bò, trà sữa, bánh xèo và chè, mỗi món là một kiểu tính cách. Kết quả có tỉ lệ từng món và món hợp cạ nhất với bạn."],
+      ["Làm lại có ra câu hỏi khác không?", "Có. Mỗi lần làm là một bộ câu hỏi khác, thứ tự đáp án cũng được xáo trộn."],
+      FREE,
+    ],
+  },
+  "kien-thuc-viet-nam": {
+    title: "Câu hỏi kiến thức Việt Nam có đáp án – Trắc nghiệm online",
+    description: "Trắc nghiệm kiến thức Việt Nam 15 câu: lịch sử, địa lý, văn hóa, đời sống, mỗi câu 20 giây, chấm thang điểm 10 kèm giải thích. Hơn 160 câu hỏi, miễn phí.",
+    genre: "Trivia",
+    faq: [
+      ["Bài kiểm tra gồm những chủ đề nào?", "Lịch sử, địa lý, văn hóa – văn học – lễ hội, và đời sống. Mỗi lượt 15 câu chia đều các chủ đề, lấy ngẫu nhiên từ hơn 160 câu hỏi."],
+      ["Điểm được tính thế nào?", "Mỗi câu đúng được tính, quy ra thang điểm 10. Hết 20 giây mà chưa chọn thì câu đó tính là sai. Cuối bài bạn xem lại được các câu chưa đúng kèm giải thích."],
+      ["Làm lại có bị trùng câu không?", "Câu bạn đã gặp gần đây được để xuống sau, nên làm nhiều lần sẽ gặp câu mới cho đến khi đi hết kho câu hỏi."],
+      FREE,
+    ],
+  },
+  "ma-soi": {
+    title: "Ma sói online – Chơi Ma sói trên điện thoại, máy làm quản trò",
+    description: "Chơi Ma sói online miễn phí cho 5–16 người: vai bí mật trên điện thoại (sói, tiên tri, bảo vệ, dân làng), máy làm quản trò, đếm giờ thảo luận và bỏ phiếu.",
+    genre: "Party game",
+    faq: [
+      ["Luật chơi Ma sói như thế nào?", "Ban đêm, sói chọn một người để cắn, Tiên tri soi xem một người có phải sói không, Bảo vệ che chở một người. Ban ngày công bố ai chết, cả làng thảo luận rồi bỏ phiếu treo cổ. Dân thắng khi diệt hết sói; sói thắng khi số sói bằng số người còn lại."],
+      ["Có cần quản trò không?", "Không. Máy chia vai, gọi từng vai dậy ban đêm trên điện thoại của họ, tính kết quả, đếm giờ thảo luận và bỏ phiếu. Ai cũng được chơi."],
+      ["Cần bao nhiêu người?", "Từ 5 đến 16 người. Gợi ý 1 sói cho 5–7 người, 2 sói từ 8 người, 3 sói từ 12 người. Có thể tắt Tiên tri hoặc Bảo vệ để đổi độ khó."],
+      PARTY_REMOTE,
+    ],
+  },
+  "ai-hieu-ai": {
+    title: "Ai hiểu ai nhất? – Game đoán ý bạn bè chơi nhóm online",
+    description: "Game chơi nhóm cho hội bạn và đồng nghiệp: mỗi lượt một người lên ghế nóng chọn câu trả lời thật của mình, cả nhóm đoán. Hơn 100 câu hỏi vui, 2–20 người, miễn phí.",
+    genre: "Party game",
+    faq: [
+      ["Cách chơi Ai hiểu ai nhất?", "Mỗi lượt, một người lên ghế nóng và bí mật chọn đáp án đúng với mình (ví dụ món có thể ăn cả tuần không chán). Những người khác đoán xem người đó chọn gì, rồi cùng lật đáp án."],
+      ["Điểm được tính ra sao?", "Đoán trúng được 100 điểm. Người ghế nóng được 50 điểm cho mỗi người đoán trúng, nên càng thật lòng và cả nhóm càng hiểu nhau thì càng nhiều điểm."],
+      ["Hợp với dịp nào?", "Buổi team building, làm quen đồng nghiệp mới, tụ tập bạn bè hay lớp học. Câu hỏi nhẹ nhàng, không đụng chuyện riêng tư."],
+      PARTY_JOIN,
+    ],
+  },
 };
 
 export type CategorySeo = { path: string; title: string; h1: string; description: string; intro: string[]; faq: Faq[] };
@@ -151,13 +261,13 @@ export const CATEGORY_SEO: Record<GameType, CategorySeo> = {
     path: "/giai-lao",
     title: "Game giải lao online miễn phí cho dân văn phòng",
     h1: "Game giải lao online miễn phí",
-    description: "Mini-game giải lao 1–3 phút chơi ngay trên trình duyệt: gõ phím tiếng Việt, tính nhẩm, né đạn, chạy trốn deadline. Không cần cài đặt, mượt trên điện thoại.",
+    description: "Mini-game giải lao 1–3 phút trên trình duyệt: đoán chữ hằng ngày, nối từ, gõ phím tiếng Việt, tính nhẩm, test phản xạ, lật hình. Không cần cài, mượt trên điện thoại.",
     intro: [
       "Năm phút nghỉ giữa giờ là đủ cho một ván. Các mini-game ở đây được làm cho dân văn phòng, học sinh và game thủ: luật chơi hiểu ngay, mỗi ván 1 đến 3 phút, có bảng xếp hạng và thử thách hằng ngày để thi với bạn bè.",
       "Không cần tải app hay tạo tài khoản. Mở trên điện thoại hoặc máy tính là chơi được ngay.",
     ],
     faq: [
-      ["Game nào hợp để giải lao ở văn phòng?", "Inbox Zero và Deadline Dash lấy chủ đề công sở, mỗi ván khoảng 1 đến 3 phút. Muốn vừa chơi vừa luyện thì thử Gõ phím thần tốc (đo tốc độ gõ tiếng Việt) hoặc Kiểm tra 15 phút (tính nhẩm)."],
+      ["Game nào hợp để giải lao ở văn phòng?", "Inbox Zero, Deadline Dash và Thang máy giờ cao điểm lấy chủ đề công sở, mỗi ván khoảng 1 đến 3 phút. Muốn vừa chơi vừa luyện thì thử Gõ phím thần tốc, Kiểm tra 15 phút (tính nhẩm), Nối từ hoặc Đoán chữ hằng ngày (mỗi ngày một từ mới)."],
       ["Thử thách hằng ngày là gì?", "Mỗi ngày một mini-game, cả nước chơi cùng một đề. Lần chơi đầu tiên trong ngày được tính lên bảng xếp hạng hôm nay, chơi liên tục nhiều ngày để giữ chuỗi."],
       FREE,
     ],
@@ -166,7 +276,7 @@ export const CATEGORY_SEO: Record<GameType, CategorySeo> = {
     path: "/test-vui",
     title: "Trắc nghiệm tính cách & test vui online miễn phí",
     h1: "Trắc nghiệm tính cách & test vui",
-    description: "Các bài trắc nghiệm vui 3 phút: bạn là kiểu đồng nghiệp nào, phong cách học tập của bạn, bạn là gamer hệ nào. Kết quả chi tiết, có ảnh để chia sẻ lên Facebook.",
+    description: "Trắc nghiệm vui 3 phút: bạn hợp nghề gì, bạn là món ăn Việt nào, kiểu đồng nghiệp, phong cách học, gamer hệ nào, và bài kiểm tra kiến thức Việt Nam có đáp án.",
     intro: [
       "Mỗi bài test gồm 10 đến 12 tình huống quen thuộc, không có đáp án đúng sai. Kết quả cho biết kiểu nổi bật nhất của bạn kèm tỉ lệ từng kiểu, điểm mạnh và vài mẹo nhỏ.",
       "Làm lại sẽ ra bộ câu hỏi khác, nên rủ cả nhóm cùng làm rồi so kết quả cũng vui.",
@@ -181,13 +291,13 @@ export const CATEGORY_SEO: Record<GameType, CategorySeo> = {
     path: "/choi-nhom",
     title: "Game chơi nhóm online trên điện thoại – Party game miễn phí",
     h1: "Game chơi nhóm online",
-    description: "Party game chơi nhóm miễn phí: Ai là gián điệp, vẽ đoán chữ, đố vui team building. Tạo phòng, cả nhóm vào bằng mã hoặc QR trên điện thoại, không cần cài app.",
+    description: "Party game chơi nhóm miễn phí: Ma sói, Ai là gián điệp, vẽ đoán chữ, đố vui team building, Ai hiểu ai nhất. Vào phòng bằng mã hoặc QR trên điện thoại.",
     intro: [
       "Hợp cho buổi họp đầu tuần, tiệc công ty, lớp học hay hội bạn tụ tập. Một người tạo phòng và gửi mã, mọi người vào bằng điện thoại của mình, không cần cài app hay tạo tài khoản.",
       "Ở xa nhau vẫn chơi được: vào cùng một phòng rồi gọi video qua Zoom, Google Meet, Messenger hoặc Zalo.",
     ],
     faq: [
-      ["Game nào hợp cho team building?", "Đố vui team building cho tối đa 50 người, có thể tự soạn câu hỏi về công ty kèm logo. Nhóm nhỏ hơn thì Ai là gián điệp (3–12 người) và Vẽ & đoán (2–12 người) rất dễ khuấy động không khí."],
+      ["Game nào hợp cho team building?", "Đố vui team building cho tối đa 50 người, có thể tự soạn câu hỏi về công ty kèm logo. Ai hiểu ai nhất (2–20 người) giúp đồng nghiệp hiểu nhau hơn. Nhóm nhỏ thì Ai là gián điệp, Vẽ & đoán hoặc Ma sói (5–16 người) rất dễ khuấy động không khí."],
       PARTY_JOIN,
       PARTY_REMOTE,
     ],

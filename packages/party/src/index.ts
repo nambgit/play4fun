@@ -8,12 +8,14 @@
 
 // ------------------------------------------------------------ games & limits
 
-export type PartySlug = "ai-la-gian-diep" | "ve-doan-chu" | "do-vui-team-building";
+export type PartySlug = "ai-la-gian-diep" | "ve-doan-chu" | "do-vui-team-building" | "ma-soi" | "ai-hieu-ai";
 
 export const PARTY_GAMES: Record<PartySlug, { minPlayers: number; maxPlayers: number; /** players may join a game already running */ lateJoin: boolean }> = {
   "ai-la-gian-diep": { minPlayers: 3, maxPlayers: 12, lateJoin: false },
   "ve-doan-chu": { minPlayers: 2, maxPlayers: 12, lateJoin: true },
   "do-vui-team-building": { minPlayers: 2, maxPlayers: 50, lateJoin: true },
+  "ma-soi": { minPlayers: 5, maxPlayers: 16, lateJoin: false },
+  "ai-hieu-ai": { minPlayers: 2, maxPlayers: 20, lateJoin: true },
 };
 
 export const isPartySlug = (s: unknown): s is PartySlug => typeof s === "string" && s in PARTY_GAMES;
@@ -31,7 +33,12 @@ export type TriviaCategory = "all" | "chung" | "vietnam" | "khoahoc" | "congso";
 /** setId: a Studio question set (company package) instead of the built-in questions */
 export type TriviaSettings = { count: number; seconds: number; category: TriviaCategory; setId: string | null };
 
-export type PartySettings = SpySettings | DrawSettings | TriviaSettings;
+/** Ma sói: number of werewolves, optional special roles, discussion length */
+export type WolfSettings = { wolves: number; seer: boolean; guard: boolean; talkSeconds: number };
+/** Ai hiểu ai nhất: number of turns (hot seats) and answer time */
+export type HieuSettings = { turns: number; seconds: number };
+
+export type PartySettings = SpySettings | DrawSettings | TriviaSettings | WolfSettings | HieuSettings;
 
 export const TRIVIA_CATEGORY_LABEL: Record<TriviaCategory, string> = {
   all: "Tất cả chủ đề",
@@ -45,6 +52,12 @@ export const DRAW_ROUND_OPTIONS = [1, 2, 3];
 export const DRAW_TIME_OPTIONS = [60, 80, 100];
 export const TRIVIA_COUNT_OPTIONS = [10, 15, 20];
 export const TRIVIA_SECONDS_OPTIONS = [15, 20, 30];
+export const WOLF_TALK_OPTIONS = [60, 120, 180];
+export const HIEU_TURN_OPTIONS = [5, 10, 15];
+export const HIEU_SECONDS_OPTIONS = [20, 30];
+
+/** Werewolves must stay a minority: 5–7 players → 1, 8–11 → 2, 12–15 → 3, 16 → 4 */
+export const maxWolves = (players: number) => Math.max(1, Math.min(4, Math.floor(players / 4)));
 
 /** Max spies allowed for a player count: spies must stay a clear minority */
 export const maxSpies = (players: number) => Math.max(1, Math.min(3, Math.floor((players - 1) / 3)));
@@ -57,6 +70,10 @@ export function defaultSettings(slug: PartySlug): PartySettings {
       return { rounds: 2, drawTime: 80 } satisfies DrawSettings;
     case "do-vui-team-building":
       return { count: 10, seconds: 20, category: "all", setId: null } satisfies TriviaSettings;
+    case "ma-soi":
+      return { wolves: 1, seer: true, guard: true, talkSeconds: 120 } satisfies WolfSettings;
+    case "ai-hieu-ai":
+      return { turns: 10, seconds: 20 } satisfies HieuSettings;
   }
 }
 
@@ -103,7 +120,7 @@ export const JOIN_ERROR_TEXT: Record<JoinError, string> = {
 
 // ------------------------------------------------------------ game views
 
-export type GameView = SpyView | DrawView | TriviaView;
+export type GameView = SpyView | DrawView | TriviaView | WolfView | HieuView;
 
 export type SpyPhase = "reveal" | "describe" | "vote" | "result" | "over";
 export type SpyView = {
@@ -176,6 +193,65 @@ export type TriviaView = {
   leaderboard: { id: string; score: number; streak: number }[];
 };
 
+export type WolfRole = "wolf" | "villager" | "seer" | "guard";
+export type WolfPhase = "reveal" | "night" | "dawn" | "day" | "vote" | "result" | "over";
+export type WolfView = {
+  kind: "wolf";
+  phase: WolfPhase;
+  /** Day number (1 after the first night) */
+  day: number;
+  myRole: WolfRole | null;
+  amAlive: boolean;
+  alive: string[];
+  /** How many of each role are in this game (public) */
+  roleCounts: Record<WolfRole, number>;
+  /** Fellow werewolves: only for werewolves (and everyone at the end) */
+  pack: string[] | null;
+  ready: string[];
+  /** Deadline of the current timed phase (night / day / vote), 0 if none */
+  endsAt: number;
+  /** Night: my chosen target (wolf kill, seer check or guard protect) */
+  myNightPick: string | null;
+  /** Night: werewolves see each other's picks */
+  packPicks: Record<string, string> | null;
+  /** Seer only: everything learned so far */
+  seerLog: { id: string; wolf: boolean }[] | null;
+  /** Guard only: who was protected last night (cannot be protected twice in a row) */
+  guardLast: string | null;
+  /** Dawn: who died in the night (null = nobody) */
+  died: string | null;
+  voted: string[];
+  myVote: string | null;
+  tally: { id: string; votes: number }[] | null;
+  lastOut: { id: string; role: WolfRole } | null;
+  tie: boolean;
+  winner: "village" | "wolves" | null;
+  reveal: { id: string; role: WolfRole; alive: boolean }[] | null;
+};
+
+export type HieuPhase = "answer" | "reveal" | "over";
+export type HieuView = {
+  kind: "hieu";
+  phase: HieuPhase;
+  turn: number;
+  totalTurns: number;
+  /** Player whose answer everyone tries to guess */
+  hotSeat: string;
+  /** Question text with a {name} placeholder (client fills in the name or "bạn") */
+  question: { text: string; options: string[] };
+  endsAt: number;
+  /** Who has locked in (not what) */
+  answered: string[];
+  myPick: number | null;
+  /** Revealed after the turn closes */
+  hotPick: number | null;
+  /** Hot seat ran out of time: the turn is skipped */
+  skipped: boolean;
+  counts: number[] | null;
+  gains: Record<string, number> | null;
+  scores: Record<string, number>;
+};
+
 // ------------------------------------------------------------ client → server game actions
 
 export type GameAction =
@@ -193,6 +269,17 @@ export type GameAction =
   | { type: "trivia:answer"; index: number }
   | { type: "trivia:close" }
   | { type: "trivia:next" }
+  // ma sói
+  | { type: "wolf:ready" }
+  | { type: "wolf:pick"; target: string }
+  | { type: "wolf:vote"; target: string }
+  | { type: "wolf:startVote" }
+  | { type: "wolf:endVote" }
+  | { type: "wolf:next" }
+  // ai hiểu ai nhất
+  | { type: "hieu:pick"; index: number }
+  | { type: "hieu:close" }
+  | { type: "hieu:next" }
   // any game: host starts a fresh game with the same players
   | { type: "again" };
 

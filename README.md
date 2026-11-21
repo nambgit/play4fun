@@ -18,6 +18,16 @@ dành cho dân văn phòng, học sinh, gamer.
 | Chơi nhóm | Ai là gián điệp? (3–12 người) | `ai-la-gian-diep` | server `apps/realtime/src/games/spy.ts`, giao diện `apps/web/games/party/spy.tsx` |
 | Chơi nhóm | Vẽ & đoán (2–12 người) | `ve-doan-chu` | server `.../games/draw.ts`, giao diện `.../party/draw.tsx` |
 | Chơi nhóm | Đố vui team building (tối đa 50 người) | `do-vui-team-building` | server `.../games/trivia.ts`, giao diện `.../party/trivia.tsx` |
+| Giải lao | Đoán chữ hằng ngày | `doan-chu` | `apps/web/games/doan-chu/` (kho từ `words.ts`) |
+| Giải lao | Nối từ (với máy) | `noi-tu` | `apps/web/games/noi-tu/` (từ điển `dictionary.ts`) |
+| Giải lao | Phản xạ 0,2 giây | `phan-xa` | `apps/web/games/phan-xa/` |
+| Giải lao | Nhớ thẻ bài | `lat-the` | `apps/web/games/lat-the/` |
+| Giải lao | Thang máy giờ cao điểm | `thang-may` | `apps/web/games/thang-may/` |
+| Test vui | Bạn hợp nghề gì? | `ban-hop-nghe-gi` | `apps/web/games/quiz/content/nghe-nghiep.ts` |
+| Test vui | Bạn là món ăn Việt nào? | `ban-la-mon-an-viet-nao` | `apps/web/games/quiz/content/mon-an.ts` |
+| Test vui | Kiểm tra kiến thức Việt Nam | `kien-thuc-viet-nam` | `apps/web/games/kien-thuc/` (câu hỏi `questions.ts`) |
+| Chơi nhóm | Ma sói (5–16 người) | `ma-soi` | server `.../games/wolf.ts`, giao diện `.../party/wolf.tsx` |
+| Chơi nhóm | Ai hiểu ai nhất? (2–20 người) | `ai-hieu-ai` | server `.../games/hieu.ts`, giao diện `.../party/hieu.tsx` |
 
 Ngoài ra:
 

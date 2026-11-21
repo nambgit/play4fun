@@ -7,6 +7,8 @@ import { redirect } from "next/navigation";
 import { Avatar } from "@/components/auth/account-menu";
 import { DONG_NGHIEP } from "@/games/quiz/content/dong-nghiep";
 import { GAMER } from "@/games/quiz/content/gamer";
+import { MON_AN } from "@/games/quiz/content/mon-an";
+import { NGHE_NGHIEP } from "@/games/quiz/content/nghe-nghiep";
 import { HOC_KIEU_GI } from "@/games/quiz/content/hoc-kieu-gi";
 import { isAdmin } from "@/lib/admin-stats";
 import { currentUser } from "@/lib/auth";
@@ -22,7 +24,7 @@ export const dynamic = "force-dynamic";
 
 /** "quiz:<slug>:<type id>" → personality type */
 const QUIZ_TYPES = new Map<string, (typeof GAMER.types)[number]>(
-  [DONG_NGHIEP, HOC_KIEU_GI, GAMER].flatMap((q) => q.types.map((t) => [`quiz:${q.slug}:${t.id}`, t] as [string, typeof t])),
+  [DONG_NGHIEP, HOC_KIEU_GI, GAMER, NGHE_NGHIEP, MON_AN].flatMap((q) => q.types.map((t) => [`quiz:${q.slug}:${t.id}`, t] as [string, typeof t])),
 );
 
 export default async function AccountPage() {

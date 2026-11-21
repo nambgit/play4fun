@@ -1,15 +1,25 @@
 import {
   BookOpen,
+  Brain,
   Briefcase,
+  Building2,
+  Compass,
   Brush,
   Calculator,
   Crosshair,
+  Flag,
   Footprints,
   Gamepad2,
+  HeartHandshake,
   Inbox,
   Keyboard,
+  Link2,
+  Moon,
+  SpellCheck,
   Trophy,
+  UtensilsCrossed,
   VenetianMask,
+  Zap,
   type LucideIcon,
 } from "lucide-react";
 import type { GameIcon as GameIconKey } from "@/lib/games";
@@ -26,6 +36,16 @@ const ICONS: Record<GameIconKey, LucideIcon> = {
   spy: VenetianMask,
   brush: Brush,
   trophy: Trophy,
+  zap: Zap,
+  brain: Brain,
+  building: Building2,
+  letters: SpellCheck,
+  link: Link2,
+  compass: Compass,
+  bowl: UtensilsCrossed,
+  flag: Flag,
+  moon: Moon,
+  hearts: HeartHandshake,
 };
 
 export function GameIcon({ name, className }: { name: GameIconKey; className?: string }) {

@@ -27,6 +27,8 @@ const QUIZZES: [string, string][] = [
   ["ban-la-kieu-dong-nghiep-nao", "Bạn là kiểu đồng nghiệp nào?"],
   ["ban-hoc-kieu-gi", "Bạn học kiểu gì?"],
   ["gamer-he-nao", "Bạn là gamer hệ nào?"],
+  ["ban-hop-nghe-gi", "Bạn hợp nghề gì?"],
+  ["ban-la-mon-an-viet-nao", "Bạn là món ăn Việt nào?"],
 ];
 
 export const RECORDS: RecordDef[] = [

@@ -40,6 +40,11 @@ export default function Article() {
         <Link href="/cam-nang/tu-khoa-ve-doan-chu">100 từ khóa vẽ đoán chữ</Link>.
       </p>
       <PlayCta slug="ve-doan-chu" />
+      <h3>Thêm: Ai hiểu ai nhất?</h3>
+      <p>
+        Mỗi lượt một người “lên ghế nóng” và bí mật chọn câu trả lời đúng với mình, cả phòng đoán xem người đó chọn gì. Rất hợp để đồng nghiệp mới hiểu nhau hơn, câu hỏi nhẹ nhàng, không đụng chuyện riêng tư.
+      </p>
+      <PlayCta slug="ai-hieu-ai" />
       <h3>8. Truyền tin</h3>
       <p>Chia thành hàng, người đầu nghe một câu dài rồi thì thầm truyền cho người sau. Người cuối nói to câu nhận được. Trò cũ nhưng luôn vui, và là ví dụ dễ hiểu về việc thông tin bị sai lệch khi qua nhiều người.</p>
       <h3>9. Xây tháp bằng giấy</h3>
@@ -50,6 +55,9 @@ export default function Article() {
       <h2>Khi team làm việc từ xa</h2>
       <h3>11. Ai là gián điệp qua video call</h3>
       <p>Mọi người vào cùng một phòng chơi bằng mã phòng, mỗi người xem từ khóa trên điện thoại của mình, rồi mô tả và tranh luận qua Zoom, Google Meet, Teams hoặc Zalo. Không cần ai cầm “bài” hay làm quản trò.</p>
+      <p>
+        Nhóm từ 5 người thích suy luận lâu hơn thì thử <Link href="/cam-nang/luat-choi-ma-soi">Ma sói</Link>: máy làm quản trò nên ai cũng được chơi, kể cả khi mỗi người một nơi.
+      </p>
       <h3>12. Quiz đầu tuần</h3>
       <p>Mở 10 câu đố vui đầu buổi họp thứ Hai, mỗi người trả lời trên điện thoại. 10 phút là xong, đủ để mọi người tỉnh táo trước khi vào việc.</p>
 

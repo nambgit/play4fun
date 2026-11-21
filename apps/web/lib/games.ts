@@ -13,7 +13,17 @@ export type GameIcon =
   | "gamepad"
   | "spy"
   | "brush"
-  | "trophy";
+  | "trophy"
+  | "zap"
+  | "brain"
+  | "building"
+  | "letters"
+  | "link"
+  | "compass"
+  | "bowl"
+  | "flag"
+  | "moon"
+  | "hearts";
 
 export type GameEntry = {
   slug: string;
@@ -286,6 +296,222 @@ export const GAMES: GameEntry[] = [
       "Mỗi câu chọn 1 trong 4 đáp án trước khi hết giờ.",
       "Đúng càng nhanh càng nhiều điểm, đúng liên tiếp được thưởng thêm.",
       "Bảng xếp hạng cập nhật sau mỗi câu, cuối game có bảng vàng.",
+    ],
+  },
+  // --- Added in the second batch ---
+  {
+    slug: "doan-chu",
+    title: "Đoán chữ hằng ngày",
+    type: "arcade",
+    tagline: "Đoán một từ tiếng Việt 5 chữ cái trong 6 lượt. Mỗi ngày một từ mới.",
+    description:
+      "Mỗi ngày cả nước cùng đoán một từ. Gõ không dấu, ô xanh là đúng chữ đúng chỗ, ô vàng là có chữ đó nhưng sai chỗ. Đoán xong khoe lưới ô màu mà không lộ đáp án, rồi luyện thêm ở chế độ tự do.",
+    audience: ["office", "student", "gamer"],
+    status: "live",
+    icon: "letters",
+    cover: ["#16b364", "#0ea5e9"],
+    thumbnail: "/thumbnails/doan-chu.webp",
+    duration: "3–5 phút",
+    players: "1 người",
+    howTo: [
+      "Gõ một từ tiếng Việt có 5 chữ cái, không cần dấu (“nguoi” là “người”, “duong” là “đường”).",
+      "Ô xanh: chữ đúng và đúng vị trí. Ô vàng: có chữ đó nhưng sai vị trí. Ô xám: không có.",
+      "Bạn có 6 lượt đoán. Mỗi ngày một từ mới cho tất cả mọi người, lúc 0 giờ.",
+      "Thắng liên tiếp để giữ chuỗi ngày. Muốn chơi thêm thì chọn “Luyện tập”.",
+    ],
+  },
+  {
+    slug: "noi-tu",
+    title: "Nối từ",
+    type: "arcade",
+    tagline: "Đấu trí với máy: nối tiếng cuối thành từ mới, “con mèo” → “mèo mướp”.",
+    description:
+      "Trò nối từ quen thuộc, giờ chơi với máy. Máy nói một từ, bạn nối tiếp bằng từ bắt đầu bằng tiếng cuối của nó. Thời gian mỗi lượt ngắn dần, làm máy bí từ để ăn điểm thưởng.",
+    audience: ["student", "office"],
+    status: "live",
+    icon: "link",
+    cover: ["#1a9fe8", "#6b3cf5"],
+    thumbnail: "/thumbnails/noi-tu.webp",
+    duration: "2–5 phút",
+    players: "1 người",
+    howTo: [
+      "Máy đưa ra một từ hai tiếng, ví dụ “con mèo”.",
+      "Tiếng đầu của từ tiếp theo đã có sẵn (“mèo”), bạn chỉ gõ tiếng thứ hai, có dấu (“mướp”).",
+      "Mỗi từ chỉ được dùng một lần. Từ chưa có trong từ điển thì gõ lại, không bị trừ điểm.",
+      "Trả lời nhanh được thưởng điểm, làm máy bí từ được +3. Hết giờ hoặc bỏ qua mất 1 tim.",
+    ],
+  },
+  {
+    slug: "phan-xa",
+    title: "Phản xạ 0,2 giây",
+    type: "arcade",
+    tagline: "Màn hình chuyển xanh là chạm. Đo thời gian phản xạ bằng mili-giây.",
+    description:
+      "Bài kiểm tra phản xạ đơn giản mà gây nghiện: chờ màu đỏ chuyển sang xanh rồi chạm thật nhanh. Làm 5 lần để lấy trung bình, chạm sớm phải làm lại. Bạn nhanh hơn số đông không?",
+    audience: ["gamer", "office", "student"],
+    status: "live",
+    icon: "zap",
+    cover: ["#16b364", "#e5484d"],
+    thumbnail: "/thumbnails/phan-xa.webp",
+    duration: "1 phút",
+    players: "1 người",
+    howTo: [
+      "Màn hình đỏ: chờ, đừng chạm. Chạm sớm thì lần đó phải làm lại.",
+      "Màn hình chuyển xanh: chạm (hoặc bấm Space) nhanh nhất có thể.",
+      "Làm 5 lần, kết quả là thời gian trung bình tính bằng mili-giây.",
+      "Kết quả phụ thuộc cả màn hình và thiết bị, nên so với chính mình trên cùng một máy.",
+    ],
+  },
+  {
+    slug: "lat-the",
+    title: "Nhớ thẻ bài",
+    type: "arcade",
+    tagline: "Lật thẻ, nhớ hình, tìm đủ cặp qua 4 cấp độ. Rèn trí nhớ trong 3 phút.",
+    description:
+      "Trò chơi trí nhớ lật hình chủ đề Việt Nam: phở, bánh mì, đèn lồng, trâu… Lật hai thẻ mỗi lượt, giống nhau thì giữ lại. Bàn chơi to dần từ 12 lên 24 thẻ, càng ít lượt và càng nhanh càng giỏi.",
+    audience: ["student", "office"],
+    status: "live",
+    icon: "brain",
+    cover: ["#6b3cf5", "#ec4899"],
+    thumbnail: "/thumbnails/lat-the.webp",
+    duration: "2–4 phút",
+    players: "1 người",
+    howTo: [
+      "Chạm để lật 2 thẻ. Hai hình giống nhau thì giữ lại, khác nhau thì úp xuống.",
+      "Tìm hết các cặp để qua cấp. Có 4 cấp, từ 12 thẻ đến 24 thẻ.",
+      "Đồng hồ chạy suốt game (dừng khi nghỉ giữa các cấp). Điểm là tổng thời gian.",
+      "Mỗi ván các hình và vị trí đều được xáo mới.",
+    ],
+  },
+  {
+    slug: "thang-may",
+    title: "Thang máy giờ cao điểm",
+    type: "arcade",
+    tagline: "8 giờ sáng, cả tòa nhà đổ về sảnh. Đưa mọi người lên đúng tầng trước 9 giờ!",
+    description:
+      "Game điều phối thang máy chủ đề văn phòng: chọn ai lên chuyến này, gom người cùng tầng để thang đi nhanh hơn, và đừng để ai chờ lâu đến mức bỏ đi thang bộ. Đơn giản lúc đầu, căng thẳng khi gần 9 giờ.",
+    audience: ["office", "gamer"],
+    status: "live",
+    icon: "building",
+    cover: ["#ff6a3d", "#6b3cf5"],
+    thumbnail: "/thumbnails/thang-may.webp",
+    duration: "1–2 phút",
+    players: "1 người",
+    howTo: [
+      "Chạm vào nhân viên ở sảnh để chọn người lên thang (tối đa 6 người), rồi bấm “Đi thôi!”.",
+      "Thang đi càng cao và dừng càng nhiều tầng thì càng lâu mới quay lại.",
+      "Gom 3 người trở lên chỉ đi 1–2 tầng là “chuyến đẹp”, được điểm thưởng.",
+      "Ai chờ quá lâu sẽ bỏ đi thang bộ, mất 1 tim. Chơi đến 9:00 hoặc hết tim.",
+    ],
+  },
+  {
+    slug: "ban-hop-nghe-gi",
+    title: "Bạn hợp nghề gì?",
+    type: "quiz",
+    tagline: "12 tình huống để biết nhóm nghề hợp với bạn, kèm gợi ý ngành học.",
+    description:
+      "Sáng tạo, kỹ thuật, phân tích, chăm sóc, kinh doanh hay tổ chức? Trả lời 12 tình huống quen thuộc ở trường, ở chỗ làm thêm và lúc rảnh để biết nhóm nghề hợp với mình nhất, kèm gợi ý ngành học và kỹ năng nên thử.",
+    audience: ["student", "office"],
+    status: "live",
+    icon: "compass",
+    cover: ["#0ea5e9", "#16b364"],
+    thumbnail: "/thumbnails/ban-hop-nghe-gi.webp",
+    duration: "3 phút",
+    players: "1 người",
+    howTo: [
+      "Trả lời 12 tình huống, chọn điều bạn thật sự sẽ làm.",
+      "Không có đáp án đúng sai, mỗi lựa chọn nghiêng về một nhóm nghề.",
+      "Bấm nút ← để sửa câu trước nếu đổi ý.",
+      "Nhận nhóm nghề hợp nhất kèm tỉ lệ từng nhóm, điểm mạnh và gợi ý ngành học.",
+      "Đây là trắc nghiệm tham khảo cho vui, không thay thế tư vấn hướng nghiệp chuyên môn.",
+    ],
+  },
+  {
+    slug: "ban-la-mon-an-viet-nao",
+    title: "Bạn là món ăn Việt nào?",
+    type: "quiz",
+    tagline: "Phở ấm áp, bánh mì năng động hay trà sữa vui vẻ? 10 câu là biết.",
+    description:
+      "Bài test tính cách vui nhộn: mỗi kiểu người là một món ăn Việt quen thuộc. Trả lời 10 câu hỏi về thói quen và cách bạn đối xử với mọi người, rồi khoe món ăn của mình với bạn bè.",
+    audience: ["office", "student", "gamer"],
+    status: "live",
+    icon: "bowl",
+    cover: ["#ff8a3d", "#e5484d"],
+    thumbnail: "/thumbnails/ban-la-mon-an-viet-nao.webp",
+    duration: "2 phút",
+    players: "1 người",
+    howTo: [
+      "Trả lời 10 câu hỏi về thói quen và tính cách.",
+      "Không có đáp án đúng sai, cứ chọn điều giống bạn nhất.",
+      "Bấm nút ← để sửa câu trước nếu đổi ý.",
+      "Nhận món ăn của bạn, tỉ lệ từng món và món “hợp cạ” nhất.",
+      "Mỗi lần làm là một bộ câu hỏi khác, đáp án cũng được xáo trộn.",
+    ],
+  },
+  {
+    slug: "kien-thuc-viet-nam",
+    title: "Kiểm tra kiến thức Việt Nam",
+    type: "quiz",
+    tagline: "15 câu về lịch sử, địa lý, văn hóa, đời sống. Bạn được mấy điểm?",
+    description:
+      "Bài trắc nghiệm có đáp án đúng sai về Việt Nam: từ Ngô Quyền, Truyện Kiều đến các dòng sông và lễ hội. 15 câu chia đều 4 chủ đề, mỗi câu 20 giây, chấm theo thang điểm 10 và có giải thích sau mỗi câu.",
+    audience: ["student", "office"],
+    status: "live",
+    icon: "flag",
+    cover: ["#da251d", "#f5a400"],
+    thumbnail: "/thumbnails/kien-thuc-viet-nam.webp",
+    duration: "5 phút",
+    players: "1 người",
+    howTo: [
+      "15 câu, chia đều lịch sử, địa lý, văn hóa và đời sống.",
+      "Mỗi câu 20 giây, chọn 1 trong 4 đáp án.",
+      "Sau mỗi câu có đáp án đúng và một dòng giải thích.",
+      "Chấm theo thang điểm 10, xem lại các câu chưa đúng ở cuối bài.",
+      "Mỗi lần làm là bộ câu hỏi khác, câu đã gặp được để sau.",
+    ],
+  },
+  {
+    slug: "ma-soi",
+    title: "Ma sói",
+    type: "party",
+    tagline: "Máy làm quản trò: sói, tiên tri, bảo vệ và dân làng trên điện thoại.",
+    description:
+      "Ma sói online cho 5–16 người, không cần bài hay quản trò. Mỗi người nhận vai bí mật trên điện thoại; ban đêm sói chọn nạn nhân, tiên tri soi, bảo vệ che chở; ban ngày cả nhóm thảo luận và bỏ phiếu treo cổ.",
+    audience: ["group", "student", "gamer"],
+    status: "live",
+    icon: "moon",
+    cover: ["#3b1d6e", "#e5484d"],
+    thumbnail: "/thumbnails/ma-soi.webp",
+    duration: "15–30 phút",
+    players: "5–16 người",
+    howTo: [
+      "Một người tạo phòng, mọi người vào bằng mã phòng hoặc quét QR.",
+      "Mỗi người xem vai bí mật: Ma sói, Tiên tri, Bảo vệ hoặc Dân làng.",
+      "Ban đêm: sói chọn nạn nhân, Tiên tri soi một người, Bảo vệ che chở một người, tất cả trên điện thoại.",
+      "Ban ngày: công bố người chết, thảo luận theo giờ rồi bỏ phiếu treo cổ.",
+      "Dân thắng khi diệt hết sói; sói thắng khi số sói bằng số người còn lại.",
+    ],
+  },
+  {
+    slug: "ai-hieu-ai",
+    title: "Ai hiểu ai nhất?",
+    type: "party",
+    tagline: "Một người lên ghế nóng, cả nhóm đoán câu trả lời. Ai hiểu nhau nhất?",
+    description:
+      "Game chơi nhóm cho hội bạn, đồng nghiệp và buổi team building. Mỗi lượt một người bí mật chọn câu trả lời đúng với mình, những người khác đoán xem người đó chọn gì. Đoán trúng nhiều nhất là người hiểu cả nhóm nhất.",
+    audience: ["group", "office"],
+    status: "live",
+    icon: "hearts",
+    cover: ["#ec4899", "#8b5cf6"],
+    thumbnail: "/thumbnails/ai-hieu-ai.webp",
+    duration: "10–15 phút",
+    players: "2–20 người",
+    howTo: [
+      "Một người tạo phòng, mọi người vào bằng mã phòng hoặc quét QR, đến muộn vẫn vào được.",
+      "Mỗi lượt một người lên ghế nóng và bí mật chọn câu trả lời đúng với mình.",
+      "Những người còn lại đoán xem người đó chọn gì.",
+      "Đoán đúng được 100 điểm; người ghế nóng được 50 điểm cho mỗi người đoán trúng.",
+      "Ai cũng được lên ghế nóng. Cuối game có bảng xếp hạng.",
     ],
   },
 ];
