@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { ARTICLES } from "@/lib/articles";
 import { GAMES, GAME_TYPES } from "@/lib/games";
 import { CATEGORY_SEO, SITE_URL } from "@/lib/seo";
 
@@ -15,6 +16,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     page("/", 1, "daily"),
     ...GAME_TYPES.map((t) => page(CATEGORY_SEO[t].path, 0.9, "weekly")),
     ...GAMES.filter((g) => g.status === "live").map((g) => page(`/games/${g.slug}`, 0.8, "weekly")),
+    page("/cam-nang", 0.7, "weekly"),
+    ...ARTICLES.map((a) => ({ url: `${SITE_URL}/cam-nang/${a.slug}`, lastModified: new Date(a.updated), changeFrequency: "monthly" as const, priority: 0.7 })),
     page("/daily", 0.7, "daily"),
     page("/leaderboard", 0.5, "daily"),
     page("/privacy", 0.2, "yearly"),

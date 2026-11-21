@@ -2,7 +2,9 @@ import { ChevronRight } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { FaqSection, faqJsonLd } from "@/components/faq-section";
+import { ArticleCard } from "@/components/article/article-card";
 import { GameCard } from "@/components/game-card";
+import { ARTICLES } from "@/lib/articles";
 import { JsonLd } from "@/components/json-ld";
 import { GAMES, GAME_TYPES, TYPE_META, type GameType } from "@/lib/games";
 import { CATEGORY_SEO, SITE_URL, gameSeo } from "@/lib/seo";
@@ -24,6 +26,7 @@ export function CategoryPage({ type }: { type: GameType }) {
   const meta = TYPE_META[type];
   const games = GAMES.filter((g) => g.type === type && g.status === "live");
   const others = GAME_TYPES.filter((t) => t !== type);
+  const articles = ARTICLES.filter((a) => a.games.some((s) => games.some((g) => g.slug === s)));
 
   const ld = [
     {
@@ -80,6 +83,19 @@ export function CategoryPage({ type }: { type: GameType }) {
       </section>
 
       <FaqSection faq={c.faq} />
+
+      {articles.length > 0 && (
+        <section aria-labelledby="cam-nang" className="mt-14 sm:mt-20">
+          <h2 id="cam-nang" className="mb-4 text-xl font-extrabold tracking-tight sm:mb-6 sm:text-2xl">
+            Cẩm nang
+          </h2>
+          <div className="grid gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
+            {articles.map((a) => (
+              <ArticleCard key={a.slug} article={a} compact />
+            ))}
+          </div>
+        </section>
+      )}
 
       <section aria-labelledby="the-loai-khac" className="mt-14 sm:mt-20">
         <h2 id="the-loai-khac" className="mb-4 text-xl font-extrabold tracking-tight sm:text-2xl">

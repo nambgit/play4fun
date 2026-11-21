@@ -6,7 +6,9 @@ import { CardRail } from "@/components/card-rail";
 import { GameCover } from "@/components/game-cover";
 import { GameStage } from "@/components/game-stage";
 import { AdSlot } from "@/components/ad-slot";
+import { ArticleCard } from "@/components/article/article-card";
 import { FaqSection, faqJsonLd } from "@/components/faq-section";
+import { articlesForGame } from "@/lib/articles";
 import { JsonLd } from "@/components/json-ld";
 import { LeaderboardCard } from "@/components/leaderboard-card";
 import { CATEGORY_SEO, SITE_URL, gameSeo } from "@/lib/seo";
@@ -194,6 +196,19 @@ export default async function GamePage({ params }: Props) {
       </div>
 
       <FaqSection faq={seo.faq} title={`Hỏi đáp về ${game.title}`} />
+
+      {articlesForGame(game.slug).length > 0 && (
+        <section aria-labelledby="bai-viet" className="mt-14 sm:mt-20">
+          <h2 id="bai-viet" className="mb-4 text-xl font-extrabold tracking-tight sm:mb-6 sm:text-2xl">
+            Bài viết hữu ích
+          </h2>
+          <div className="grid gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
+            {articlesForGame(game.slug).map((a) => (
+              <ArticleCard key={a.slug} article={a} compact />
+            ))}
+          </div>
+        </section>
+      )}
 
       {related.length > 0 && (
         <section aria-labelledby="lien-quan" className="mt-14 sm:mt-20">

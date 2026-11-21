@@ -147,6 +147,16 @@ REDIS_URL=redis://localhost:6379                                     # giữ ph�
 5. Viết nội dung SEO trong `apps/web/lib/seo.ts`: title theo đúng cụm từ người ta hay tìm, mô tả khoảng 150–160 ký tự, 3–4 câu hỏi đáp. Sitemap, JSON-LD và trang danh mục tự cập nhật theo.
 6. Chụp thumbnail (mục dưới).
 
+### Viết bài Cẩm nang (`/cam-nang`)
+
+Bài viết nhắm vào những gì người ta hay tìm trên Google, rồi dẫn người đọc vào game liên quan.
+
+1. Thêm thông tin bài vào `ARTICLES` trong `apps/web/lib/articles.ts`: slug, tiêu đề đúng cụm từ khóa, mô tả dưới 160 ký tự, các game liên quan, ngày đăng.
+2. Viết nội dung trong `apps/web/content/articles/<slug>.tsx`, dùng các khối `Tip`, `Table`, `WordGrid`, `PlayCta` trong `components/article/parts.tsx`.
+3. Đăng ký bài trong `apps/web/content/articles/index.ts`.
+
+Sitemap, JSON-LD (Article), trang danh sách và mục "Bài viết hữu ích" trên trang game tự cập nhật. Câu trả lời chính nên nằm ngay đoạn đầu, mọi số liệu phải kiểm chứng được. Khi sửa nội dung thì cập nhật cả trường `updated`.
+
 ### Điểm số được kiểm tra trên server
 
 Kỷ lục chỉ lên tài khoản, bảng xếp hạng và thử thách ngày khi server đã kiểm tra ván chơi:

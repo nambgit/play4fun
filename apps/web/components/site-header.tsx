@@ -37,7 +37,7 @@ export function SiteHeader() {
             <Play className="h-4 w-4 fill-current" aria-hidden="true" />
             Chơi ngay
           </Link>
-          <MobileNav links={NAV_LINKS} />
+          <MobileNav links={[...NAV_LINKS, { href: "/cam-nang", label: "Cẩm nang", dot: "bg-muted" }]} />
         </div>
       </div>
     </header>

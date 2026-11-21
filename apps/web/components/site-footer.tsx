@@ -69,6 +69,10 @@ export function SiteFooter() {
         <div className="container-page flex flex-col gap-2 py-6 text-xs text-muted sm:flex-row sm:items-center sm:justify-between">
           <p>
             © {new Date().getFullYear()} play4fun.io.vn — Mọi game đều miễn phí. ·{" "}
+            <Link href="/cam-nang" className="hover:text-fg hover:underline">
+              Cẩm nang
+            </Link>{" "}
+            ·{" "}
             <Link href="/privacy" className="hover:text-fg hover:underline">
               Quyền riêng tư
             </Link>
