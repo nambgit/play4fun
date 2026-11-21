@@ -2,13 +2,25 @@
 
 import { Briefcase, Gamepad2, GraduationCap, LayoutGrid, Users, type LucideIcon } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AUDIENCES, AUDIENCE_LABEL, GAMES, GAME_TYPES, TYPE_META, type Audience } from "@/lib/games";
 import { ChevronRight } from "lucide-react";
 import { categoryHref } from "@/lib/seo";
 import { CardRail } from "../card-rail";
 
 type Filter = Audience | "all";
+
+/** Seeded shuffle (Fisher–Yates) so the order stays put while the visitor browses */
+function shuffled<T>(arr: readonly T[], seed: number): T[] {
+  const a = [...arr];
+  let x = Math.floor(seed * 2 ** 31) || 1;
+  const rnd = () => ((x = (x * 48271) % 2147483647) - 1) / 2147483646;
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(rnd() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
 
 const FILTER_ICON: Record<Filter, LucideIcon> = {
   all: LayoutGrid,
@@ -21,7 +33,11 @@ const FILTER_ICON: Record<Filter, LucideIcon> = {
 export function GameBrowser() {
   const [filter, setFilter] = useState<Filter>("all");
   const filters: Filter[] = ["all", ...AUDIENCES];
-  const visible = filter === "all" ? GAMES : GAMES.filter((g) => g.audience.includes(filter));
+  // A different line-up on every visit: shuffled after mount (the server renders the catalogue order)
+  const [seed, setSeed] = useState<number | null>(null);
+  useEffect(() => setSeed(Math.random()), []);
+  const ordered = useMemo(() => (seed === null ? GAMES : shuffled(GAMES, seed)), [seed]);
+  const visible = filter === "all" ? ordered : ordered.filter((g) => g.audience.includes(filter));
 
   return (
     <section aria-labelledby="kham-pha" className="container-page">
@@ -84,8 +100,14 @@ export function GameBrowser() {
                     <ChevronRight className="h-3.5 w-3.5" />
                   </span>
                 )}
+                {games.length > 6 && (
+                  <span className="hidden shrink-0 items-center gap-1 text-xs font-medium text-muted sm:inline-flex" aria-hidden="true">
+                    {games.length} game · tự chuyển, rê chuột để dừng
+                    <ChevronRight className="h-3.5 w-3.5" />
+                  </span>
+                )}
               </div>
-              <CardRail games={games} label={meta.heading} />
+              <CardRail games={games} label={meta.heading} paged />
             </div>
           );
         })}
