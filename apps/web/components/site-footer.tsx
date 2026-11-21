@@ -1,6 +1,8 @@
+import { ArrowRight, Check } from "lucide-react";
 import Link from "next/link";
 import { GAMES, GAME_TYPES, TYPE_META } from "@/lib/games";
 import { categoryHref } from "@/lib/seo";
+import { SOCIAL } from "@/lib/site";
 import { LogoMark } from "./logo";
 
 function FacebookIcon(props: React.SVGProps<SVGSVGElement>) {
@@ -19,65 +21,113 @@ function TikTokIcon(props: React.SVGProps<SVGSVGElement>) {
   );
 }
 
+const SOCIAL_LINKS = [
+  { href: SOCIAL.facebook, label: "Facebook", Icon: FacebookIcon },
+  { href: SOCIAL.tiktok, label: "TikTok", Icon: TikTokIcon },
+].filter((s) => s.href);
+
+const EXPLORE = [
+  { href: "/daily", label: "Thử thách hôm nay" },
+  { href: "/leaderboard", label: "Bảng xếp hạng" },
+  { href: "/cam-nang", label: "Cẩm nang" },
+  { href: "/studio", label: "Studio câu hỏi" },
+];
+
+const PERKS = ["Miễn phí", "Không cần cài đặt", "Chơi trên điện thoại"];
+
+const linkClass = "text-[13px] leading-snug text-muted transition-colors hover:text-fg sm:text-sm";
+
+function Column({ title, href, children }: { title: string; href?: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <h3 className="text-sm font-semibold">
+        {href ? (
+          <Link href={href} className="group inline-flex items-center gap-1 hover:text-brand">
+            {title}
+            <ArrowRight className="h-3.5 w-3.5 opacity-0 transition-all group-hover:translate-x-0.5 group-hover:opacity-100" aria-hidden="true" />
+          </Link>
+        ) : (
+          title
+        )}
+      </h3>
+      <ul className="mt-3 space-y-2.5 sm:mt-4">{children}</ul>
+    </div>
+  );
+}
+
 export function SiteFooter() {
   return (
     <footer className="mt-16 border-t border-line bg-surface sm:mt-24">
-      <div className="container-page grid grid-cols-3 gap-x-4 gap-y-8 py-10 sm:py-14 md:grid-cols-[1.4fr_repeat(3,1fr)] md:gap-10">
-        <div className="col-span-3 max-w-xs md:col-span-1">
-          <div className="flex items-center gap-2.5">
+      <div className="container-page grid gap-10 py-10 sm:py-14 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,3fr)] lg:gap-14">
+        {/* Brand */}
+        <div className="max-w-sm">
+          <Link href="/" className="inline-flex items-center gap-2.5" aria-label="Play4Fun – Trang chủ">
             <LogoMark />
             <span className="text-lg font-extrabold tracking-tight">
               Play<span className="text-brand">4</span>Fun
             </span>
-          </div>
-          <p className="mt-4 text-sm leading-relaxed text-muted">
-            Mini-game giải lao, test vui và game chơi nhóm ngay trên trình duyệt. Chơi 5 phút, xả stress cả ngày.
-          </p>
-          <div className="mt-5 flex gap-2">
-            {/* TODO: thay bằng link fanpage / kênh TikTok thật */}
-            <a href="#" aria-label="Facebook" className="grid h-9 w-9 place-items-center rounded-lg border border-line text-muted transition-colors hover:border-brand/40 hover:text-brand">
-              <FacebookIcon className="h-4 w-4" />
-            </a>
-            <a href="#" aria-label="TikTok" className="grid h-9 w-9 place-items-center rounded-lg border border-line text-muted transition-colors hover:border-brand/40 hover:text-brand">
-              <TikTokIcon className="h-4 w-4" />
-            </a>
-          </div>
+          </Link>
+          <p className="mt-4 text-sm leading-relaxed text-muted">Mini-game giải lao, test vui và game chơi nhóm ngay trên trình duyệt. Chơi 5 phút, xả stress cả ngày.</p>
+          <ul className="mt-4 flex flex-wrap gap-x-4 gap-y-1.5 text-xs font-medium text-muted">
+            {PERKS.map((p) => (
+              <li key={p} className="inline-flex items-center gap-1.5">
+                <Check className="h-3.5 w-3.5 text-party" aria-hidden="true" />
+                {p}
+              </li>
+            ))}
+          </ul>
+          {SOCIAL_LINKS.length > 0 && (
+            <div className="mt-5 flex gap-2">
+              {SOCIAL_LINKS.map(({ href, label, Icon }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer me"
+                  aria-label={label}
+                  className="grid h-9 w-9 place-items-center rounded-lg border border-line text-muted transition-colors hover:border-brand/40 hover:text-brand"
+                >
+                  <Icon className="h-4 w-4" />
+                </a>
+              ))}
+            </div>
+          )}
         </div>
 
-        {GAME_TYPES.map((t) => (
-          <div key={t}>
-            <h3 className="text-sm font-semibold">
-              <Link href={categoryHref(t)} className="hover:text-brand">
-                {TYPE_META[t].label}
-              </Link>
-            </h3>
-            <ul className="mt-3 space-y-2 sm:mt-4 sm:space-y-2.5">
-              {GAMES.filter((g) => g.type === t)
-                .slice(0, 5)
-                .map((g) => (
-                  <li key={g.slug}>
-                    <Link href={`/games/${g.slug}`} className="text-[13px] leading-snug text-muted transition-colors hover:text-fg sm:text-sm">
-                      {g.title}
-                    </Link>
-                  </li>
-                ))}
-            </ul>
-          </div>
-        ))}
+        {/* Links: 2 columns on phones, 4 on desktop */}
+        <nav aria-label="Liên kết cuối trang" className="grid grid-cols-2 gap-x-6 gap-y-9 sm:grid-cols-4 sm:gap-x-8">
+          {GAME_TYPES.map((t) => (
+            <Column key={t} title={TYPE_META[t].label} href={categoryHref(t)}>
+              {GAMES.filter((g) => g.type === t && g.status === "live").map((g) => (
+                <li key={g.slug}>
+                  <Link href={`/games/${g.slug}`} className={linkClass}>
+                    {g.title}
+                  </Link>
+                </li>
+              ))}
+            </Column>
+          ))}
+          <Column title="Khám phá">
+            {EXPLORE.map((l) => (
+              <li key={l.href}>
+                <Link href={l.href} className={linkClass}>
+                  {l.label}
+                </Link>
+              </li>
+            ))}
+          </Column>
+        </nav>
       </div>
+
       <div className="border-t border-line">
-        <div className="container-page flex flex-col gap-2 py-6 text-xs text-muted sm:flex-row sm:items-center sm:justify-between">
-          <p>
-            © {new Date().getFullYear()} play4fun.io.vn — Mọi game đều miễn phí. ·{" "}
-            <Link href="/cam-nang" className="hover:text-fg hover:underline">
-              Cẩm nang
-            </Link>{" "}
-            ·{" "}
-            <Link href="/privacy" className="hover:text-fg hover:underline">
+        <div className="container-page flex flex-col gap-2 py-5 text-xs text-muted sm:flex-row sm:items-center sm:justify-between">
+          <p>© {new Date().getFullYear()} play4fun.io.vn · Mọi game đều miễn phí</p>
+          <p className="flex flex-wrap items-center gap-x-4 gap-y-1">
+            <Link href="/privacy" className="hover:text-fg">
               Quyền riêng tư
             </Link>
+            <span>Làm tại Việt Nam với ☕ và rất nhiều deadline</span>
           </p>
-          <p>Làm tại Việt Nam với ☕ và rất nhiều deadline.</p>
         </div>
       </div>
     </footer>
