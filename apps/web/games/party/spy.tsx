@@ -22,6 +22,7 @@ export default function Play() {
           <li>
             Mỗi người nhận một <b>từ khóa bí mật</b>. Dân thường cùng một từ, <b>gián điệp</b> nhận từ hơi khác và không biết mình là gián điệp.
           </li>
+          <li>Hòa phiếu thì không ai bị loại, mọi người nhận bộ từ khóa mới (vai giữ nguyên).</li>
           <li>Lần lượt mô tả từ của mình bằng một câu, đừng nói thẳng từ đó ra.</li>
           <li>Bỏ phiếu trên điện thoại để loại người đáng ngờ nhất.</li>
           <li>
@@ -103,8 +104,22 @@ function SpyGame({ view, api, me, isHost, players }: GameProps<SpyView>) {
       </div>
 
       {/* ---------------- reveal ---------------- */}
-      {view.phase === "reveal" && (
+      {view.phase === "reveal" && !view.amAlive && (
         <>
+          <Eliminated />
+          <p className="mt-4 text-center text-xs text-muted">
+            Mọi người đang xem từ khóa mới · {view.ready.length}/{connectedAlive.length} người sẵn sàng
+          </p>
+        </>
+      )}
+      {view.phase === "reveal" && view.amAlive && (
+        <>
+          {view.redealt && (
+            <div className="mb-4 rounded-2xl bg-brand-soft p-4 text-center">
+              <p className="font-bold">🔄 Bộ từ khóa mới!</p>
+              <p className="mt-1 text-sm text-muted">Vòng trước hòa phiếu nên mọi người nhận từ khóa mới ở chủ đề khác. Vai vẫn giữ nguyên, quên từ cũ đi nhé!</p>
+            </div>
+          )}
           <SecretWord view={view} />
           <p className="mt-4 text-center text-sm text-muted">Nhớ từ khóa rồi bấm sẵn sàng. Đừng để ai nhìn thấy màn hình của bạn!</p>
           <div className="mt-4 text-center">
@@ -238,6 +253,17 @@ function SpyGame({ view, api, me, isHost, players }: GameProps<SpyView>) {
             <p className="mt-2 text-sm text-white/90">
               Từ của dân: <b>{view.civilianWord}</b> · Từ của gián điệp: <b>{view.spyWord}</b>
             </p>
+            {!!view.pastPairs?.length && (
+              <p className="mt-1 text-xs text-white/80">
+                Các bộ từ trước:{" "}
+                {view.pastPairs.map((p, i) => (
+                  <span key={i}>
+                    {i > 0 && " · "}
+                    {p.civilianWord} / {p.spyWord}
+                  </span>
+                ))}
+              </p>
+            )}
           </div>
           <ul className="mt-4 grid gap-2 sm:grid-cols-2">
             {view.reveal?.map((r) => (
@@ -269,7 +295,7 @@ function Outcome({ view, name }: { view: SpyView; name: (id: string) => string }
       <div className="rounded-2xl border border-line bg-surface p-5 text-center">
         <p className="text-2xl">⚖️</p>
         <p className="mt-1 text-lg font-bold">Hòa phiếu! Không ai bị loại.</p>
-        <p className="mt-1 text-sm text-muted">Mô tả thêm một vòng nữa để lộ diện gián điệp.</p>
+        <p className="mt-1 text-sm text-muted">Vòng sau mọi người sẽ nhận bộ từ khóa mới, vai giữ nguyên.</p>
       </div>
     );
   }

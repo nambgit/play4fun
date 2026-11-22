@@ -151,6 +151,10 @@ export type SpyView = {
   reveal: { id: string; spy: boolean; word: string | null }[] | null;
   civilianWord: string | null;
   spyWord: string | null;
+  /** Reveal phase after a tied vote: everyone just got a new pair of words */
+  redealt: boolean;
+  /** Earlier pairs of this game (replaced after tied votes), only at the end */
+  pastPairs: { civilianWord: string; spyWord: string }[] | null;
 };
 
 export type DrawPhase = "choosing" | "drawing" | "turnEnd" | "over";

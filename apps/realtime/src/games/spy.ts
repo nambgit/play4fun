@@ -14,6 +14,12 @@ import { pickFresh, shuffle, type Ctx, type GameModule } from "./types";
 type State = {
   civilianWord: string;
   spyWord: string;
+  /** Topic of the current pair, so a re-deal after a tie moves to another topic */
+  cat?: string;
+  /** Pairs used earlier in this game (re-dealt after tied votes), shown at the end */
+  pastPairs?: { civilianWord: string; spyWord: string }[];
+  /** The words were just re-dealt after a tie (reveal phase shows a "new words" notice) */
+  redealt?: boolean;
   blank: boolean;
   /** Everyone dealt into this game, with their role */
   roles: Map<string, { spy: boolean; word: string | null }>;
@@ -47,6 +53,34 @@ function newRound(s: State) {
   s.tally = null;
   // Speaking order: alive players in a fresh random order each round
   s.order = shuffle([...s.alive]);
+}
+
+/** Deal a fresh pair, preferring a topic other than `avoidCat`; flips which side civilians get */
+function dealPair(ctx: Ctx, avoidCat?: string) {
+  const pool = avoidCat ? SPY_PAIRS.filter((p) => p.cat !== avoidCat) : SPY_PAIRS;
+  const [pair] = pickFresh(pool, (p) => `spy:${p.id}`, ctx.room.used, 1);
+  const flip = Math.random() < 0.5;
+  return { civilianWord: flip ? pair.a : pair.b, spyWord: flip ? pair.b : pair.a, cat: pair.cat };
+}
+
+/**
+ * Tied vote: describing the same word again rarely breaks the tie, so everyone gets a new pair
+ * from another topic. Roles stay the same (spies get the new spy word, or none in blank mode),
+ * then a fresh reveal phase lets each player read their new word.
+ */
+function redeal(ctx: Ctx, s: State) {
+  s.pastPairs = [...(s.pastPairs ?? []), { civilianWord: s.civilianWord, spyWord: s.spyWord }];
+  const next = dealPair(ctx, s.cat);
+  s.civilianWord = next.civilianWord;
+  s.spyWord = next.spyWord;
+  s.cat = next.cat;
+  for (const role of s.roles.values()) role.word = role.spy ? (s.blank ? null : s.spyWord) : s.civilianWord;
+  s.redealt = true;
+  s.phase = "reveal";
+  s.ready.clear();
+  s.votes.clear();
+  s.tie = false;
+  s.tally = null;
 }
 
 /** Alive players who are connected must act; disconnected ones are not waited for */
@@ -98,10 +132,7 @@ export const spy: GameModule<State, SpySettings> = {
   },
 
   start(ctx, settings) {
-    const [pair] = pickFresh(SPY_PAIRS, (p) => `spy:${p.id}`, ctx.room.used, 1);
-    const flip = Math.random() < 0.5;
-    const civilianWord = flip ? pair.a : pair.b;
-    const spyWord = flip ? pair.b : pair.a;
+    const { civilianWord, spyWord, cat } = dealPair(ctx);
     const players = ctx.connected();
     const spyIds = new Set(shuffle(players).slice(0, settings.spies));
     const roles = new Map(
@@ -110,6 +141,9 @@ export const spy: GameModule<State, SpySettings> = {
     return {
       civilianWord,
       spyWord,
+      cat,
+      pastPairs: [],
+      redealt: false,
       blank: settings.blankSpy,
       roles,
       alive: new Set(players),
@@ -137,6 +171,7 @@ export const spy: GameModule<State, SpySettings> = {
       case "spy:next":
         if (!host) return;
         if (s.phase === "reveal") newRound(s);
+        else if (s.phase === "result" && s.tie) redeal(ctx, s);
         else if (s.phase === "result") newRound(s);
         break;
       case "spy:startVote":
@@ -183,6 +218,8 @@ export const spy: GameModule<State, SpySettings> = {
       reveal: over ? [...s.roles].map(([id, r]) => ({ id, spy: r.spy, word: r.word })) : null,
       civilianWord: over ? s.civilianWord : null,
       spyWord: over ? s.spyWord : null,
+      redealt: !!s.redealt && s.phase === "reveal",
+      pastPairs: over ? (s.pastPairs ?? []) : null,
     };
   },
 
