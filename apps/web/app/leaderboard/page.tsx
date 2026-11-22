@@ -10,8 +10,8 @@ import { myRank, topRecords } from "@/lib/leaderboard";
 import { RECORDS, RECORD_BY_KEY } from "@/lib/record-keys";
 
 export const metadata: Metadata = {
-  title: "Bảng xếp hạng",
-  description: "Kỷ lục cao nhất của người chơi Play4Fun ở từng mini-game.",
+  title: "Bảng xếp hạng kỷ lục mini-game",
+  description: "Kỷ lục cao nhất của người chơi Play4Fun ở từng mini-game: tốc độ gõ phím WPM, tính nhẩm, Inbox Zero, Deadline Dash, né đạn. Đăng nhập để ghi tên mình lên bảng xếp hạng.",
   alternates: { canonical: "/leaderboard" },
 };
 export const dynamic = "force-dynamic";

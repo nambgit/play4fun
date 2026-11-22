@@ -12,8 +12,8 @@ import { RECORD_BY_KEY } from "@/lib/record-keys";
 import { Countdown, LocalResult } from "./daily-client";
 
 export const metadata: Metadata = {
-  title: "Thử thách hôm nay",
-  description: "Mỗi ngày một mini-game, cả nước chơi cùng một đề. Ai đứng đầu bảng hôm nay?",
+  title: "Thử thách hằng ngày – Mini-game mới mỗi ngày",
+  description: "Mỗi ngày một mini-game, cả nước chơi cùng một đề: gõ phím, tính nhẩm, dọn hộp thư, chạy deadline, né đạn. Xem bạn đứng thứ mấy trên bảng xếp hạng hôm nay. Miễn phí, không cần cài.",
   alternates: { canonical: "/daily" },
 };
 export const dynamic = "force-dynamic";

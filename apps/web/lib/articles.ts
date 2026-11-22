@@ -25,6 +25,34 @@ export type ArticleMeta = {
 
 export const ARTICLES: ArticleMeta[] = [
   {
+    slug: "tro-choi-tat-nien-cong-ty",
+    title: "15 trò chơi tất niên công ty vui, dễ tổ chức cho mọi quy mô",
+    description: "15 trò chơi tất niên công ty: khởi động, trò cả hội trường chơi trên điện thoại, thi đấu giữa các bàn, trò trao quà. Kèm kịch bản mẫu 2 tiếng và mẹo tổ chức.",
+    kicker: "Team building",
+    games: ["do-vui-team-building", "ai-hieu-ai", "ve-doan-chu", "ai-la-gian-diep", "ma-soi"],
+    published: "2026-11-22",
+    updated: "2026-11-22",
+    readMinutes: 8,
+    faq: [
+      ["Tiệc tất niên đông người nên chơi trò gì?", "Trò mà cả hội trường chơi cùng lúc, không phải chờ lượt: đố vui trả lời bằng điện thoại có bảng xếp hạng là lựa chọn dễ nhất, sau đó là trò thi đấu giữa các bàn như vẽ đoán chữ tiếp sức."],
+      ["Mỗi trò chơi tất niên nên kéo dài bao lâu?", "Khoảng 10–15 phút mỗi trò. Nên dừng khi không khí đang vui, cả buổi tiệc 2 tiếng thường chỉ cần 4–5 trò."],
+    ],
+  },
+  {
+    slug: "tro-choi-online-qua-zoom",
+    title: "10 trò chơi online với bạn bè qua Zoom, Google Meet, Zalo",
+    description: "10 trò chơi online khi mỗi người một nơi: Ai là gián điệp, Ma sói, vẽ đoán chữ, đố vui trên điện thoại và các trò chỉ cần cuộc gọi video. Miễn phí, không cần cài.",
+    kicker: "Chơi nhóm",
+    games: ["ai-la-gian-diep", "ma-soi", "ve-doan-chu", "do-vui-team-building", "ai-hieu-ai"],
+    published: "2026-11-22",
+    updated: "2026-11-22",
+    readMinutes: 6,
+    faq: [
+      ["Chơi game nhóm online có cần tải ứng dụng không?", "Không. Mọi người gọi nhau bằng ứng dụng quen thuộc (Zoom, Google Meet, Messenger, Zalo) và mở game bằng trình duyệt trên điện thoại qua mã phòng hoặc link, không cần cài đặt hay đăng ký."],
+      ["Trò chơi online nào hợp cho nhóm 5–8 người?", "Ai là gián điệp và Ma sói là hai trò hợp nhất: chỉ cần nói chuyện qua cuộc gọi, còn từ khóa, vai và phiếu bầu nằm trên điện thoại của từng người."],
+    ],
+  },
+  {
     slug: "luat-choi-ma-soi",
     title: "Luật chơi Ma sói chi tiết cho người mới: các vai, cách chơi, mẹo",
     description: "Luật chơi Ma sói từ A đến Z: vai Sói, Tiên tri, Bảo vệ, Dân làng, diễn biến ngày đêm, chia vai theo số người và mẹo cho từng phe. Chơi online miễn phí.",
@@ -84,12 +112,12 @@ export const ARTICLES: ArticleMeta[] = [
   },
   {
     slug: "luat-choi-ai-la-gian-diep",
-    title: "Luật chơi Ai là gián điệp chi tiết và 60 cặp từ khóa hay",
-    description: "Luật chơi Ai là gián điệp từ A đến Z, mẹo cho dân và gián điệp, cùng 60 cặp từ khóa theo chủ đề. Chơi online miễn phí trên điện thoại.",
+    title: "Luật chơi Ai là gián điệp chi tiết và 100 cặp từ khóa hay",
+    description: "Luật chơi Ai là gián điệp từ A đến Z, mẹo cho dân và gián điệp, xử lý khi hòa phiếu và 100 cặp từ khóa theo 10 chủ đề. Chơi online miễn phí trên điện thoại.",
     kicker: "Chơi nhóm",
     games: ["ai-la-gian-diep"],
     published: "2026-11-21",
-    updated: "2026-11-21",
+    updated: "2026-11-22",
     readMinutes: 8,
     faq: [
       ["Gián điệp có biết mình là gián điệp không?", "Ở luật phổ biến (và chế độ mặc định trên Play4Fun), gián điệp nhận một từ gần giống và không biết mình là gián điệp. Ở chế độ “gián điệp trắng”, gián điệp không có từ nào nhưng biết vai của mình."],

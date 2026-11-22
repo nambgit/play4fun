@@ -44,6 +44,34 @@ const PAIRS: { topic: string; pairs: [string, string][] }[] = [
       ["Truyện tranh", "Hoạt hình"], ["Bơi lội", "Lặn biển"], ["Cắm trại", "Dã ngoại"], ["Game điện thoại", "Game máy tính"], ["Nhạc rap", "Nhạc pop"],
     ],
   },
+  {
+    topic: "Du lịch",
+    pairs: [
+      ["Đà Lạt", "Sa Pa"], ["Hạ Long", "Phú Quốc"], ["Hội An", "Huế"], ["Nha Trang", "Vũng Tàu"], ["Hàn Quốc", "Nhật Bản"],
+      ["Thái Lan", "Singapore"], ["Hà Nội", "Sài Gòn"], ["Hộ chiếu", "Visa"], ["Máy bay", "Tàu hỏa"], ["Du thuyền", "Thuyền thúng"],
+    ],
+  },
+  {
+    topic: "Công nghệ, mạng xã hội",
+    pairs: [
+      ["iPhone", "Samsung"], ["Laptop", "Máy tính bàn"], ["Wi-Fi", "4G"], ["Google", "ChatGPT"], ["Zalo", "Messenger"],
+      ["TikTok", "Facebook"], ["Shopee", "Lazada"], ["Story", "Reels"], ["Meme", "Sticker"], ["Selfie", "Livestream"],
+    ],
+  },
+  {
+    topic: "Động vật, thiên nhiên",
+    pairs: [
+      ["Chó", "Mèo"], ["Hổ", "Sư tử"], ["Gà", "Vịt"], ["Cá heo", "Cá mập"], ["Voi", "Tê giác"],
+      ["Mưa", "Tuyết"], ["Núi", "Đồi"], ["Mặt trời", "Mặt trăng"], ["Hoa đào", "Hoa mai"], ["Rừng", "Sa mạc"],
+    ],
+  },
+  {
+    topic: "Lễ Tết, gia đình",
+    pairs: [
+      ["Tết Nguyên Đán", "Tết Trung Thu"], ["Đám cưới", "Tiệc sinh nhật"], ["Giáng sinh", "Halloween"], ["Lì xì", "Quà tặng"], ["Pháo hoa", "Đèn lồng"],
+      ["Ông nội", "Ông ngoại"], ["Cô", "Dì"], ["Người yêu", "Crush"], ["Bạn thân", "Đồng nghiệp"], ["Hàng xóm", "Chủ nhà trọ"],
+    ],
+  },
 ];
 
 export default function Article() {
@@ -51,7 +79,7 @@ export default function Article() {
     <>
       <p>
         Ai là gián điệp là trò chơi suy luận cho nhóm từ 3 đến 12 người. Mọi người nhận cùng một từ khóa, riêng gián điệp nhận một từ gần giống mà thường không biết mình là gián điệp. Lần lượt mô tả, tranh luận rồi bỏ
-        phiếu: dân thắng khi loại hết gián điệp, gián điệp thắng khi còn bằng số dân. Bên dưới là luật chơi đầy đủ, mẹo cho từng vai và 60 cặp từ khóa theo chủ đề.
+        phiếu: dân thắng khi loại hết gián điệp, gián điệp thắng khi còn bằng số dân. Bên dưới là luật chơi đầy đủ, mẹo cho từng vai và 100 cặp từ khóa theo 10 chủ đề.
       </p>
 
       <h2>Chuẩn bị</h2>
@@ -79,7 +107,7 @@ export default function Article() {
           <strong>Thảo luận.</strong> Sau một vòng, cả nhóm bàn xem ai mô tả “lệch” nhất.
         </li>
         <li>
-          <strong>Bỏ phiếu.</strong> Mỗi người bầu một người. Ai nhiều phiếu nhất bị loại và lật vai. Nếu hòa phiếu thì không ai bị loại.
+          <strong>Bỏ phiếu.</strong> Mỗi người bầu một người. Ai nhiều phiếu nhất bị loại và lật vai. Nếu hòa phiếu thì không ai bị loại; nên đổi sang một cặp từ mới (vai giữ nguyên) vì mô tả lại từ cũ hiếm khi phá được thế hòa.
         </li>
         <li>
           <strong>Kết thúc.</strong> Dân thắng khi loại hết gián điệp. Gián điệp thắng khi số gián điệp còn lại bằng hoặc nhiều hơn số dân.
@@ -89,7 +117,7 @@ export default function Article() {
       <h3>Chế độ gián điệp trắng</h3>
       <p>Ở biến thể này, gián điệp không nhận từ nào nhưng biết mình là gián điệp. Gián điệp phải nghe người khác mô tả để đoán từ khóa và nói theo sao cho không bị lộ. Chế độ này khó cho gián điệp hơn và hợp nhóm đã quen trò.</p>
 
-      <PlayCta slug="ai-la-gian-diep" text="Máy chia từ, mỗi người xem từ trên điện thoại riêng, bỏ phiếu ngay trên máy. Có chế độ gián điệp trắng." />
+      <PlayCta slug="ai-la-gian-diep" text="Máy chia từ từ kho hơn 240 cặp, mỗi người xem từ trên điện thoại riêng, bỏ phiếu ngay trên máy. Có chế độ gián điệp trắng." />
 
       <h2>Mẹo cho dân thường</h2>
       <ul>
@@ -115,7 +143,7 @@ export default function Article() {
         ]}
       />
 
-      <h2>60 cặp từ khóa Ai là gián điệp theo chủ đề</h2>
+      <h2>100 cặp từ khóa Ai là gián điệp theo chủ đề</h2>
       <p>Cặp từ hay là hai thứ đủ giống để mô tả của người này cũng “nghe hợp lý” với từ kia, nhưng vẫn khác nhau rõ ràng khi nghĩ kỹ.</p>
       {PAIRS.map((g) => (
         <section key={g.topic}>
@@ -124,7 +152,7 @@ export default function Article() {
         </section>
       ))}
       <Tip>
-        Đổi bên ngẫu nhiên giữa hai từ (lúc thì dân nhận “Phở”, lúc nhận “Bún bò”) để người chơi không đoán được ai giữ từ nào. Game trên Play4Fun tự làm việc này và tránh lặp cặp từ trong cùng một phòng.
+        Đổi bên ngẫu nhiên giữa hai từ (lúc thì dân nhận “Phở”, lúc nhận “Bún bò”) để người chơi không đoán được ai giữ từ nào. Game trên Play4Fun tự làm việc này với hơn 240 cặp từ thuộc 26 chủ đề, tránh lặp cặp từ trong cùng một phòng và tự đổi bộ từ mới khi hòa phiếu.
       </Tip>
       <p>
         Cần thêm trò cho buổi tụ tập? Xem <Link href="/cam-nang/tro-choi-team-building-trong-phong-hop">12 trò chơi team building trong phòng họp</Link> hoặc{" "}

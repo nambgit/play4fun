@@ -6,6 +6,8 @@ import LuyenGoPhim from "./luyen-go-phim-10-ngon";
 import MaSoi from "./luat-choi-ma-soi";
 import TinhNham from "./meo-tinh-nham-nhanh";
 import TocDoGoPhim from "./toc-do-go-phim";
+import ChoiOnline from "./tro-choi-online-qua-zoom";
+import TatNien from "./tro-choi-tat-nien-cong-ty";
 import TeamBuilding from "./tro-choi-team-building-trong-phong-hop";
 import VeDoanChu from "./tu-khoa-ve-doan-chu";
 
@@ -20,4 +22,6 @@ export const ARTICLE_BODY: Record<string, ComponentType> = {
   "tu-khoa-ve-doan-chu": VeDoanChu,
   "meo-tinh-nham-nhanh": TinhNham,
   "giai-lao-van-phong": GiaiLao,
+  "tro-choi-tat-nien-cong-ty": TatNien,
+  "tro-choi-online-qua-zoom": ChoiOnline,
 };

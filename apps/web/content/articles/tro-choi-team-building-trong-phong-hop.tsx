@@ -31,7 +31,7 @@ export default function Article() {
       <h3>6. Ai là gián điệp</h3>
       <p>
         Mọi người nhận cùng một từ khóa, riêng gián điệp nhận một từ gần giống. Lần lượt mô tả, tranh luận rồi bỏ phiếu loại người đáng ngờ. Hợp nhóm 4–12 người, rất dễ khuấy động không khí. Xem{" "}
-        <Link href="/cam-nang/luat-choi-ai-la-gian-diep">luật chơi chi tiết và 60 cặp từ khóa</Link>.
+        <Link href="/cam-nang/luat-choi-ai-la-gian-diep">luật chơi chi tiết và 100 cặp từ khóa</Link>.
       </p>
       <PlayCta slug="ai-la-gian-diep" />
       <h3>7. Vẽ đoán chữ</h3>
