@@ -69,7 +69,7 @@ export default async function ArticlePage({ params }: Props) {
       inLanguage: "vi",
       mainEntityOfPage: url,
       author: { "@type": "Organization", name: "Play4Fun", url: SITE_URL },
-      publisher: { "@type": "Organization", name: "Play4Fun", url: SITE_URL, logo: { "@type": "ImageObject", url: `${SITE_URL}/icon.svg` } },
+      publisher: { "@type": "Organization", name: "Play4Fun", url: SITE_URL, logo: { "@type": "ImageObject", url: `${SITE_URL}/icon-512.png`, width: 512, height: 512 } },
     },
     {
       "@context": "https://schema.org",
