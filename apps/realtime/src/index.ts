@@ -88,7 +88,24 @@ const httpServer = createServer((req, res) => {
       }
     }
     const waiting = [...queues.values()].reduce((n, q) => n + q.length, 0);
-    res.end(JSON.stringify({ status: "ok", rooms: rooms.size, players, byGame, waiting }));
+    // One line per occupied room for /admin: is anyone actually playing? (no room code, no names)
+    const now = Date.now();
+    const list = [...rooms.values()]
+      .map((room) => ({ room, online: connectedIds(room).length }))
+      .filter((x) => x.online > 0)
+      .map(({ room, online }) => ({
+        game: room.gameSlug,
+        status: room.status,
+        online,
+        seats: room.players.size,
+        openSec: Math.round((now - room.createdAt) / 1000),
+        gameNo: room.gameNo,
+        playingSec: room.status === "playing" && room.gameStartedAt ? Math.round((now - room.gameStartedAt) / 1000) : null,
+        idleSec: room.status === "playing" && room.lastActionAt ? Math.round((now - room.lastActionAt) / 1000) : null,
+        matched: room.matched === true,
+      }))
+      .sort((a, b) => (a.idleSec ?? 1e9) - (b.idleSec ?? 1e9));
+    res.end(JSON.stringify({ status: "ok", rooms: rooms.size, players, byGame, waiting, list }));
     return;
   }
   res.writeHead(404).end();
@@ -231,6 +248,7 @@ function startGame(room: Room) {
   const ctx = ctxFor(room);
   room.status = "playing";
   room.gameNo++;
+  room.gameStartedAt = room.lastActionAt = Date.now();
   room.game = { module, state: null };
   room.game.state = module.start(ctx, room.settings);
 }
@@ -364,6 +382,7 @@ function pairUp(slug: PartySlug, a: { socket: S; secret: string; name: string; i
     custom: null,
     creatorIp: a.ip,
     gameNo: 0,
+    matched: true,
   };
   rooms.set(room.code, room);
   room.hostId = seat(a.socket, room, a.secret, a.name);
@@ -523,6 +542,7 @@ io.on("connection", (raw) => {
     const cur = currentRoom(socket);
     if (!cur?.room.game || typeof a?.type !== "string" || !allow(socket, "action", 6, 12)) return;
     const { room, pid } = cur;
+    room.lastActionAt = Date.now();
     if (a.type === "again") {
       if (room.hostId !== pid) return;
       const n = connectedIds(room).length;
@@ -538,6 +558,7 @@ io.on("connection", (raw) => {
   on<DrawOp, never>(socket, "draw:op", (op) => {
     const cur = currentRoom(socket);
     if (!cur?.room.game?.module.op || !allow(socket, "draw", 60, 120)) return;
+    cur.room.lastActionAt = Date.now();
     cur.room.game.module.op(ctxFor(cur.room), cur.room.game.state, cur.pid, op);
   });
 
@@ -617,6 +638,7 @@ async function restoreRooms() {
       timers: new Map(),
       game: null,
       gameNo: pr.gameNo ?? 0,
+      matched: pr.matched,
     };
     rooms.set(room.code, room);
     if (pr.game && room.status === "playing") {

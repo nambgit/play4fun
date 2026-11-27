@@ -20,6 +20,23 @@ const RANGE_LABEL: Record<Range, string> = { 1: "Hôm nay", 7: "7 ngày", 30: "3
 const DEVICE_LABEL: Record<string, string> = { mobile: "Điện thoại", desktop: "Máy tính", tablet: "Máy tính bảng" };
 const PROVIDER_LABEL: Record<string, string> = { google: "Google", facebook: "Facebook", credential: "Email (chỉ dev)" };
 
+/** "3 phút", "1 giờ 5 phút" */
+function ago(sec: number) {
+  if (sec < 60) return `${sec} giây`;
+  const m = Math.floor(sec / 60);
+  if (m < 60) return `${m} phút`;
+  return `${Math.floor(m / 60)} giờ ${m % 60} phút`;
+}
+
+/** How alive a room looks: a player acted recently = really playing; a long silence = probably a forgotten tab */
+function roomActivity(r: { status: string; idleSec: number | null }) {
+  if (r.status !== "playing") return { label: "Ở sảnh chờ", tone: "text-[#b77900] dark:text-[#ffb547]", dot: "bg-[#f5a400]" };
+  const idle = r.idleSec ?? 0;
+  if (idle <= 120) return { label: "Đang chơi", tone: "text-party", dot: "bg-party" };
+  if (idle <= 600) return { label: "Ít thao tác", tone: "text-[#b77900] dark:text-[#ffb547]", dot: "bg-[#f5a400]" };
+  return { label: "Có thể bỏ quên", tone: "text-muted", dot: "bg-muted" };
+}
+
 type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> };
 
 export default async function AdminPage({ searchParams }: Props) {
@@ -231,6 +248,67 @@ export default async function AdminPage({ searchParams }: Props) {
               </tbody>
             </table>
           </div>
+        </section>
+      )}
+
+      {/* Live rooms: is anyone actually playing right now? */}
+      {live && (
+        <section className="mt-6 rounded-3xl border border-line bg-surface p-5 shadow-card sm:p-6">
+          <h2 className="flex items-center gap-2 font-bold">
+            <Activity className="h-4 w-4 text-party" aria-hidden="true" />
+            Phòng đang mở
+            <span className="ml-1 rounded-full bg-surface-2 px-2 py-0.5 font-mono text-xs font-semibold text-muted">{live.list.length}</span>
+          </h2>
+          <p className="mt-0.5 text-xs text-muted">
+            Số liệu lúc tải trang. “Thao tác gần nhất” là lần cuối một người chơi vẽ, đoán, trả lời hay đi một nước trong ván: dưới 2 phút là đang chơi thật, im lặng trên 10 phút nhiều khả năng là
+            tab bị bỏ quên. Không hiện mã phòng hay tên người chơi.
+          </p>
+          {live.list.length === 0 ? (
+            <p className="mt-4 text-sm text-muted">Hiện không có phòng nào có người.</p>
+          ) : (
+            <div className="mt-4 overflow-x-auto">
+              <table className="w-full min-w-[640px] text-left text-sm">
+                <thead className="text-xs text-muted">
+                  <tr className="border-b border-line">
+                    <th className="py-2 font-medium">Game</th>
+                    <th className="py-2 font-medium">Trạng thái</th>
+                    <th className="py-2 text-right font-medium">Người</th>
+                    <th className="py-2 text-right font-medium">Thao tác gần nhất</th>
+                    <th className="py-2 text-right font-medium">Ván hiện tại</th>
+                    <th className="py-2 text-right font-medium">Phòng mở</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {live.list.map((r, i) => {
+                    const act = roomActivity(r);
+                    return (
+                      <tr key={i} className="border-b border-line last:border-0">
+                        <td className="py-2.5 pr-3">
+                          <span className="font-medium">{getGame(r.game)?.title ?? r.game}</span>
+                          {r.matched && <span className="ml-1.5 rounded bg-surface-2 px-1.5 py-0.5 text-[10px] text-muted">ghép ngẫu nhiên</span>}
+                        </td>
+                        <td className="py-2.5">
+                          <span className={`inline-flex items-center gap-1.5 font-semibold ${act.tone}`}>
+                            <span className={`h-2 w-2 rounded-full ${act.dot}`} aria-hidden="true" />
+                            {act.label}
+                          </span>
+                        </td>
+                        <td className="py-2.5 text-right font-mono tabular-nums">
+                          {r.online}
+                          {r.seats > r.online ? <span className="text-muted">/{r.seats}</span> : null}
+                        </td>
+                        <td className="py-2.5 text-right font-mono tabular-nums">{r.idleSec === null ? "—" : `${ago(r.idleSec)} trước`}</td>
+                        <td className="py-2.5 text-right font-mono tabular-nums">
+                          {r.playingSec === null ? "—" : `ván ${r.gameNo} · ${ago(r.playingSec)}`}
+                        </td>
+                        <td className="py-2.5 text-right font-mono tabular-nums">{ago(r.openSec)}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
         </section>
       )}
 

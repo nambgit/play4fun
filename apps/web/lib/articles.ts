@@ -25,6 +25,48 @@ export type ArticleMeta = {
 
 export const ARTICLES: ArticleMeta[] = [
   {
+    slug: "game-2-nguoi-online",
+    title: "Game 2 người online: 8 trò chơi hai người miễn phí trên điện thoại",
+    description: "8 game 2 người online miễn phí, không cần cài app: cờ caro, nối từ, Ai hiểu ai nhất, vẽ đoán chữ, đố vui. Tạo phòng gửi link là chơi được với bạn bè, người yêu ở xa.",
+    kicker: "Chơi 2 người",
+    games: ["co-caro", "noi-tu", "ai-hieu-ai", "ve-doan-chu"],
+    published: "2026-11-27",
+    updated: "2026-11-27",
+    readMinutes: 5,
+    faq: [
+      ["Có game 2 người online nào không cần cài app?", "Có. Cờ caro, Nối từ, Ai hiểu ai nhất, Vẽ & đoán và Đố vui chạy ngay trên trình duyệt: một người tạo phòng, gửi link, người kia mở link trên điện thoại hoặc máy tính là chơi được."],
+      ["Chơi game 2 người với người yêu ở xa nên chọn trò nào?", "Ai hiểu ai nhất là lựa chọn hợp nhất vì mỗi lượt là một câu hỏi để hiểu nhau hơn. Muốn thi đấu thì chọn cờ caro hoặc nối từ, vừa chơi vừa gọi video càng vui."],
+    ],
+  },
+  {
+    slug: "cac-vai-trong-ma-soi",
+    title: "Các vai trong Ma sói: chức năng và cách chơi từng vai",
+    description: "Các vai trong Ma sói: Sói, Tiên tri, Bảo vệ, Dân làng và các vai mở rộng Phù thủy, Thợ săn, Cupid, Già làng. Chức năng, mẹo chơi từng vai và cách chia vai theo số người.",
+    kicker: "Ma sói",
+    games: ["ma-soi", "ai-la-gian-diep"],
+    published: "2026-11-27",
+    updated: "2026-11-27",
+    readMinutes: 6,
+    faq: [
+      ["Ma sói có những vai nào?", "Bộ cơ bản gồm Ma sói, Tiên tri (soi một người mỗi đêm), Bảo vệ (che chở một người mỗi đêm) và Dân làng. Các vai mở rộng hay dùng là Phù thủy, Thợ săn, Cupid, Cô bé, Già làng, Thằng ngốc và Kẻ thế mạng."],
+      ["Phù thủy trong Ma sói làm gì?", "Phù thủy có hai bình thuốc, mỗi bình dùng một lần trong cả ván: một bình cứu người vừa bị sói cắn, một bình giết một người bất kỳ."],
+    ],
+  },
+  {
+    slug: "luat-choi-ve-doan-chu",
+    title: "Luật chơi vẽ đoán chữ: cách tính điểm, mẹo vẽ nhanh và đoán giỏi",
+    description: "Luật chơi vẽ đoán chữ đầy đủ: không viết chữ, không ra hiệu, cách tính điểm cho người vẽ và người đoán. Mẹo vẽ để cả nhóm đoán nhanh, mẹo đoán đúng sớm và cách chơi online trên điện thoại.",
+    kicker: "Vẽ đoán",
+    games: ["ve-doan-chu", "ai-de-nhat"],
+    published: "2026-11-27",
+    updated: "2026-11-27",
+    readMinutes: 5,
+    faq: [
+      ["Luật chơi vẽ đoán chữ là gì?", "Lần lượt từng người vẽ một từ khóa bí mật trong thời gian giới hạn, không được viết chữ, nói hay ra hiệu. Người khác đoán; đoán đúng càng sớm càng nhiều điểm, người vẽ được điểm cho mỗi người đoán đúng."],
+      ["Làm sao vẽ để người khác đoán nhanh?", "Vẽ hình tổng thể và chi tiết đặc trưng nhất trước, từ khó thì vẽ bối cảnh (bác sĩ: ống nghe, chữ thập đỏ), từ ghép thì vẽ từng phần, dùng mũi tên để chỉ chỗ quan trọng."],
+    ],
+  },
+  {
     slug: "cac-kieu-dong-nghiep",
     title: "5 kiểu đồng nghiệp nơi công sở và cách làm việc ăn ý",
     description: "5 kiểu đồng nghiệp quen thuộc: chiến thần deadline, người giữ nhịp, đại sứ trà sữa, ngôi sao ý tưởng, người chữa cháy. Điểm mạnh, điểm cần lưu ý và cách làm việc ăn ý với từng kiểu.",

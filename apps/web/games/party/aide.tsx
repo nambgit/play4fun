@@ -184,7 +184,7 @@ function Tally({ tally, winners, name, me }: { tally: Record<string, number>; wi
           <span className="h-6 flex-1 overflow-hidden rounded-lg bg-surface-2">
             <span className={`block h-full rounded-lg ${winners.includes(id) ? "bg-[#f59e0b]" : "bg-muted/40"}`} style={{ width: `${(n / max) * 100}%` }} />
           </span>
-          <span className="w-12 text-right font-mono font-bold tabular-nums">{n} phiếu</span>
+          <span className="w-16 shrink-0 text-right font-mono font-bold whitespace-nowrap tabular-nums">{n} phiếu</span>
         </li>
       ))}
     </ul>

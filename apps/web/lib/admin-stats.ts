@@ -213,6 +213,24 @@ export type LiveRooms = {
   byGame: Record<string, { rooms: number; playing: number; players: number; playingPlayers: number }>;
   /** Players waiting in "Tìm đối thủ" (random matchmaking) */
   waiting: number;
+  /** Occupied rooms, most recently active first (counts and times only) */
+  list: LiveRoom[];
+};
+
+export type LiveRoom = {
+  game: string;
+  status: "lobby" | "playing";
+  /** Connected players / seats (seats include players who dropped a moment ago) */
+  online: number;
+  seats: number;
+  openSec: number;
+  /** Games started in this room */
+  gameNo: number;
+  /** Current game running for…, and seconds since a player last did something in it */
+  playingSec: number | null;
+  idleSec: number | null;
+  /** Created by random matchmaking */
+  matched: boolean;
 };
 
 export async function liveRooms(): Promise<LiveRooms | null> {
@@ -226,7 +244,7 @@ export async function liveRooms(): Promise<LiveRooms | null> {
     const byGame = Object.fromEntries(
       Object.entries(j.byGame ?? {}).map(([k, g]) => [k, { ...g, playingPlayers: g.playingPlayers ?? (g.playing ? g.players : 0) }]),
     );
-    return { rooms: j.rooms ?? 0, players: j.players ?? 0, byGame, waiting: j.waiting ?? 0 };
+    return { rooms: j.rooms ?? 0, players: j.players ?? 0, byGame, waiting: j.waiting ?? 0, list: (j as { list?: LiveRoom[] }).list ?? [] };
   } catch {
     return null;
   }

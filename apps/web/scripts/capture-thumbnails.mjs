@@ -278,25 +278,49 @@ const SHOTS = {
 
   "noi-tu": {
     position: "top",
-    // Vs-computer mode: no second browser needed
+    // Vs-computer mode: three exchanges in the first round, captured right after the computer answers
     async custom({ page }) {
       await page.goto(`${BASE_URL}/games/noi-tu`, { waitUntil: "networkidle" });
       await page.getByRole("button", { name: "Chơi với máy" }).click();
       await page.getByRole("button", { name: /^Dễ/ }).click();
       const words = dictionaryWords();
+      const starts = new Set(words.map((w) => w.split(" ")[0]));
+      const used = new Set();
+      const input = page.getByLabel(/^Tiếng tiếp theo sau/);
       for (let turn = 0; turn < 3; turn++) {
-        const input = page.getByLabel(/^Tiếng tiếp theo sau/);
         await input.waitFor();
-        // Wait for the player's turn (the box is disabled while the computer thinks)
-        for (let i = 0; i < 40 && (await input.isDisabled()); i++) await sleep(150);
+        for (let i = 0; i < 60 && (await input.isDisabled()); i++) await sleep(150);
         const need = (await gameRoot(page).locator("form > span").first().innerText()).trim();
-        const next = words.find((w) => w.startsWith(`${need} `) && !w.endsWith(` ${need}`));
+        // A common word the computer can easily continue (so the round does not end early)
+        const next = words.find((w) => w.startsWith(`${need} `) && !used.has(w) && starts.has(w.split(" ")[1]) && w.split(" ")[1] !== need);
         if (!next) break;
+        used.add(next);
         await input.fill(next.split(" ")[1]);
         await page.keyboard.press("Enter");
         await sleep(300);
       }
-      await sleep(2800);
+      // Wait for the computer's answer, then shoot while it is the player's turn again
+      for (let i = 0; i < 40 && (await input.isDisabled()); i++) await sleep(150);
+      await sleep(400);
+      return await gameRoot(page).screenshot();
+    },
+  },
+
+  "co-caro": {
+    position: "center",
+    // Vs-computer mode: a few moves around the centre of the board, then the board with stones
+    async custom({ page }) {
+      await page.goto(`${BASE_URL}/games/co-caro`, { waitUntil: "networkidle" });
+      await page.getByRole("button", { name: "Chơi với máy" }).click();
+      await page.getByRole("button", { name: /^Dễ/ }).click();
+      const cells = page.locator('[aria-label^="Bàn cờ caro"] button');
+      await cells.first().waitFor();
+      // Row 9–11 around the centre of the 20×20 board; skip cells the computer took
+      for (const idx of [9 * 20 + 9, 9 * 20 + 10, 10 * 20 + 11, 8 * 20 + 9, 11 * 20 + 12, 9 * 20 + 11]) {
+        for (let i = 0; i < 30 && (await cells.nth(idx).isDisabled()) && (await cells.nth(idx).innerText()) === ""; i++) await sleep(150);
+        if ((await cells.nth(idx).innerText()) === "") await cells.nth(idx).click();
+        await sleep(1300);
+      }
       return await gameRoot(page).screenshot();
     },
   },

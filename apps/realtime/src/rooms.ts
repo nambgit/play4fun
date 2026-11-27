@@ -37,6 +37,12 @@ export type Room = {
   creatorIp?: string;
   /** Games started in this room (see RoomPublic.gameNo) */
   gameNo: number;
+  /** Last time a player did something in a game (move, answer, stroke…); for /admin */
+  lastActionAt?: number;
+  /** When the current game started; for /admin */
+  gameStartedAt?: number;
+  /** Created by "Tìm đối thủ" (random matchmaking) */
+  matched?: boolean;
 };
 
 export type CustomSet = { id: string; title: string; brand: RoomBrand; questions: { q: string; options: string[]; correct: number }[] };

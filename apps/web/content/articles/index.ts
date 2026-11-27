@@ -1,4 +1,7 @@
 import type { ComponentType } from "react";
+import CacVaiMaSoi from "./cac-vai-trong-ma-soi";
+import Game2Nguoi from "./game-2-nguoi-online";
+import LuatVeDoan from "./luat-choi-ve-doan-chu";
 import KieuDongNghiep from "./cac-kieu-dong-nghiep";
 import NeDan from "./game-ne-dan";
 import ThangMay from "./van-hoa-di-thang-may";
@@ -30,6 +33,9 @@ import VeDoanChu from "./tu-khoa-ve-doan-chu";
 
 /** Article bodies by slug (metadata is in lib/articles.ts) */
 export const ARTICLE_BODY: Record<string, ComponentType> = {
+  "game-2-nguoi-online": Game2Nguoi,
+  "cac-vai-trong-ma-soi": CacVaiMaSoi,
+  "luat-choi-ve-doan-chu": LuatVeDoan,
   "cac-kieu-dong-nghiep": KieuDongNghiep,
   "game-ne-dan": NeDan,
   "van-hoa-di-thang-may": ThangMay,
