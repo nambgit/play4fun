@@ -1,10 +1,11 @@
-import { Activity, Info } from "lucide-react";
+import { Activity, Flame, Info } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { RANGES, accountStats, analyticsConfigured, isAdmin, liveRooms, traffic, type Range } from "@/lib/admin-stats";
 import { currentUser } from "@/lib/auth";
 import { GAMES, getGame } from "@/lib/games";
+import { hotGames } from "@/lib/hot-games";
 import { RECORD_BY_KEY } from "@/lib/record-keys";
 import { BarList, Columns, Stat, fmtDuration, fmtNumber } from "./charts";
 import { ExcludeMe } from "./exclude-me";
@@ -28,7 +29,7 @@ export default async function AdminPage({ searchParams }: Props) {
   const raw = Number((await searchParams).range);
   const range: Range = RANGES.includes(raw as Range) ? (raw as Range) : 7;
 
-  const [t, acc, live] = await Promise.all([traffic(range).catch(() => null), accountStats(range), liveRooms()]);
+  const [t, acc, live, hot] = await Promise.all([traffic(range).catch(() => null), accountStats(range), liveRooms(), hotGames(6)]);
   const configured = analyticsConfigured();
 
   const plays = t?.games.reduce((a, g) => a + g.starts, 0) ?? 0;
@@ -90,10 +91,14 @@ export default async function AdminPage({ searchParams }: Props) {
       <section aria-label="Chỉ số chính" className="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-6">
         <Stat label="Người truy cập" value={t ? fmtNumber(t.visitors) : "—"} sub={t ? `${fmtNumber(t.visits)} lượt ghé` : undefined} />
         <Stat label="Lượt xem trang" value={t ? fmtNumber(t.pageviews) : "—"} />
-        <Stat label="Lượt chơi game" value={t ? fmtNumber(plays) : "—"} sub="game 1 người & test vui" />
+        <Stat label="Lượt chơi game" value={t ? fmtNumber(plays) : "—"} sub="game 1 người, test vui & chơi với máy" />
         <Stat label="Tổng thời gian chơi" value={t ? fmtDuration(playSeconds) : "—"} sub={plays ? `TB ${fmtDuration(playSeconds / plays)}/ván` : undefined} />
         <Stat label="Tài khoản" value={fmtNumber(acc.total)} sub={`+${fmtNumber(acc.fresh)} trong ${RANGE_LABEL[range].toLowerCase()}`} />
-        <Stat label="Đang chơi nhóm" value={live ? fmtNumber(live.players) : "—"} sub={live ? `${fmtNumber(live.rooms)} phòng đang mở` : "realtime không phản hồi"} />
+        <Stat
+          label="Đang chơi nhóm"
+          value={live ? fmtNumber(live.players) : "—"}
+          sub={live ? `${fmtNumber(live.rooms)} phòng · ${fmtNumber(live.waiting)} người chờ ghép` : "realtime không phản hồi"}
+        />
       </section>
 
       {/* Traffic over time */}
@@ -202,6 +207,29 @@ export default async function AdminPage({ searchParams }: Props) {
         </section>
       )}
 
+      {/* Game hot (same list as the home page, which refreshes it hourly) */}
+      <section className="mt-6 rounded-3xl border border-line bg-surface p-5 shadow-card sm:p-6">
+        <h2 className="flex items-center gap-2 font-bold">
+          <Flame className="h-4 w-4 text-[#ff6a3d]" aria-hidden="true" />
+          Game hot trên trang chủ
+        </h2>
+        <p className="mt-0.5 text-xs text-muted">
+          Top 6 lượt chơi 7 ngày qua: mỗi ván game 1 người (kể cả chơi với máy) là 1 lượt, mỗi người trong một ván chơi nhóm là 1 lượt. Trang chủ cập nhật mỗi giờ; game
+          “gợi ý” được thêm vào khi chưa đủ dữ liệu.
+        </p>
+        <ol className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+          {hot.map(({ game, plays }, i) => (
+            <li key={game.slug} className="flex items-center gap-3 rounded-2xl bg-surface-2 px-3 py-2.5 text-sm">
+              <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-fg font-mono text-xs font-bold text-bg">{i + 1}</span>
+              <Link href={`/games/${game.slug}`} className="min-w-0 flex-1 truncate font-medium hover:text-brand">
+                {game.title}
+              </Link>
+              <span className="shrink-0 font-mono text-xs text-muted">{plays === null ? "gợi ý" : `${fmtNumber(plays)} lượt`}</span>
+            </li>
+          ))}
+        </ol>
+      </section>
+
       <div className="mt-6 grid gap-6 lg:grid-cols-2 [&>*]:min-w-0">
         {/* Party games */}
         <section className="rounded-3xl border border-line bg-surface p-5 shadow-card sm:p-6">
@@ -222,7 +250,13 @@ export default async function AdminPage({ searchParams }: Props) {
                     </span>
                   </div>
                   <p className="mt-0.5 text-muted">
-                    <b className="font-mono text-fg">{fmtNumber(p?.games ?? 0)}</b> ván{p ? ` · TB ${p.avgPlayers.toFixed(1)} người/ván` : ""}
+                    <b className="font-mono text-fg">{fmtNumber(p?.games ?? 0)}</b> ván online{p ? ` · TB ${p.avgPlayers.toFixed(1)} người/ván` : ""}
+                    {statsBy.get(g.slug)?.starts ? (
+                      <>
+                        {" · "}
+                        <b className="font-mono text-fg">{fmtNumber(statsBy.get(g.slug)!.starts)}</b> trận với máy
+                      </>
+                    ) : null}
                   </p>
                 </li>
               );

@@ -35,9 +35,16 @@ export const viewport: Viewport = {
   ],
 };
 
+/** Runs before first paint: apply the visitor's saved light/dark choice (no flash of the other theme) */
+const THEME_SCRIPT = `try{var t=localStorage.getItem("p4f:theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}`;
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="vi" className={beVietnam.variable}>
+    // data-theme is set by THEME_SCRIPT before React loads
+    <html lang="vi" className={beVietnam.variable} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
+      </head>
       <body className="flex min-h-dvh flex-col font-sans">
         <a
           href="#noi-dung"

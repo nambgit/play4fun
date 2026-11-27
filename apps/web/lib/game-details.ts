@@ -214,20 +214,20 @@ export const GAME_DETAILS: Record<string, GameDetails> = {
     ],
   },
   "noi-tu": {
-    description: "Trò chơi nối từ tiếng Việt cho 2 người. Bấm “Tìm đối thủ” để ghép ngẫu nhiên với người đang chờ, tạo phòng gửi link cho bạn bè, hoặc đấu với máy hai mức dễ và khó. Máy chủ kiểm tra từng từ với từ điển hơn 20.000 từ ghép.",
+    description: "Trò chơi nối từ tiếng Việt online cho 2 đến 10 người. Bấm “Tìm đối thủ” để đấu 1-1 với người đang chờ, tạo phòng gửi link cho cả nhóm, hoặc đấu với máy hai mức dễ và khó. Máy chủ kiểm tra từng từ với từ điển hơn 20.000 từ ghép.",
     howTo: [
-      "Chọn cách chơi: tìm đối thủ ngẫu nhiên, tạo phòng mời bạn (gửi link hoặc mã phòng), hoặc chơi với máy.",
-      "Mỗi hiệp mở đầu bằng một từ. Hai người thay phiên gõ tiếng tiếp theo, ví dụ “học sinh” → “sinh viên”.",
-      "Gõ sai không mất lượt, nhưng hết giờ hoặc bỏ cuộc là thua hiệp.",
-      "Nói được từ khiến đối thủ không còn từ nào để nối là thắng hiệp ngay.",
-      "Ai thắng đủ số hiệp trước (mặc định chạm 3) là thắng trận. Bấm “Chơi lại” để đấu tiếp.",
+      "Chọn cách chơi: tìm đối thủ ngẫu nhiên (1-1), tạo phòng mời bạn bè (2–10 người, gửi link hoặc mã phòng), hoặc chơi với máy.",
+      "Mỗi hiệp mở đầu bằng một từ. Mọi người lần lượt gõ tiếng tiếp theo, ví dụ “học sinh” → “sinh viên”. Mỗi lượt 30 giây.",
+      "Gõ sai không mất lượt. Hết giờ hoặc bỏ cuộc thì bị loại khỏi hiệp.",
+      "Nói được từ khiến người kế tiếp không còn từ nào để nối thì người đó bị loại.",
+      "Người trụ lại cuối cùng thắng hiệp; ai thắng đủ số hiệp trước là thắng trận. Bấm “Chơi lại” để đấu tiếp.",
     ],
   },
   "co-caro": {
-    description: "Cờ caro (cờ ca rô) online cho 2 người trên bàn 15×15. Bấm “Tìm đối thủ” để ghép ngẫu nhiên, tạo phòng gửi link cho bạn bè, hoặc chơi với máy hai mức dễ và khó. Có tùy chọn luật chặn hai đầu, mượt trên điện thoại.",
+    description: "Cờ caro (cờ ca rô) online cho 2 người trên bàn 20×20. Bấm “Tìm đối thủ” để ghép ngẫu nhiên, tạo phòng gửi link cho bạn bè, hoặc chơi với máy hai mức dễ và khó. Có tùy chọn luật chặn hai đầu, mượt trên điện thoại.",
     howTo: [
       "Chọn cách chơi: tìm đối thủ ngẫu nhiên, tạo phòng mời bạn (gửi link hoặc mã phòng), hoặc chơi với máy.",
-      "Hai người lần lượt đặt X và O lên bàn 15×15, X đi trước.",
+      "Hai người lần lượt đặt X và O lên bàn 20×20, X đi trước.",
       "Ai có 5 quân liền nhau theo hàng ngang, dọc hoặc chéo trước là thắng ván.",
       "Bật luật chặn hai đầu nếu muốn: 5 quân bị chặn cả hai đầu không tính thắng.",
       "Mỗi nước có giới hạn thời gian; hết giờ là thua ván. Người cầm X đổi sau mỗi ván.",

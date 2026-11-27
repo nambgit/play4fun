@@ -2,13 +2,13 @@
  * Cờ caro (gomoku) rules shared by the realtime server (online games) and the web's vs-computer
  * mode. Pure logic: no timers, no I/O.
  *
- * Board: SIZE × SIZE cells in a flat array (index = row * SIZE + col), 0 = empty, 1 = X, 2 = O.
+ * Board: CARO_SIZE × CARO_SIZE cells (20 × 20) in a flat array (index = row * SIZE + col), 0 = empty, 1 = X, 2 = O.
  * X always moves first. Five in a row (horizontal, vertical or diagonal) wins. With the
  * "chặn hai đầu" rule, a line of exactly five that is blocked by the opponent on both ends does
  * not count; six or more in a row always counts.
  */
 
-export const CARO_SIZE = 15;
+export const CARO_SIZE = 20;
 export type Cell = 0 | 1 | 2;
 export type Stone = 1 | 2;
 export const otherStone = (s: Stone): Stone => (s === 1 ? 2 : 1);
@@ -113,7 +113,7 @@ function candidates(board: readonly Cell[]) {
       for (let dc = -2; dc <= 2 && !near; dc++) if (inside(r + dr, c + dc) && board[(r + dr) * CARO_SIZE + c + dc] !== 0) near = true;
     if (near) out.push(i);
   }
-  if (!any) return [Math.floor((CARO_SIZE * CARO_SIZE) / 2)];
+  if (!any) return [Math.floor(CARO_SIZE / 2) * CARO_SIZE + Math.floor(CARO_SIZE / 2)];
   return out;
 }
 

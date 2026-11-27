@@ -260,19 +260,19 @@ export const GAME_SEO: Record<string, GameSeo> = {
     ],
   },
   "noi-tu": {
-    title: "Nối từ online – Chơi nối từ 2 người hoặc đấu với máy",
-    description: "Chơi nối từ tiếng Việt 2 người online: ghép ngẫu nhiên với người lạ, tạo phòng mời bạn bè hoặc đấu với máy. Từ điển hơn 20.000 từ, làm đối thủ bí từ để thắng. Miễn phí, không cần cài.",
+    title: "Nối từ online – Chơi nối từ 2 người, cả nhóm hoặc với máy",
+    description: "Chơi nối từ tiếng Việt online: đấu 1-1 với người lạ, mở phòng cho nhóm 2–10 người bằng link, hoặc đấu với máy. Từ điển hơn 20.000 từ, mỗi lượt 30 giây. Miễn phí, không cần cài.",
     genre: "Word game",
     faq: [
-      ["Chơi nối từ 2 người online thế nào?", "Bấm “Tìm đối thủ ngẫu nhiên” để được ghép với người đang chờ, hoặc “Tạo phòng mời bạn” rồi gửi link, mã phòng cho bạn bè. Hai người thay phiên nối từ: từ sau bắt đầu bằng tiếng cuối của từ trước, mỗi lượt có giới hạn thời gian."],
-      ["Không có ai chơi cùng thì sao?", "Chọn “Chơi với máy”. Mức Dễ máy dùng từ thông dụng; mức Khó máy chủ động tìm từ làm bạn bí."],
-      ["Khi nào thắng một hiệp?", "Khi đối thủ hết giờ hoặc bỏ cuộc, hoặc khi bạn nói được từ mà không còn từ nào bắt đầu bằng tiếng cuối của nó. Gõ sai từ không bị trừ lượt, chỉ cần thử lại trước khi hết giờ."],
+      ["Chơi nối từ online với bạn bè thế nào?", "Bấm “Tạo phòng mời bạn” rồi gửi link hoặc mã phòng. Từ 2 đến 10 người cùng vào, chủ phòng bấm bắt đầu. Mọi người lần lượt nối từ: từ sau bắt đầu bằng tiếng cuối của từ trước, mỗi lượt 30 giây."],
+      ["Không có ai chơi cùng thì sao?", "Bấm “Tìm đối thủ ngẫu nhiên” để đấu 1-1 với người đang chờ, hoặc chọn “Chơi với máy”: mức Dễ máy dùng từ thông dụng, mức Khó máy chủ động tìm từ làm bạn bí."],
+      ["Khi nào bị loại?", "Khi hết giờ hoặc bỏ cuộc, hoặc khi người trước nói một từ mà không còn từ nào bắt đầu bằng tiếng cuối của nó. Gõ sai từ không bị trừ lượt, chỉ cần thử lại trước khi hết giờ. Người trụ lại cuối cùng thắng hiệp."],
       ["Từ điển có bao nhiêu từ?", "Hơn 20.000 từ ghép hai tiếng thông dụng. Máy chủ kiểm tra từng từ nên không ai gian lận được."],
     ],
   },
   "co-caro": {
     title: "Cờ caro online – Chơi cờ ca rô 2 người, đấu với máy",
-    description: "Chơi cờ caro online miễn phí: ghép ngẫu nhiên với người lạ, tạo phòng mời bạn bè bằng link, hoặc đấu với máy 2 mức độ. Bàn 15×15, 5 quân liền hàng thắng, có luật chặn hai đầu.",
+    description: "Chơi cờ caro online miễn phí: ghép ngẫu nhiên với người lạ, tạo phòng mời bạn bè bằng link, hoặc đấu với máy 2 mức độ. Bàn 20×20, 5 quân liền hàng thắng, có luật chặn hai đầu.",
     genre: "Board game",
     faq: [
       ["Luật chơi cờ caro như thế nào?", "Hai người lần lượt đặt X và O lên bàn cờ, X đi trước. Ai có 5 quân liền nhau theo hàng ngang, dọc hoặc chéo trước là thắng."],
@@ -320,7 +320,7 @@ export const CATEGORY_SEO: Record<GameType, CategorySeo> = {
     path: "/choi-nhom",
     title: "Game chơi nhóm online trên điện thoại – Party game miễn phí",
     h1: "Game chơi nhóm online",
-    description: "Party game chơi nhóm miễn phí: Ma sói, Ai là gián điệp, vẽ đoán chữ, đố vui team building, Ai hiểu ai nhất, Ai dễ… nhất, nối từ và cờ caro 2 người. Vào phòng bằng mã hoặc QR trên điện thoại.",
+    description: "Party game chơi nhóm miễn phí: Ma sói, Ai là gián điệp, vẽ đoán chữ, đố vui team building, Ai hiểu ai nhất, Ai dễ… nhất, nối từ (2–10 người) và cờ caro. Vào phòng bằng mã hoặc QR trên điện thoại.",
     intro: [
       "Hợp cho buổi họp đầu tuần, tiệc công ty, lớp học hay hội bạn tụ tập. Một người tạo phòng và gửi mã, mọi người vào bằng điện thoại của mình, không cần cài app hay tạo tài khoản.",
       "Ở xa nhau vẫn chơi được: vào cùng một phòng rồi gọi video qua Zoom, Google Meet, Messenger hoặc Zalo.",

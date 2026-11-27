@@ -5,10 +5,14 @@ import { SITE_URL } from "@/lib/seo";
 import { DailyBanner } from "@/components/home/daily-banner";
 import { GameBrowser } from "@/components/home/game-browser";
 import { Hero } from "@/components/home/hero";
+import { HotGames } from "@/components/home/hot-games";
 import { HowItWorks } from "@/components/home/how-it-works";
 import { PartyBanner } from "@/components/home/party-banner";
 
 export const metadata: Metadata = { alternates: { canonical: "/" } };
+
+/** Regenerate hourly so "Game hot" follows the latest play counts */
+export const revalidate = 3600;
 
 const SITE_LD = [
   {
@@ -36,6 +40,7 @@ export default function HomePage() {
       <Hero />
       <div className="space-y-16 sm:space-y-24 md:space-y-28">
         <DailyBanner />
+        <HotGames />
         <GameBrowser />
         <div className="container-page empty:hidden">
           <AdSlot placement="home" />

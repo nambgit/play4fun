@@ -5,6 +5,7 @@ import { categoryHref } from "@/lib/seo";
 import { AccountMenu } from "./auth/account-menu";
 import { Logo } from "./logo";
 import { MobileNav } from "./mobile-nav";
+import { ThemeToggle } from "./theme-toggle";
 
 export const NAV_LINKS = [
   ...GAME_TYPES.map((t) => ({ href: categoryHref(t), label: TYPE_META[t].label, dot: TYPE_META[t].dot })),
@@ -32,6 +33,7 @@ export function SiteHeader() {
         </nav>
 
         <div className="ml-auto flex items-center gap-2">
+          <ThemeToggle />
           <AccountMenu />
           <Link href={`/games/${FEATURED_SLUG}`} className="btn-primary hidden px-4 py-2.5 sm:inline-flex">
             <Play className="h-4 w-4 fill-current" aria-hidden="true" />

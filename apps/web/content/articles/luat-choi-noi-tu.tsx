@@ -38,7 +38,7 @@ export default function Article() {
         ]}
       />
 
-      <PlayCta slug="noi-tu" text="Chơi nối từ online: ghép ngẫu nhiên với người lạ, mời bạn bằng link hoặc đấu với máy. Hơn 20.000 từ ghép, làm đối thủ bí để thắng." />
+      <PlayCta slug="noi-tu" text="Chơi nối từ online: đấu 1-1 với người lạ, mở phòng cho nhóm tới 10 người hoặc đấu với máy. Hơn 20.000 từ ghép, làm đối thủ bí để thắng." />
 
       <h2>Mẹo chơi nối từ giỏi hơn</h2>
       <h3>Dùng từ có tiếng cuối “khó nối”</h3>

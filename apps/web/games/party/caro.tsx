@@ -5,6 +5,7 @@ import { CARO_SIZE, caroBotMove, emptyBoard, placeStone, type CaroLevel, type Ce
 import { ArrowLeft, Bot, Flag, RotateCcw, Trophy } from "lucide-react";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { Choice, PartyRoom, nameOf, type GameProps, type SettingsProps } from "@/components/party/party-room";
+import { gameEnd, gameStart } from "@/lib/analytics";
 import { getGame } from "@/lib/games";
 import { useCountdown } from "@/lib/party-client";
 
@@ -14,7 +15,7 @@ const O_COLOR = "text-[#1a9fe8]";
 
 const RULES = (
   <ol className="list-decimal space-y-1 pl-4">
-    <li>Bàn cờ 15×15. Hai người lần lượt đặt quân X và O, X đi trước.</li>
+    <li>Bàn cờ 20×20. Hai người lần lượt đặt quân X và O, X đi trước.</li>
     <li>
       Ai có <b>5 quân liền nhau</b> theo hàng ngang, dọc hoặc chéo trước là thắng ván.
     </li>
@@ -177,6 +178,15 @@ function BotCaro({ onExit }: { onExit: () => void }) {
     return () => clearTimeout(id);
   }, [g, level, blocked, move]);
 
+  // Vs-computer matches count as plays of the game (online games are counted by "party-start")
+  const isNewMatch = g ? g.wins[0] + g.wins[1] === 0 && g.gameNo === 1 : false;
+  useEffect(() => {
+    if (isNewMatch) gameStart("co-caro");
+  }, [isNewMatch]);
+  useEffect(() => {
+    if (g?.phase === "over") gameEnd("co-caro", { score: g.wins[0] });
+  }, [g?.phase]); // eslint-disable-line react-hooks/exhaustive-deps
+
   // Break between games
   useEffect(() => {
     if (g?.phase !== "roundEnd") return;
@@ -323,8 +333,32 @@ const Mark = ({ stone, className = "" }: { stone: Stone; className?: string }) =
   <span className={`font-black ${stone === 1 ? X_COLOR : O_COLOR} ${className}`}>{stone === 1 ? "X" : "O"}</span>
 );
 
+/** Smallest cell size on narrow screens (px); the board scrolls instead of shrinking further */
+const MIN_CELL = 26;
+
 function CaroBoard(p: BoardProps) {
   const oppStone: Stone = p.myStone === 1 ? 2 : 1;
+  const scroller = useRef<HTMLDivElement>(null);
+
+  // When the board is wider than the screen: start centred, then keep the last move in view
+  useEffect(() => {
+    const el = scroller.current;
+    if (!el) return;
+    el.scrollLeft = (el.scrollWidth - el.clientWidth) / 2;
+    el.scrollTop = (el.scrollHeight - el.clientHeight) / 2;
+  }, [p.gameNo]);
+  useEffect(() => {
+    const el = scroller.current;
+    if (!el || p.lastMove === null) return;
+    const cell = el.querySelector<HTMLElement>(`[data-cell="${p.lastMove}"]`);
+    if (!cell) return;
+    const pad = cell.offsetWidth * 2;
+    const { offsetLeft: x, offsetTop: y, offsetWidth: w, offsetHeight: h } = cell;
+    if (x - pad < el.scrollLeft) el.scrollLeft = x - pad;
+    else if (x + w + pad > el.scrollLeft + el.clientWidth) el.scrollLeft = x + w + pad - el.clientWidth;
+    if (y - pad < el.scrollTop) el.scrollTop = y - pad;
+    else if (y + h + pad > el.scrollTop + el.clientHeight) el.scrollTop = y + h + pad - el.clientHeight;
+  }, [p.lastMove]);
   const canMove = p.phase === "play" && p.myTurn;
   const win = new Set(p.winLine ?? []);
   const matchWon = p.wins[0] >= p.target;
@@ -342,7 +376,7 @@ function CaroBoard(p: BoardProps) {
           : `Bạn ${p.result.reason === "timeout" ? "hết giờ" : "đầu hàng"}, ${p.oppName} thắng ván`;
 
   return (
-    <div className="mx-auto max-w-xl">
+    <div className="mx-auto max-w-3xl">
       {/* Score */}
       <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 rounded-2xl p-3 text-white shadow-lift" style={{ backgroundImage: `linear-gradient(135deg, ${accent[0]}, ${accent[1]})` }}>
         <div className={`min-w-0 rounded-xl px-2 py-1.5 ${p.phase === "play" && p.myTurn ? "bg-white/25" : ""}`}>
@@ -375,31 +409,43 @@ function CaroBoard(p: BoardProps) {
         </div>
       )}
 
-      {/* Board */}
-      <div
-        className="mx-auto mt-2 grid aspect-square w-full max-w-[min(100%,560px)] overflow-hidden rounded-xl border border-line bg-[#f6efe1] dark:bg-[#2a2620]"
-        style={{ gridTemplateColumns: `repeat(${CARO_SIZE}, minmax(0, 1fr))` }}
-        role="group"
-        aria-label="Bàn cờ caro"
-      >
-        {p.board.map((c, i) => {
-          const r = Math.floor(i / CARO_SIZE) + 1;
-          const col = (i % CARO_SIZE) + 1;
-          return (
-            <button
-              key={i}
-              type="button"
-              disabled={!canMove || c !== 0}
-              onClick={() => p.onMove(i)}
-              aria-label={c ? `Hàng ${r} cột ${col}: ${c === 1 ? "X" : "O"}` : `Hàng ${r} cột ${col}: trống`}
-              className={`grid place-items-center border-[0.5px] border-[#d9c9a8] text-[clamp(10px,3.6vw,22px)] leading-none dark:border-[#4a4236] ${
-                win.has(i) ? "bg-[#f5c400]/60" : p.lastMove === i ? "bg-[#1a9fe8]/15" : canMove && c === 0 ? "hover:bg-black/5 dark:hover:bg-white/10" : ""
-              }`}
-            >
-              {c !== 0 && <Mark stone={c as Stone} />}
-            </button>
-          );
-        })}
+      {/* Board: rows and columns have fixed sizes, so placing a stone never changes the layout.
+          On narrow screens cells stay at least MIN_CELL px and the board scrolls. */}
+      <div ref={scroller} className="mt-2 max-h-[78vh] overflow-auto rounded-xl border border-line bg-[#f6efe1] [scrollbar-width:thin] dark:bg-[#2a2620]">
+        <div
+          className="@container mx-auto grid aspect-square"
+          style={{
+            width: `max(100%, ${CARO_SIZE * MIN_CELL}px)`,
+            gridTemplateColumns: `repeat(${CARO_SIZE}, minmax(0, 1fr))`,
+            gridTemplateRows: `repeat(${CARO_SIZE}, minmax(0, 1fr))`,
+          }}
+          role="group"
+          aria-label={`Bàn cờ caro ${CARO_SIZE}×${CARO_SIZE}`}
+        >
+          {p.board.map((c, i) => {
+            const r = Math.floor(i / CARO_SIZE) + 1;
+            const col = (i % CARO_SIZE) + 1;
+            return (
+              <button
+                key={i}
+                data-cell={i}
+                type="button"
+                disabled={!canMove || c !== 0}
+                onClick={() => p.onMove(i)}
+                aria-label={c ? `Hàng ${r} cột ${col}: ${c === 1 ? "X" : "O"}` : `Hàng ${r} cột ${col}: trống`}
+                className={`relative min-h-0 min-w-0 overflow-hidden border-[0.5px] border-[#d9c9a8] p-0 dark:border-[#4a4236] ${
+                  win.has(i) ? "bg-[#f5c400]/60" : p.lastMove === i ? "bg-[#1a9fe8]/15" : canMove && c === 0 ? "hover:bg-black/5 dark:hover:bg-white/10" : ""
+                }`}
+              >
+                {c !== 0 && (
+                  <span className="absolute inset-0 grid place-items-center text-[3.4cqi] leading-none">
+                    <Mark stone={c as Stone} />
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {p.phase === "play" && (

@@ -1,5 +1,5 @@
 /**
- * Cờ caro — two players, 15×15 board, five in a row wins (rules in @play4fun/party/caro). The
+ * Cờ caro — two players, 20×20 board, five in a row wins (rules in @play4fun/party/caro). The
  * server checks every move and runs the move clock. A match is first to `target` games; X
  * (who moves first) alternates every game. Running out of time or resigning loses the game; a
  * full board is a draw (nobody scores). After the match both players press "Chơi lại".

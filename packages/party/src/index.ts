@@ -27,7 +27,7 @@ export const PARTY_GAMES: Record<
   "ma-soi": { minPlayers: 5, maxPlayers: 16, lateJoin: false },
   "ai-hieu-ai": { minPlayers: 2, maxPlayers: 20, lateJoin: true },
   "ai-de-nhat": { minPlayers: 3, maxPlayers: 20, lateJoin: true },
-  "noi-tu": { minPlayers: 2, maxPlayers: 2, lateJoin: false, matchmaking: true },
+  "noi-tu": { minPlayers: 2, maxPlayers: 10, lateJoin: false, matchmaking: true },
   "co-caro": { minPlayers: 2, maxPlayers: 2, lateJoin: false, matchmaking: true },
 };
 
@@ -52,7 +52,7 @@ export type WolfSettings = { wolves: number; seer: boolean; guard: boolean; talk
 export type HieuSettings = { turns: number; seconds: number };
 /** Ai dễ… nhất: number of prompts and voting time */
 export type AiDeSettings = { rounds: number; seconds: number };
-/** Nối từ đối kháng: rounds needed to win the match and seconds per turn */
+/** Nối từ (2–10 players): rounds needed to win the match and seconds per turn */
 export type DuelSettings = { target: number; seconds: number };
 /** Cờ caro: games needed to win the match, seconds per move, "chặn hai đầu" rule */
 export type CaroSettings = { target: number; seconds: number; blocked: boolean };
@@ -76,9 +76,9 @@ export const HIEU_TURN_OPTIONS = [5, 10, 15];
 export const HIEU_SECONDS_OPTIONS = [20, 30];
 export const AIDE_ROUND_OPTIONS = [8, 12, 16];
 export const AIDE_SECONDS_OPTIONS = [15, 25];
-/** First to 2 (best of 3), 3 (best of 5) or 4 (best of 7) rounds */
-export const DUEL_TARGET_OPTIONS = [2, 3, 4];
-export const DUEL_SECONDS_OPTIONS = [10, 15, 20];
+/** Rounds a player must win to take the match */
+export const DUEL_TARGET_OPTIONS = [1, 2, 3];
+export const DUEL_SECONDS_OPTIONS = [15, 20, 30];
 export const CARO_TARGET_OPTIONS = [1, 2, 3];
 export const CARO_SECONDS_OPTIONS = [20, 30, 60];
 
@@ -103,7 +103,7 @@ export function defaultSettings(slug: PartySlug): PartySettings {
     case "ai-de-nhat":
       return { rounds: 12, seconds: 15 } satisfies AiDeSettings;
     case "noi-tu":
-      return { target: 3, seconds: 15 } satisfies DuelSettings;
+      return { target: 2, seconds: 30 } satisfies DuelSettings;
     case "co-caro":
       return { target: 2, seconds: 30, blocked: false } satisfies CaroSettings;
   }
@@ -317,8 +317,12 @@ export type DuelPhase = "play" | "roundEnd" | "over";
 export type DuelView = {
   kind: "duel";
   phase: DuelPhase;
-  /** The two players (side 0, side 1) */
-  seats: [string, string];
+  /** Players in turn order (2–10) */
+  seats: string[];
+  /** Players still in the current round */
+  alive: string[];
+  /** Knock-outs this round, in order */
+  out: { id: string; reason: "stuck" | "timeout" | "skip" | "left" }[];
   /** Player whose turn it is */
   turn: string;
   /** Syllable the next word must start with */
@@ -331,7 +335,7 @@ export type DuelView = {
   wins: Record<string, number>;
   /** After a round */
   roundWinner: string | null;
-  reason: "stuck" | "timeout" | "skip" | null;
+  reason: "stuck" | "timeout" | "skip" | "left" | null;
   /** Words that could have been played (after a timeout / give-up) */
   hints: string[] | null;
   /** When the next round starts (phase roundEnd) */
@@ -340,6 +344,8 @@ export type DuelView = {
   myError: { text: string; at: number } | null;
   /** Players who asked for a rematch (phase over) */
   rematch: string[];
+  /** Match winner (phase over) */
+  champion: string | null;
 };
 
 export type CaroPhase = "play" | "roundEnd" | "over";
@@ -350,7 +356,7 @@ export type CaroView = {
   /** Player with X this game (X moves first; alternates every game) */
   x: string;
   turn: string;
-  /** 0 empty, 1 X, 2 O; index = row * 15 + col */
+  /** 0 empty, 1 X, 2 O; index = row * CARO_SIZE + col */
   board: number[];
   lastMove: number | null;
   /** Cells of the winning five */

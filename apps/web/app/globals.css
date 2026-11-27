@@ -1,5 +1,17 @@
 @import "tailwindcss";
 
+/* `dark:` utilities: on when the visitor chose dark, or the device is dark and they did not choose light */
+@custom-variant dark {
+  &:where([data-theme="dark"], [data-theme="dark"] *) {
+    @slot;
+  }
+  @media (prefers-color-scheme: dark) {
+    &:where(:root:not([data-theme="light"]), :root:not([data-theme="light"]) *) {
+      @slot;
+    }
+  }
+}
+
 /* ------------------------------------------------------------------
    Play4Fun design tokens
    - Semantic colors live in CSS variables so light/dark swap in one place
@@ -33,8 +45,40 @@
   --shadow-lift: 0 2px 4px rgb(21 19 31 / 0.05), 0 24px 48px -20px rgb(80 40 200 / 0.28);
 }
 
+/* Dark theme: the visitor's choice (data-theme on <html>, see components/theme-toggle.tsx),
+   otherwise the device setting. The same tokens are listed twice for the two cases. */
+:root[data-theme="dark"] {
+  /* Elevation: page < card < raised. Each step is lighter, borders are translucent white
+     so they read on every layer; "soft" tints are translucent so hues stay clean, not muddy. */
+  --bg: #09080f;
+  --surface: #15131f;
+  --surface-2: #1f1c2c;
+  --text: #f4f3fa;
+  --muted: #a9a5bf;
+  --line: rgb(255 255 255 / 0.09);
+
+  --brand: #8f73ff;
+  --brand-strong: #a993ff;
+  --brand-soft: rgb(143 115 255 / 0.16);
+  --brand-ink: #ffffff;
+  --brand-solid: #7a5cf0;
+  --brand-solid-strong: #6a4ee0;
+
+  --arcade: #ff7a52;
+  --arcade-soft: rgb(255 122 82 / 0.15);
+  --quiz: #3db1f0;
+  --quiz-soft: rgb(61 177 240 / 0.15);
+  --party: #2fc77a;
+  --party-soft: rgb(47 199 122 / 0.15);
+
+  --grid-line: rgb(255 255 255 / 0.035);
+  /* Cards: a faint top highlight + deep soft shadow instead of a grey drop shadow */
+  --shadow-card: inset 0 1px 0 rgb(255 255 255 / 0.04), 0 10px 30px -14px rgb(0 0 0 / 0.7);
+  --shadow-lift: inset 0 1px 0 rgb(255 255 255 / 0.06), 0 24px 48px -20px rgb(143 115 255 / 0.32);
+}
+
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     /* Elevation: page < card < raised. Each step is lighter, borders are translucent white
        so they read on every layer; "soft" tints are translucent so hues stay clean, not muddy. */
     --bg: #09080f;
@@ -102,8 +146,11 @@
   :root {
     color-scheme: light;
   }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+  }
   @media (prefers-color-scheme: dark) {
-    :root {
+    :root:not([data-theme="light"]) {
       color-scheme: dark;
     }
   }

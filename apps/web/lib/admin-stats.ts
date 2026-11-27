@@ -40,7 +40,7 @@ export function isAdmin(user: MaybeUser) {
 }
 
 const globalForUmami = globalThis as unknown as { __umamiSql?: Sql };
-function umamiSql() {
+export function umamiSql() {
   const url = process.env.UMAMI_DATABASE_URL;
   if (!url) return null;
   return (globalForUmami.__umamiSql ??= createSql(url));
@@ -197,7 +197,13 @@ export async function accountStats(range: Range) {
 
 // ------------------------------------------------------------ live party rooms (realtime server)
 
-export type LiveRooms = { rooms: number; players: number; byGame: Record<string, { rooms: number; playing: number; players: number }> };
+export type LiveRooms = {
+  rooms: number;
+  players: number;
+  byGame: Record<string, { rooms: number; playing: number; players: number }>;
+  /** Players waiting in "Tìm đối thủ" (random matchmaking) */
+  waiting: number;
+};
 
 export async function liveRooms(): Promise<LiveRooms | null> {
   const url = process.env.REALTIME_INTERNAL_URL;
@@ -206,7 +212,7 @@ export async function liveRooms(): Promise<LiveRooms | null> {
     const res = await fetch(`${url.replace(/\/$/, "")}/health`, { cache: "no-store", signal: AbortSignal.timeout(1500) });
     if (!res.ok) return null;
     const j = (await res.json()) as Partial<LiveRooms>;
-    return { rooms: j.rooms ?? 0, players: j.players ?? 0, byGame: j.byGame ?? {} };
+    return { rooms: j.rooms ?? 0, players: j.players ?? 0, byGame: j.byGame ?? {}, waiting: j.waiting ?? 0 };
   } catch {
     return null;
   }
