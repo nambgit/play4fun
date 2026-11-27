@@ -25,6 +25,48 @@ export type ArticleMeta = {
 
 export const ARTICLES: ArticleMeta[] = [
   {
+    slug: "cau-hoi-kien-thuc-viet-nam",
+    title: "40 câu hỏi kiến thức Việt Nam có đáp án: lịch sử, địa lý, văn hóa",
+    description: "40 câu hỏi trắc nghiệm kiến thức Việt Nam có đáp án và giải thích: lịch sử, địa lý, văn hóa, đời sống. Dùng cho lớp học, team building, kèm bài thi online 15 câu.",
+    kicker: "Đố vui",
+    games: ["kien-thuc-viet-nam", "do-vui-team-building"],
+    published: "2026-11-27",
+    updated: "2026-11-27",
+    readMinutes: 8,
+    faq: [
+      ["Có bài trắc nghiệm kiến thức Việt Nam online không?", "Có. Mỗi lượt 15 câu chia đều lịch sử, địa lý, văn hóa và đời sống, mỗi câu 20 giây, chấm thang điểm 10 kèm giải thích, lấy ngẫu nhiên từ hơn 160 câu hỏi. Miễn phí, không cần đăng ký."],
+      ["Dùng bộ câu hỏi này cho team building thế nào?", "Chia đội, đọc câu hỏi và cho mỗi đội 20–30 giây trả lời, đi từ câu đời sống dễ đến câu lịch sử khó hơn. Nếu muốn cả phòng trả lời bằng điện thoại và có bảng xếp hạng, dùng game Đố vui team building."],
+    ],
+  },
+  {
+    slug: "thoi-gian-phan-xa",
+    title: "Thời gian phản xạ trung bình bao nhiêu ms? Cách đo và cải thiện",
+    description: "Thời gian phản xạ trung bình của người trưởng thành, bảng đánh giá kết quả test phản xạ, các yếu tố làm phản xạ chậm đi và 5 cách cải thiện. Kèm bài test phản xạ online miễn phí.",
+    kicker: "Phản xạ",
+    games: ["phan-xa", "pixel-dodge"],
+    published: "2026-11-27",
+    updated: "2026-11-27",
+    readMinutes: 5,
+    faq: [
+      ["Thời gian phản xạ trung bình là bao nhiêu?", "Với phản xạ thị giác đơn giản, phần lớn người trưởng thành nằm trong khoảng 200–300 ms. Khi đo trên điện thoại hay máy tính, khoảng 250–300 ms là mức phổ biến vì có thêm độ trễ của màn hình và thiết bị."],
+      ["Làm sao để phản xạ nhanh hơn?", "Ngủ đủ giấc là cách hiệu quả nhất, sau đó là luyện tập đều đặn với bài test phản xạ hoặc game cần phản ứng nhanh, chơi thể thao như cầu lông, bóng bàn, và hạn chế phân tâm khi làm việc cần tập trung."],
+    ],
+  },
+  {
+    slug: "cach-on-thi-hieu-qua",
+    title: "Cách ôn thi hiệu quả: 7 phương pháp và lịch ôn 4 tuần",
+    description: "7 phương pháp ôn thi hiệu quả: tự kiểm tra, ôn ngắt quãng, Pomodoro, giảng lại, làm đề thử. Kèm lịch ôn thi 4 tuần và mẹo cho từng kiểu người học.",
+    kicker: "Học tập",
+    games: ["ban-hoc-kieu-gi", "bai-kiem-tra-15-phut"],
+    published: "2026-11-27",
+    updated: "2026-11-27",
+    readMinutes: 7,
+    faq: [
+      ["Phương pháp ôn thi nào hiệu quả nhất?", "Tự kiểm tra (gấp sách lại và cố nhớ, hoặc làm đề) kết hợp ôn lặp lại ngắt quãng theo thời gian hiệu quả hơn nhiều so với đọc đi đọc lại hay gạch chân."],
+      ["Có nên thức khuya ôn bài đêm trước khi thi?", "Không nên. Giấc ngủ giúp não lưu lại những gì đã học; thức trắng đêm thường khiến bạn mệt, kém tập trung và quên chính những phần vừa học. Hai ngày cuối nên học nhẹ và ngủ đủ."],
+    ],
+  },
+  {
     slug: "cach-nhan-biet-email-lua-dao",
     title: "Cách nhận biết email lừa đảo: 8 dấu hiệu dân văn phòng cần nhớ",
     description: "8 dấu hiệu nhận biết email lừa đảo (phishing) kèm ví dụ: tên miền giả, link độc, đòi OTP, file đính kèm lạ. Bảng kiểm tra nhanh và việc cần làm nếu lỡ bấm vào.",
