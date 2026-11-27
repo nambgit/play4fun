@@ -42,6 +42,12 @@ export default async function AdminPage({ searchParams }: Props) {
   const maxStarts = Math.max(1, ...soloGames.map((x) => x.s?.starts ?? 0));
   const partyGames = GAMES.filter((g) => g.type === "party");
   const partyBy = new Map(t?.party.map((p) => [p.game, p]) ?? []);
+  const liveTotals = live
+    ? Object.values(live.byGame).reduce(
+        (sum, g) => ({ players: sum.players + g.players, playingPlayers: sum.playingPlayers + g.playingPlayers, playing: sum.playing + g.playing }),
+        { players: 0, playingPlayers: 0, playing: 0 },
+      )
+    : null;
   const pageBy = new Map(t?.pages.map((p) => [p.path, p]) ?? []);
   const viewsOf = (path: string) => pageBy.get(path) ?? { views: 0, visitors: 0 };
   /** Share of a page's visitors who started a game (capped: one visitor can play many rounds) */
@@ -103,8 +109,12 @@ export default async function AdminPage({ searchParams }: Props) {
         <Stat label="Tài khoản" value={fmtNumber(acc.total)} sub={`+${fmtNumber(acc.fresh)} trong ${RANGE_LABEL[range].toLowerCase()}`} />
         <Stat
           label="Đang chơi nhóm"
-          value={live ? fmtNumber(live.players) : "—"}
-          sub={live ? `${fmtNumber(live.rooms)} phòng · ${fmtNumber(live.waiting)} người chờ ghép` : "realtime không phản hồi"}
+          value={liveTotals ? fmtNumber(liveTotals.playingPlayers) : "—"}
+          sub={
+            liveTotals
+              ? `${fmtNumber(liveTotals.playing)} phòng đang chơi · ${fmtNumber(liveTotals.players - liveTotals.playingPlayers)} người ở sảnh chờ · ${fmtNumber(live!.waiting)} chờ ghép`
+              : "realtime không phản hồi"
+          }
         />
       </section>
 
@@ -293,8 +303,18 @@ export default async function AdminPage({ searchParams }: Props) {
                 <li key={g.slug} className="py-3 text-sm">
                   <div className="flex items-baseline justify-between gap-3">
                     <span className="min-w-0 truncate font-medium">{g.title}</span>
-                    <span className={`shrink-0 text-xs ${now?.players ? "font-semibold text-party" : "text-muted"}`}>
-                      {now ? `Đang chơi: ${now.players} người · ${now.rooms} phòng` : "Không có phòng"}
+                    <span className="shrink-0 text-right text-xs">
+                      {now?.playing ? (
+                        <span className="block font-semibold text-party">
+                          Đang chơi: {now.playingPlayers} người · {now.playing} phòng
+                        </span>
+                      ) : null}
+                      {now && now.rooms > now.playing ? (
+                        <span className="block text-[#b77900] dark:text-[#ffb547]">
+                          Sảnh chờ: {now.players - now.playingPlayers} người · {now.rooms - now.playing} phòng
+                        </span>
+                      ) : null}
+                      {!now && <span className="text-muted">Không có phòng</span>}
                     </span>
                   </div>
                   <p className="mt-0.5 text-muted">
@@ -311,7 +331,10 @@ export default async function AdminPage({ searchParams }: Props) {
               );
             })}
           </ul>
-          <p className="mt-2 text-xs text-muted">Số ván trong {RANGE_LABEL[range].toLowerCase()}; cột phải là số liệu ngay lúc này.</p>
+          <p className="mt-2 text-xs text-muted">
+            Số ván trong {RANGE_LABEL[range].toLowerCase()}; cột phải là số liệu ngay lúc tải trang: “đang chơi” là phòng đã bắt đầu ván, “sảnh chờ” là phòng chưa bắt đầu. Chỉ
+            tính người đang kết nối.
+          </p>
         </section>
 
         {/* Accounts & records */}

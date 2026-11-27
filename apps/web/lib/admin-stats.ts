@@ -209,7 +209,8 @@ export async function accountStats(range: Range) {
 export type LiveRooms = {
   rooms: number;
   players: number;
-  byGame: Record<string, { rooms: number; playing: number; players: number }>;
+  /** rooms/players: occupied rooms; playing/playingPlayers: the part with a game in progress (the rest is in the lobby) */
+  byGame: Record<string, { rooms: number; playing: number; players: number; playingPlayers: number }>;
   /** Players waiting in "Tìm đối thủ" (random matchmaking) */
   waiting: number;
 };
@@ -221,7 +222,11 @@ export async function liveRooms(): Promise<LiveRooms | null> {
     const res = await fetch(`${url.replace(/\/$/, "")}/health`, { cache: "no-store", signal: AbortSignal.timeout(1500) });
     if (!res.ok) return null;
     const j = (await res.json()) as Partial<LiveRooms>;
-    return { rooms: j.rooms ?? 0, players: j.players ?? 0, byGame: j.byGame ?? {}, waiting: j.waiting ?? 0 };
+    // Older realtime versions did not split players by room status
+    const byGame = Object.fromEntries(
+      Object.entries(j.byGame ?? {}).map(([k, g]) => [k, { ...g, playingPlayers: g.playingPlayers ?? (g.playing ? g.players : 0) }]),
+    );
+    return { rooms: j.rooms ?? 0, players: j.players ?? 0, byGame, waiting: j.waiting ?? 0 };
   } catch {
     return null;
   }

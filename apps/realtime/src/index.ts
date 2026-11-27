@@ -70,16 +70,22 @@ const MODULES: Record<PartySlug, GameModule<any, any>> = {
 const httpServer = createServer((req, res) => {
   if (req.url === "/health") {
     res.writeHead(200, { "content-type": "application/json" });
-    // Live numbers for /admin (no personal data: counts only)
-    const byGame: Record<string, { rooms: number; playing: number; players: number }> = {};
+    // Live numbers for /admin (no personal data: counts only). Rooms where nobody is connected
+    // (everyone dropped, seats kept for the reconnect grace period) are left out.
+    // rooms/players = all occupied rooms; playing/playingPlayers = rooms with a game in progress.
+    const byGame: Record<string, { rooms: number; playing: number; players: number; playingPlayers: number }> = {};
     let players = 0;
     for (const room of rooms.values()) {
       const online = connectedIds(room).length;
+      if (!online) continue;
       players += online;
-      const g = (byGame[room.gameSlug] ??= { rooms: 0, playing: 0, players: 0 });
+      const g = (byGame[room.gameSlug] ??= { rooms: 0, playing: 0, players: 0, playingPlayers: 0 });
       g.rooms++;
       g.players += online;
-      if (room.status === "playing") g.playing++;
+      if (room.status === "playing") {
+        g.playing++;
+        g.playingPlayers += online;
+      }
     }
     const waiting = [...queues.values()].reduce((n, q) => n + q.length, 0);
     res.end(JSON.stringify({ status: "ok", rooms: rooms.size, players, byGame, waiting }));
