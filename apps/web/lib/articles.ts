@@ -25,6 +25,48 @@ export type ArticleMeta = {
 
 export const ARTICLES: ArticleMeta[] = [
   {
+    slug: "cac-kieu-dong-nghiep",
+    title: "5 kiểu đồng nghiệp nơi công sở và cách làm việc ăn ý",
+    description: "5 kiểu đồng nghiệp quen thuộc: chiến thần deadline, người giữ nhịp, đại sứ trà sữa, ngôi sao ý tưởng, người chữa cháy. Điểm mạnh, điểm cần lưu ý và cách làm việc ăn ý với từng kiểu.",
+    kicker: "Văn phòng",
+    games: ["ban-la-kieu-dong-nghiep-nao", "ai-de-nhat"],
+    published: "2026-11-27",
+    updated: "2026-11-27",
+    readMinutes: 5,
+    faq: [
+      ["Có những kiểu đồng nghiệp nào?", "Năm kiểu phổ biến là Chiến thần deadline (bứt tốc khi gần hạn), Người giữ nhịp (lên kế hoạch, đúng hẹn), Đại sứ trà sữa (kết nối mọi người), Ngôi sao ý tưởng (sáng tạo) và Người chữa cháy (xử lý sự cố)."],
+      ["Làm sao làm việc tốt với đồng nghiệp hay để việc sát deadline?", "Thống nhất vài mốc trung gian rõ ràng, ví dụ ngày gửi bản nháp, thay vì hối thúc hằng ngày. Kiểu đồng nghiệp này làm tốt nhất khi có mốc cụ thể."],
+    ],
+  },
+  {
+    slug: "game-ne-dan",
+    title: "Game né đạn (bullet hell) là gì? 8 mẹo chơi sống lâu hơn",
+    description: "Game né đạn bullet hell là gì: hitbox, pattern, graze, cảnh báo. 8 mẹo né đạn sống lâu hơn: di chuyển nhỏ, tránh góc màn hình, nhìn khoảng trống, dụ đạn đuổi. Kèm game né đạn online miễn phí.",
+    kicker: "Game",
+    games: ["pixel-dodge", "phan-xa"],
+    published: "2026-11-27",
+    updated: "2026-11-27",
+    readMinutes: 5,
+    faq: [
+      ["Game bullet hell là gì?", "Là thể loại game né đạn, màn hình phủ kín đạn theo những hình mẫu dày đặc và người chơi phải luồn qua các khe hở để sống sót. Vùng va chạm của nhân vật thường rất nhỏ nên vẫn né được dù đạn rất dày."],
+      ["Làm sao né đạn giỏi hơn?", "Di chuyển từng bước nhỏ, ở gần giữa màn hình thay vì góc, nhìn khoảng trống phía trước thay vì từng viên đạn, và phản ứng ngay khi thấy dấu hiệu báo trước một đợt tấn công."],
+    ],
+  },
+  {
+    slug: "van-hoa-di-thang-may",
+    title: "Văn hóa đi thang máy nơi công sở: 10 phép lịch sự giờ cao điểm",
+    description: "10 phép lịch sự khi đi thang máy văn phòng: đứng hai bên cửa, đi sâu vào trong, nhường người cần ưu tiên. Vì sao giờ cao điểm thang chậm, mẹo đỡ chờ lâu và cần làm gì khi kẹt thang.",
+    kicker: "Văn phòng",
+    games: ["thang-may", "deadline-dash"],
+    published: "2026-11-27",
+    updated: "2026-11-27",
+    readMinutes: 4,
+    faq: [
+      ["Đi thang máy thế nào cho lịch sự?", "Đứng sang hai bên cửa để người trong ra trước, vào rồi thì đi sâu vào trong, hỏi và bấm tầng giúp người khác, nói nhỏ, nhường người lớn tuổi, phụ nữ mang thai và người mang đồ nặng."],
+      ["Bị kẹt thang máy thì phải làm gì?", "Giữ bình tĩnh, bấm nút chuông hoặc gọi khẩn cấp trong thang, gọi số cứu hộ dán trong cabin hoặc quản lý tòa nhà. Không tự cạy cửa hay trèo ra ngoài."],
+    ],
+  },
+  {
     slug: "cach-choi-co-caro",
     title: "Cách chơi cờ caro luôn thắng: luật chơi, thế cờ và 10 mẹo",
     description: "Luật chơi cờ caro, luật chặn hai đầu, các thế cờ ba mở, bốn mở và đòn đe dọa kép (bốn – ba, ba – ba) để thắng. Kèm 10 mẹo chơi caro giỏi hơn và chơi caro online miễn phí.",
