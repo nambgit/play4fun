@@ -88,6 +88,8 @@ const PLAYABLE: Record<string, { Game: ComponentType<GameProps>; frame: Frame }>
   },
   "ma-soi": { Game: dynamic(() => import("@/games/party/wolf"), { ssr: false, loading: skeleton("light") }), frame: "light" },
   "ai-hieu-ai": { Game: dynamic(() => import("@/games/party/hieu"), { ssr: false, loading: skeleton("light") }), frame: "light" },
+  "ai-de-nhat": { Game: dynamic(() => import("@/games/party/aide"), { ssr: false, loading: skeleton("light") }), frame: "light" },
+  "noi-tu-doi-khang": { Game: dynamic(() => import("@/games/party/duel"), { ssr: false, loading: skeleton("light") }), frame: "light" },
 };
 
 export function GameStage({ slug }: { slug: string }) {

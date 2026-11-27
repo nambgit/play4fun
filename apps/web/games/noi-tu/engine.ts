@@ -7,44 +7,15 @@
  * may be used once per game. Running out of time costs a heart; when the computer cannot
  * continue, the player earns a bonus and the computer starts a new chain.
  */
-import { WORDS } from "./dictionary";
+import { continuable, coreWords, dictionarySize as DICT_SIZE, followers, lastSyllable, lookup, norm, preferCore } from "@play4fun/party/noi-tu";
+
+export { norm, sylKey } from "@play4fun/party/noi-tu";
+export { lastSyllable };
 
 export const MAX_LIVES = 3;
 const FIRST_TURN_S = 15;
 const MIN_TURN_S = 8;
 const BOT_BONUS = 3;
-
-export const norm = (s: string) => s.normalize("NFC").toLowerCase().trim().replace(/\s+/g, " ");
-const syllables = (w: string) => w.split(" ");
-
-const TONES = /[̣̀́̃̉]/g;
-/**
- * Spelling-independent key of a syllable: the tone mark is moved to the end, so the old and new
- * tone placements match ("hòa" = "hoà", "thủy" = "thuỷ").
- */
-export function sylKey(syl: string) {
-  const d = norm(syl).normalize("NFD");
-  const tone = d.match(TONES)?.[0] ?? "";
-  return d.replace(TONES, "").normalize("NFC") + tone;
-}
-const wordKey = (w: string) => syllables(w).map(sylKey).join(" ");
-
-/** First-syllable key → words starting with it (dictionary spelling) */
-const BY_FIRST = new Map<string, string[]>();
-/** Word key → dictionary spelling */
-const ALL = new Map<string, string>();
-for (const raw of WORDS) {
-  const w = norm(raw);
-  const k = wordKey(w);
-  if (ALL.has(k) || syllables(w).length !== 2) continue;
-  ALL.set(k, w);
-  const first = sylKey(syllables(w)[0]);
-  const list = BY_FIRST.get(first);
-  if (list) list.push(w);
-  else BY_FIRST.set(first, [w]);
-}
-
-export const lastSyllable = (w: string) => syllables(w)[1];
 
 export type Entry = { word: string; by: "bot" | "me" };
 export type Feedback = { text: string; good: boolean; t: number };
@@ -78,12 +49,10 @@ function makeRng(seed: number) {
   };
 }
 
-const unusedFollowers = (s: GameState, syl: string) => (BY_FIRST.get(sylKey(syl)) ?? []).filter((w) => !s.used.has(w));
+const unusedFollowers = (s: GameState, syl: string) => followers(syl, s.used);
 
 /** Words the player can continue after (at least two unused followers): a fair turn */
-function playable(s: GameState, words: string[]) {
-  return words.filter((w) => !s.used.has(w) && unusedFollowers(s, lastSyllable(w)).filter((f) => f !== w).length >= 2);
-}
+const playable = (s: GameState, words: string[]) => continuable(words, s.used, 2);
 
 function botSay(s: GameState, word: string) {
   s.used.add(word);
@@ -95,7 +64,7 @@ function botSay(s: GameState, word: string) {
 
 /** Computer opens a fresh chain with an easy-to-continue word */
 function botOpen(s: GameState) {
-  const all = [...ALL.values()];
+  const all = coreWords();
   const starts = playable(s, all);
   const pool = starts.length ? starts : all.filter((w) => !s.used.has(w));
   botSay(s, pool[Math.floor(s.rng() * pool.length)]);
@@ -133,7 +102,7 @@ export function play(s: GameState, second: string): "ok" | "unknown" | "used" | 
   const tail = norm(second).split(" ")[0] ?? "";
   if (!tail) return "empty";
   const typedWord = `${s.need} ${tail}`;
-  const word = ALL.get(wordKey(typedWord));
+  const word = lookup(typedWord);
   if (!word) {
     s.feedback = { text: `“${typedWord}” chưa có trong từ điển`, good: false, t: 0 };
     return "unknown";
@@ -159,8 +128,8 @@ export function play(s: GameState, second: string): "ok" | "unknown" | "used" | 
     return "ok";
   }
   // The computer usually keeps the game easy to continue, sometimes it plays a harder word
-  const fair = playable(s, possible);
-  const pool = fair.length && s.rng() < 0.85 ? fair : possible;
+  const fair = preferCore(playable(s, possible));
+  const pool = fair.length && s.rng() < 0.85 ? fair : preferCore(possible);
   s.feedback = null;
   botSay(s, pool[Math.floor(s.rng() * pool.length)]);
   return "ok";
@@ -173,7 +142,7 @@ export function skip(s: GameState) {
 }
 
 function loseLife(s: GameState, text: string) {
-  s.missed = { syl: s.need, ex: unusedFollowers(s, s.need).slice(0, 3) };
+  s.missed = { syl: s.need, ex: preferCore(unusedFollowers(s, s.need)).slice(0, 3) };
   s.lives--;
   s.feedback = { text, good: false, t: 0 };
   if (s.lives <= 0) {
@@ -195,9 +164,9 @@ export function tick(s: GameState, dt: number) {
 }
 
 /** A few words the player could have used (shown after a timeout or at the end) */
-export const examples = (s: GameState, syl: string, n = 3) => unusedFollowers(s, syl).slice(0, n);
+export const examples = (s: GameState, syl: string, n = 3) => preferCore(unusedFollowers(s, syl)).slice(0, n);
 
-export const dictionarySize = ALL.size;
+export const dictionarySize = DICT_SIZE;
 
 const RANKS: [number, string][] = [
   [10, "Mới khởi động"],

@@ -1,7 +1,7 @@
 "use client";
 
 import { PARTY_GAMES, type GameView, type PartySettings, type PartySlug, type PlayerView, type RoomBrand, type RoomPublic, type ServerState } from "@play4fun/party";
-import { Check, Copy, Crown, DoorOpen, LogIn, Plus, Share2, UserX, Users, WifiOff, X } from "lucide-react";
+import { Bot, Check, Copy, Crown, DoorOpen, LogIn, Plus, Search, Share2, UserX, Users, WifiOff, X } from "lucide-react";
 import QRCode from "qrcode";
 import { useEffect, useMemo, useState, type ComponentType, type ReactNode } from "react";
 import { useSession } from "@/lib/auth-client";
@@ -50,9 +50,11 @@ type Props = {
   rules: ReactNode;
   Settings: ComponentType<SettingsProps<any>>; // eslint-disable-line @typescript-eslint/no-explicit-any
   Game: ComponentType<GameProps<any>>; // eslint-disable-line @typescript-eslint/no-explicit-any
+  /** Optional "play against the computer" button on the entry screen (two-player games) */
+  offline?: { label: string; onStart: () => void };
 };
 
-export function PartyRoom({ slug, title, emoji, accent, rules, Settings, Game }: Props) {
+export function PartyRoom({ slug, title, emoji, accent, rules, Settings, Game, offline }: Props) {
   const api = useParty(slug);
   const { state, conn } = api;
 
@@ -66,7 +68,7 @@ export function PartyRoom({ slug, title, emoji, accent, rules, Settings, Game }:
           </div>
         )}
         {!state ? (
-          <Entry api={api} slug={slug} title={title} emoji={emoji} accent={accent} />
+          <Entry api={api} slug={slug} title={title} emoji={emoji} accent={accent} offline={offline} />
         ) : state.room.status === "lobby" ? (
           <Lobby api={api} state={state} slug={slug} title={title} emoji={emoji} accent={accent} rules={rules} Settings={Settings} />
         ) : state.game ? (
@@ -79,11 +81,25 @@ export function PartyRoom({ slug, title, emoji, accent, rules, Settings, Game }:
 
 // ------------------------------------------------------------ entry
 
-function Entry({ api, slug, title, emoji, accent }: { api: PartyApi; slug: PartySlug; title: string; emoji: string; accent: [string, string] }) {
+function Entry({
+  api,
+  slug,
+  title,
+  emoji,
+  accent,
+  offline,
+}: {
+  api: PartyApi;
+  slug: PartySlug;
+  title: string;
+  emoji: string;
+  accent: [string, string];
+  offline?: Props["offline"];
+}) {
   const [name, setName] = useState("");
   const [code, setCode] = useState("");
   const [invited, setInvited] = useState(false);
-  const [busy, setBusy] = useState<"create" | "join" | null>(null);
+  const [busy, setBusy] = useState<"create" | "join" | "match" | null>(null);
   const [error, setError] = useState<string | null>(null);
   const limits = PARTY_GAMES[slug];
 
@@ -98,16 +114,53 @@ function Entry({ api, slug, title, emoji, accent }: { api: PartyApi; slug: Party
     }
   }, []);
 
-  const go = async (kind: "create" | "join") => {
+  const go = async (kind: "create" | "join" | "match") => {
     const n = name.trim();
     if (!n) return setError("Nhập tên của bạn trước nhé.");
     if (kind === "join" && code.trim().length !== 5) return setError("Mã phòng gồm 5 ký tự.");
     setBusy(kind);
     setError(null);
-    const err = kind === "create" ? await api.create(n) : await api.join(code.trim(), n);
+    const err = kind === "create" ? await api.create(n) : kind === "match" ? await api.findMatch(n) : await api.join(code.trim(), n);
     setBusy(null);
     setError(err);
   };
+
+  if (api.searching) {
+    return (
+      <div className="grid min-h-[488px] place-items-center">
+        <div className="w-full max-w-sm text-center">
+          <span className="relative mx-auto grid h-20 w-20 place-items-center" aria-hidden="true">
+            <span className="absolute inset-0 animate-ping rounded-full opacity-30" style={{ background: accent[0] }} />
+            <span className="relative grid h-16 w-16 place-items-center rounded-2xl text-3xl shadow-lift" style={{ backgroundImage: `linear-gradient(135deg, ${accent[0]}, ${accent[1]})` }}>
+              {emoji}
+            </span>
+          </span>
+          <h2 className="mt-6 text-xl font-extrabold">Đang tìm đối thủ…</h2>
+          <p className="mt-1 text-sm text-muted" role="status">
+            Trận đấu bắt đầu ngay khi có người cùng tìm. Mời thêm bạn bè vào trang này để ghép nhanh hơn!
+          </p>
+          <div className="mt-6 flex flex-col gap-2">
+            <button type="button" onClick={api.cancelMatch} className="btn-ghost h-11">
+              <X className="h-4 w-4" aria-hidden="true" />
+              Hủy tìm
+            </button>
+            {offline && (
+              <button
+                type="button"
+                onClick={() => {
+                  api.cancelMatch();
+                  offline.onStart();
+                }}
+                className="text-sm text-muted underline hover:text-fg"
+              >
+                Chán chờ? {offline.label}
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="grid min-h-[488px] place-items-center">
@@ -121,7 +174,7 @@ function Entry({ api, slug, title, emoji, accent }: { api: PartyApi; slug: Party
         </span>
         <h2 className="mt-4 text-2xl font-extrabold tracking-tight sm:text-3xl">{title}</h2>
         <p className="mt-1 text-sm text-muted">
-          {limits.minPlayers}–{limits.maxPlayers} người · mỗi người dùng điện thoại của mình
+          {limits.minPlayers === limits.maxPlayers ? `${limits.minPlayers} người` : `${limits.minPlayers}–${limits.maxPlayers} người`} · mỗi người dùng điện thoại của mình
         </p>
         {invited && (
           <p className="mx-auto mt-4 w-fit rounded-full bg-brand-soft px-3 py-1 text-sm font-semibold text-brand">
@@ -143,11 +196,22 @@ function Entry({ api, slug, title, emoji, accent }: { api: PartyApi; slug: Party
           className="mt-1.5 h-12 w-full rounded-xl border border-line bg-surface px-4 text-base outline-none focus:border-brand focus:ring-2 focus:ring-brand/20"
         />
 
+        {limits.matchmaking && !invited && (
+          <button type="button" onClick={() => go("match")} disabled={!!busy || api.conn !== "online"} className="btn-primary mt-4 h-12 w-full text-base disabled:opacity-60">
+            <Search className="h-4 w-4" aria-hidden="true" />
+            {busy === "match" ? "Đang vào hàng chờ…" : "Tìm đối thủ ngẫu nhiên"}
+          </button>
+        )}
         <div className={`mt-4 grid gap-3 ${invited ? "" : "sm:grid-cols-2"}`}>
           {!invited && (
-            <button type="button" onClick={() => go("create")} disabled={!!busy || api.conn !== "online"} className="btn-primary h-12 disabled:opacity-60">
+            <button
+              type="button"
+              onClick={() => go("create")}
+              disabled={!!busy || api.conn !== "online"}
+              className={`${limits.matchmaking ? "btn-ghost" : "btn-primary"} h-12 disabled:opacity-60`}
+            >
               <Plus className="h-4 w-4" aria-hidden="true" />
-              {busy === "create" ? "Đang tạo…" : "Tạo phòng mới"}
+              {busy === "create" ? "Đang tạo…" : limits.matchmaking ? "Tạo phòng mời bạn" : "Tạo phòng mới"}
             </button>
           )}
           <div className="flex gap-2">
@@ -174,6 +238,12 @@ function Entry({ api, slug, title, emoji, accent }: { api: PartyApi; slug: Party
         {invited && (
           <button type="button" onClick={() => setInvited(false)} className="mt-3 text-xs text-muted underline hover:text-fg">
             Hoặc tạo phòng mới
+          </button>
+        )}
+        {offline && !invited && (
+          <button type="button" onClick={offline.onStart} className="btn-ghost mt-3 h-12 w-full">
+            <Bot className="h-4 w-4" aria-hidden="true" />
+            {offline.label}
           </button>
         )}
         {error && (
@@ -276,6 +346,16 @@ function Lobby({
             <p className="mt-3 text-xs text-muted">
               Cần thêm {limits.minPlayers - online} người nữa để bắt đầu. Gửi mã phòng cho bạn bè nhé!
             </p>
+          )}
+          {limits.matchmaking && online < limits.minPlayers && (
+            <button
+              type="button"
+              onClick={async () => setError(await api.findMatch(room.players.find((p) => p.id === me)?.name ?? "Người chơi"))}
+              className="btn-ghost mt-3 h-10 w-full text-sm"
+            >
+              <Search className="h-4 w-4" aria-hidden="true" />
+              Hoặc tìm đối thủ ngẫu nhiên
+            </button>
           )}
         </section>
       </div>

@@ -162,7 +162,7 @@ export const GAME_SEO: Record<string, GameSeo> = {
   },
   "noi-tu": {
     title: "Nối từ online – Chơi nối từ tiếng Việt với máy",
-    description: "Trò chơi nối từ tiếng Việt: máy nói một từ, bạn nối tiếng cuối thành từ mới trong thời gian ngắn dần. Hơn 5.000 từ ghép thông dụng, làm máy bí để ăn điểm. Miễn phí.",
+    description: "Trò chơi nối từ tiếng Việt: máy nói một từ, bạn nối tiếng cuối thành từ mới trong thời gian ngắn dần. Hơn 20.000 từ ghép thông dụng, làm máy bí để ăn điểm. Miễn phí.",
     genre: "Word game",
     faq: [
       ["Luật chơi nối từ là gì?", "Mỗi từ có hai tiếng. Từ tiếp theo phải bắt đầu bằng tiếng cuối của từ trước, ví dụ “học sinh” → “sinh viên” → “viên chức”. Mỗi từ chỉ dùng một lần trong ván."],
@@ -259,6 +259,28 @@ export const GAME_SEO: Record<string, GameSeo> = {
       PARTY_JOIN,
     ],
   },
+  "ai-de-nhat": {
+    title: "Ai dễ… nhất? – Game bình chọn vui chơi nhóm online",
+    description: "Game chơi nhóm cho đồng nghiệp và hội bạn: “Ai dễ ngủ gật trong họp nhất?”, cả nhóm bình chọn ẩn danh trên điện thoại, đoán trúng số đông để ăn điểm, nhận danh hiệu vui. Hơn 130 câu, 3–20 người, miễn phí.",
+    genre: "Party game",
+    faq: [
+      ["Cách chơi Ai dễ… nhất?", "Mỗi câu hiện một tình huống như “Ai dễ quên tắt mic khi họp online nhất?”. Mọi người bí mật chọn một người khác trong phòng trên điện thoại của mình, rồi cùng xem kết quả bình chọn."],
+      ["Điểm được tính ra sao?", "Chọn trùng người được nhiều phiếu nhất được 100 điểm, nên phải đoán xem cả nhóm nghĩ gì. Người được gọi tên nhiều nhất nhận danh hiệu vui của câu đó (ví dụ “Thánh ngủ gật”) và 50 điểm."],
+      ["Có ai biết mình bị chọn bởi ai không?", "Không. Phiếu bầu ẩn danh, chỉ hiện tổng số phiếu của mỗi người. Câu hỏi đều nhẹ nhàng về thói quen, sở thích, không đụng ngoại hình hay chuyện riêng tư."],
+      PARTY_JOIN,
+    ],
+  },
+  "noi-tu-doi-khang": {
+    title: "Nối từ đối kháng – Chơi nối từ 2 người online, đấu với máy",
+    description: "Chơi nối từ tiếng Việt 2 người online: ghép ngẫu nhiên với người lạ, tạo phòng mời bạn bè hoặc đấu với máy. Từ điển hơn 20.000 từ, làm đối thủ bí từ để thắng. Miễn phí, không cần cài.",
+    genre: "Word game",
+    faq: [
+      ["Chơi nối từ 2 người online thế nào?", "Bấm “Tìm đối thủ ngẫu nhiên” để được ghép với người đang chờ, hoặc “Tạo phòng mời bạn” rồi gửi link, mã phòng cho bạn bè. Hai người thay phiên nối từ: từ sau bắt đầu bằng tiếng cuối của từ trước, mỗi lượt có giới hạn thời gian."],
+      ["Không có ai chơi cùng thì sao?", "Chọn “Chơi với máy”. Mức Dễ máy dùng từ thông dụng; mức Khó máy chủ động tìm từ làm bạn bí."],
+      ["Khi nào thắng một hiệp?", "Khi đối thủ hết giờ hoặc bỏ cuộc, hoặc khi bạn nói được từ mà không còn từ nào bắt đầu bằng tiếng cuối của nó. Gõ sai từ không bị trừ lượt, chỉ cần thử lại trước khi hết giờ."],
+      ["Từ điển có bao nhiêu từ?", "Hơn 20.000 từ ghép hai tiếng thông dụng. Máy chủ kiểm tra từng từ nên không ai gian lận được."],
+    ],
+  },
 };
 
 export type CategorySeo = { path: string; title: string; h1: string; description: string; intro: string[]; faq: Faq[] };
@@ -298,13 +320,13 @@ export const CATEGORY_SEO: Record<GameType, CategorySeo> = {
     path: "/choi-nhom",
     title: "Game chơi nhóm online trên điện thoại – Party game miễn phí",
     h1: "Game chơi nhóm online",
-    description: "Party game chơi nhóm miễn phí: Ma sói, Ai là gián điệp, vẽ đoán chữ, đố vui team building, Ai hiểu ai nhất. Vào phòng bằng mã hoặc QR trên điện thoại.",
+    description: "Party game chơi nhóm miễn phí: Ma sói, Ai là gián điệp, vẽ đoán chữ, đố vui team building, Ai hiểu ai nhất, Ai dễ… nhất, nối từ đối kháng 2 người. Vào phòng bằng mã hoặc QR trên điện thoại.",
     intro: [
       "Hợp cho buổi họp đầu tuần, tiệc công ty, lớp học hay hội bạn tụ tập. Một người tạo phòng và gửi mã, mọi người vào bằng điện thoại của mình, không cần cài app hay tạo tài khoản.",
       "Ở xa nhau vẫn chơi được: vào cùng một phòng rồi gọi video qua Zoom, Google Meet, Messenger hoặc Zalo.",
     ],
     faq: [
-      ["Game nào hợp cho team building?", "Đố vui team building cho tối đa 50 người, có thể tự soạn câu hỏi về công ty kèm logo. Ai hiểu ai nhất (2–20 người) giúp đồng nghiệp hiểu nhau hơn. Nhóm nhỏ thì Ai là gián điệp, Vẽ & đoán hoặc Ma sói (5–16 người) rất dễ khuấy động không khí."],
+      ["Game nào hợp cho team building?", "Đố vui team building cho tối đa 50 người, có thể tự soạn câu hỏi về công ty kèm logo. Ai hiểu ai nhất (2–20 người) giúp đồng nghiệp hiểu nhau hơn, Ai dễ… nhất (3–20 người) là trò bình chọn vui khởi động rất nhanh. Nhóm nhỏ thì Ai là gián điệp, Vẽ & đoán hoặc Ma sói (5–16 người) rất dễ khuấy động không khí."],
       PARTY_JOIN,
       PARTY_REMOTE,
     ],

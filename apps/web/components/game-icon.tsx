@@ -21,6 +21,8 @@ import {
   VenetianMask,
   Zap,
   type LucideIcon,
+  Vote,
+  Swords,
 } from "lucide-react";
 import type { GameIcon as GameIconKey } from "@/lib/games";
 
@@ -46,6 +48,8 @@ const ICONS: Record<GameIconKey, LucideIcon> = {
   flag: Flag,
   moon: Moon,
   hearts: HeartHandshake,
+  vote: Vote,
+  swords: Swords,
 };
 
 export function GameIcon({ name, className }: { name: GameIconKey; className?: string }) {

@@ -8,14 +8,26 @@
 
 // ------------------------------------------------------------ games & limits
 
-export type PartySlug = "ai-la-gian-diep" | "ve-doan-chu" | "do-vui-team-building" | "ma-soi" | "ai-hieu-ai";
+export type PartySlug = "ai-la-gian-diep" | "ve-doan-chu" | "do-vui-team-building" | "ma-soi" | "ai-hieu-ai" | "ai-de-nhat" | "noi-tu-doi-khang";
 
-export const PARTY_GAMES: Record<PartySlug, { minPlayers: number; maxPlayers: number; /** players may join a game already running */ lateJoin: boolean }> = {
+export const PARTY_GAMES: Record<
+  PartySlug,
+  {
+    minPlayers: number;
+    maxPlayers: number;
+    /** players may join a game already running */
+    lateJoin: boolean;
+    /** "Tìm đối thủ": random pairing with a stranger (two-player games) */
+    matchmaking?: boolean;
+  }
+> = {
   "ai-la-gian-diep": { minPlayers: 3, maxPlayers: 12, lateJoin: false },
   "ve-doan-chu": { minPlayers: 2, maxPlayers: 12, lateJoin: true },
   "do-vui-team-building": { minPlayers: 2, maxPlayers: 50, lateJoin: true },
   "ma-soi": { minPlayers: 5, maxPlayers: 16, lateJoin: false },
   "ai-hieu-ai": { minPlayers: 2, maxPlayers: 20, lateJoin: true },
+  "ai-de-nhat": { minPlayers: 3, maxPlayers: 20, lateJoin: true },
+  "noi-tu-doi-khang": { minPlayers: 2, maxPlayers: 2, lateJoin: false, matchmaking: true },
 };
 
 export const isPartySlug = (s: unknown): s is PartySlug => typeof s === "string" && s in PARTY_GAMES;
@@ -37,8 +49,12 @@ export type TriviaSettings = { count: number; seconds: number; category: TriviaC
 export type WolfSettings = { wolves: number; seer: boolean; guard: boolean; talkSeconds: number };
 /** Ai hiểu ai nhất: number of turns (hot seats) and answer time */
 export type HieuSettings = { turns: number; seconds: number };
+/** Ai dễ… nhất: number of prompts and voting time */
+export type AiDeSettings = { rounds: number; seconds: number };
+/** Nối từ đối kháng: rounds needed to win the match and seconds per turn */
+export type DuelSettings = { target: number; seconds: number };
 
-export type PartySettings = SpySettings | DrawSettings | TriviaSettings | WolfSettings | HieuSettings;
+export type PartySettings = SpySettings | DrawSettings | TriviaSettings | WolfSettings | HieuSettings | AiDeSettings | DuelSettings;
 
 export const TRIVIA_CATEGORY_LABEL: Record<TriviaCategory, string> = {
   all: "Tất cả chủ đề",
@@ -55,6 +71,11 @@ export const TRIVIA_SECONDS_OPTIONS = [15, 20, 30];
 export const WOLF_TALK_OPTIONS = [60, 120, 180];
 export const HIEU_TURN_OPTIONS = [5, 10, 15];
 export const HIEU_SECONDS_OPTIONS = [20, 30];
+export const AIDE_ROUND_OPTIONS = [8, 12, 16];
+export const AIDE_SECONDS_OPTIONS = [15, 25];
+/** First to 2 (best of 3), 3 (best of 5) or 4 (best of 7) rounds */
+export const DUEL_TARGET_OPTIONS = [2, 3, 4];
+export const DUEL_SECONDS_OPTIONS = [10, 15, 20];
 
 /** Werewolves must stay a minority: 5–7 players → 1, 8–11 → 2, 12–15 → 3, 16 → 4 */
 export const maxWolves = (players: number) => Math.max(1, Math.min(4, Math.floor(players / 4)));
@@ -74,6 +95,10 @@ export function defaultSettings(slug: PartySlug): PartySettings {
       return { wolves: 1, seer: true, guard: true, talkSeconds: 120 } satisfies WolfSettings;
     case "ai-hieu-ai":
       return { turns: 10, seconds: 20 } satisfies HieuSettings;
+    case "ai-de-nhat":
+      return { rounds: 12, seconds: 15 } satisfies AiDeSettings;
+    case "noi-tu-doi-khang":
+      return { target: 3, seconds: 15 } satisfies DuelSettings;
   }
 }
 
@@ -108,6 +133,8 @@ export type ServerState = {
 };
 
 export type JoinResult = { ok: true; state: ServerState } | { ok: false; error: JoinError };
+/** "match:find": paired at once (state), or queued until an opponent shows up (room:state follows) */
+export type MatchResult = { ok: true; state: ServerState } | { ok: true; waiting: true } | { ok: false; error: JoinError };
 export type JoinError = "invalid_input" | "room_not_found" | "game_in_progress" | "room_full" | "unknown_game";
 
 export const JOIN_ERROR_TEXT: Record<JoinError, string> = {
@@ -120,7 +147,7 @@ export const JOIN_ERROR_TEXT: Record<JoinError, string> = {
 
 // ------------------------------------------------------------ game views
 
-export type GameView = SpyView | DrawView | TriviaView | WolfView | HieuView;
+export type GameView = SpyView | DrawView | TriviaView | WolfView | HieuView | AiDeView | DuelView;
 
 export type SpyPhase = "reveal" | "describe" | "vote" | "result" | "over";
 export type SpyView = {
@@ -256,6 +283,58 @@ export type HieuView = {
   scores: Record<string, number>;
 };
 
+export type AiDePhase = "vote" | "reveal" | "over";
+export type AiDeView = {
+  kind: "aide";
+  phase: AiDePhase;
+  round: number;
+  totalRounds: number;
+  /** "Ai dễ ngủ gật trong cuộc họp nhất?" */
+  prompt: string;
+  /** Award the most-voted player gets ("Thánh ngủ gật") */
+  title: string;
+  endsAt: number;
+  /** Who has voted (not for whom: votes stay anonymous) */
+  voted: string[];
+  myVote: string | null;
+  /** After the round: votes received per player, and the most-voted (ties share the title) */
+  tally: Record<string, number> | null;
+  winners: string[] | null;
+  gains: Record<string, number> | null;
+  scores: Record<string, number>;
+  /** Awards won so far, per player */
+  titles: Record<string, string[]>;
+};
+
+export type DuelPhase = "play" | "roundEnd" | "over";
+export type DuelView = {
+  kind: "duel";
+  phase: DuelPhase;
+  /** The two players (side 0, side 1) */
+  seats: [string, string];
+  /** Player whose turn it is */
+  turn: string;
+  /** Syllable the next word must start with */
+  need: string;
+  /** Words this round; by = null for the opening word */
+  chain: { word: string; by: string | null }[];
+  endsAt: number;
+  roundNo: number;
+  target: number;
+  wins: Record<string, number>;
+  /** After a round */
+  roundWinner: string | null;
+  reason: "stuck" | "timeout" | "skip" | null;
+  /** Words that could have been played (after a timeout / give-up) */
+  hints: string[] | null;
+  /** When the next round starts (phase roundEnd) */
+  nextAt: number;
+  /** Your last rejected word, only in your own view */
+  myError: { text: string; at: number } | null;
+  /** Players who asked for a rematch (phase over) */
+  rematch: string[];
+};
+
 // ------------------------------------------------------------ client → server game actions
 
 export type GameAction =
@@ -284,6 +363,14 @@ export type GameAction =
   | { type: "hieu:pick"; index: number }
   | { type: "hieu:close" }
   | { type: "hieu:next" }
+  // ai dễ… nhất
+  | { type: "aide:vote"; target: string }
+  | { type: "aide:close" }
+  | { type: "aide:next" }
+  // nối từ đối kháng
+  | { type: "duel:word"; text: string }
+  | { type: "duel:skip" }
+  | { type: "duel:rematch" }
   // any game: host starts a fresh game with the same players
   | { type: "again" };
 

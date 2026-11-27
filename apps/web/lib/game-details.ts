@@ -212,6 +212,26 @@ export const GAME_DETAILS: Record<string, GameDetails> = {
       "Ai cũng được lên ghế nóng. Cuối game có bảng xếp hạng.",
     ],
   },
+  "ai-de-nhat": {
+    description: "Game bình chọn vui cho hội bạn, đồng nghiệp và buổi team building. Mỗi câu hỏi kiểu “Ai dễ ngủ gật trong cuộc họp nhất?”, cả nhóm bí mật bình chọn một người trong phòng. Phiếu ẩn danh; ai chọn trùng số đông được điểm, người được gọi tên nhiều nhất nhận danh hiệu vui.",
+    howTo: [
+      "Một người tạo phòng, mọi người vào bằng mã phòng hoặc quét QR. Cần ít nhất 3 người, đến muộn vẫn vào được.",
+      "Mỗi câu hiện một tình huống vui, ví dụ “Ai dễ quên tắt mic khi họp online nhất?”.",
+      "Mọi người bí mật chọn một người khác trong phòng. Chỉ hiện tổng số phiếu, không lộ ai chọn ai.",
+      "Chọn trùng người được nhiều phiếu nhất được 100 điểm; người đó nhận danh hiệu và 50 điểm.",
+      "Cuối game có bảng xếp hạng và danh sách danh hiệu của từng người.",
+    ],
+  },
+  "noi-tu-doi-khang": {
+    description: "Nối từ tiếng Việt đấu 1-1 trực tuyến. Bấm “Tìm đối thủ” để ghép ngẫu nhiên với người đang chờ, tạo phòng gửi link cho bạn bè, hoặc đấu với máy hai mức dễ và khó. Máy chủ kiểm tra từng từ với từ điển hơn 20.000 từ ghép.",
+    howTo: [
+      "Chọn cách chơi: tìm đối thủ ngẫu nhiên, tạo phòng mời bạn (gửi link hoặc mã phòng), hoặc chơi với máy.",
+      "Mỗi hiệp mở đầu bằng một từ. Hai người thay phiên gõ tiếng tiếp theo, ví dụ “học sinh” → “sinh viên”.",
+      "Gõ sai không mất lượt, nhưng hết giờ hoặc bỏ cuộc là thua hiệp.",
+      "Nói được từ khiến đối thủ không còn từ nào để nối là thắng hiệp ngay.",
+      "Ai thắng đủ số hiệp trước (mặc định chạm 3) là thắng trận. Bấm “Chơi lại” để đấu tiếp.",
+    ],
+  },
 };
 
 export const gameDetails = (slug: string): GameDetails => GAME_DETAILS[slug] ?? { description: "" };

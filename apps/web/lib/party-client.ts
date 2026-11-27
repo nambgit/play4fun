@@ -6,6 +6,7 @@ import {
   type DrawOp,
   type GameAction,
   type JoinResult,
+  type MatchResult,
   type PartySettings,
   type PartySlug,
   type ServerState,
@@ -61,6 +62,10 @@ export function useParty(slug: PartySlug) {
   const [conn, setConn] = useState<Connection>("connecting");
   const [notice, setNotice] = useState<string | null>(null);
   const [savedName, setSavedName] = useState("");
+  /** Waiting in the "Tìm đối thủ" queue */
+  const [searching, setSearching] = useState(false);
+  const searchingRef = useRef(false);
+  searchingRef.current = searching;
   const listeners = useRef({ chat: new Set<(m: ChatMsg) => void>(), op: new Set<(o: DrawOp) => void>() });
 
   const stateRef = useRef<ServerState | null>(null);
@@ -75,6 +80,7 @@ export function useParty(slug: PartySlug) {
     (st: ServerState) => {
       offsetRef.current = st.serverNow - Date.now();
       setState(st);
+      setSearching(false);
       store("set", roomKey(slug), st.room.code);
     },
     [slug],
@@ -107,7 +113,14 @@ export function useParty(slug: PartySlug) {
         });
       }
     });
-    socket.on("disconnect", () => setConn("connecting"));
+    socket.on("disconnect", () => {
+      setConn("connecting");
+      // The server forgets the queue entry of a dropped connection
+      if (searchingRef.current) {
+        setSearching(false);
+        setNotice("Mất kết nối khi đang tìm đối thủ, hãy tìm lại nhé.");
+      }
+    });
     socket.io.on("reconnect_failed", () => setConn("offline"));
     socket.on("connect_error", () => setConn((c) => (c === "online" ? "connecting" : c === "connecting" && !socket.active ? "offline" : c)));
     socket.on("room:state", apply);
@@ -148,6 +161,31 @@ export function useParty(slug: PartySlug) {
     () => ({
       create: (name: string) => enter("create", name),
       join: (code: string, name: string) => enter("join", name, code),
+      /** Random opponent: resolves with an error text, or null once queued / paired */
+      findMatch: (name: string) =>
+        new Promise<string | null>((resolve) => {
+          const socket = socketRef.current;
+          if (!socket?.connected) return resolve("Chưa kết nối được máy chủ, thử lại sau giây lát.");
+          store("set", NAME_KEY, name);
+          setSavedName(name);
+          setNotice(null);
+          socket.timeout(8000).emit("match:find", { gameSlug: slug, name, pid: pidRef.current }, (err: Error | null, r: MatchResult) => {
+            if (err) return resolve("Máy chủ không phản hồi, thử lại nhé.");
+            if (!r.ok) return resolve(JOIN_ERROR_TEXT[r.error]);
+            if ("state" in r) apply(r.state);
+            else {
+              // Queued: the server took us out of any room we were in
+              setState(null);
+              store("del", roomKey(slug));
+              setSearching(true);
+            }
+            resolve(null);
+          });
+        }),
+      cancelMatch: () => {
+        socketRef.current?.emit("match:cancel");
+        setSearching(false);
+      },
       leave: () => {
         socketRef.current?.emit("room:leave");
         drop(null);
@@ -180,10 +218,10 @@ export function useParty(slug: PartySlug) {
       /** Current time on the server clock (for countdowns) */
       now: () => Date.now() + offsetRef.current,
     }),
-    [drop, enter, trackPartyStart],
+    [apply, drop, enter, slug, trackPartyStart],
   );
 
-  return { state, conn, notice, savedName, ...api };
+  return { state, conn, notice, savedName, searching, ...api };
 }
 
 /** Countdown in whole seconds to a server timestamp, re-rendering 4×/s */

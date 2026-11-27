@@ -38,7 +38,7 @@ export default function Article() {
         ]}
       />
 
-      <PlayCta slug="noi-tu" text="Chơi nối từ với máy: hơn 5.000 từ ghép thông dụng, thời gian ngắn dần, làm máy bí để ăn điểm." />
+      <PlayCta slug="noi-tu" text="Chơi nối từ với máy: hơn 20.000 từ ghép thông dụng, thời gian ngắn dần, làm máy bí để ăn điểm." />
 
       <h2>Mẹo chơi nối từ giỏi hơn</h2>
       <h3>Dùng từ có tiếng cuối “khó nối”</h3>

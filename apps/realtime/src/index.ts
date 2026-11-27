@@ -8,6 +8,7 @@ import {
   type DrawOp,
   type GameAction,
   type JoinResult,
+  type MatchResult,
   type PartySlug,
   type ServerState,
 } from "@play4fun/party";
@@ -15,6 +16,8 @@ import { Server, type Socket } from "socket.io";
 import { loadQuestionSet } from "./db";
 import { loadRooms, saveRooms } from "./persist";
 import { draw } from "./games/draw";
+import { aide } from "./games/aide";
+import { duel } from "./games/duel";
 import { hieu } from "./games/hieu";
 import { spy } from "./games/spy";
 import { trivia } from "./games/trivia";
@@ -58,6 +61,8 @@ const MODULES: Record<PartySlug, GameModule<any, any>> = {
   "do-vui-team-building": trivia,
   "ma-soi": wolf,
   "ai-hieu-ai": hieu,
+  "ai-de-nhat": aide,
+  "noi-tu-doi-khang": duel,
 };
 
 const httpServer = createServer((req, res) => {
@@ -74,7 +79,8 @@ const httpServer = createServer((req, res) => {
       g.players += online;
       if (room.status === "playing") g.playing++;
     }
-    res.end(JSON.stringify({ status: "ok", rooms: rooms.size, players, byGame }));
+    const waiting = [...queues.values()].reduce((n, q) => n + q.length, 0);
+    res.end(JSON.stringify({ status: "ok", rooms: rooms.size, players, byGame, waiting }));
     return;
   }
   res.writeHead(404).end();
@@ -316,6 +322,44 @@ function scheduleIdleCheck(room: Room, pid: string) {
   );
 }
 
+// ------------------------------------------------------------ matchmaking ("Tìm đối thủ")
+
+/** Players waiting for a random opponent, per game (two-player games with `matchmaking`) */
+type Waiting = { socketId: string; secret: string; name: string; ip: string; at: number };
+const queues = new Map<PartySlug, Waiting[]>();
+
+function leaveQueues(socketId: string) {
+  for (const [slug, q] of queues) {
+    const rest = q.filter((w) => w.socketId !== socketId);
+    if (rest.length) queues.set(slug, rest);
+    else queues.delete(slug);
+  }
+}
+
+/** Create a room for two queued players and start the game right away */
+function pairUp(slug: PartySlug, a: { socket: S; secret: string; name: string; ip: string }, b: { socket: S; secret: string; name: string }) {
+  const room: Room = {
+    code: newRoomCode(),
+    gameSlug: slug,
+    hostId: "",
+    players: new Map(),
+    status: "lobby",
+    settings: defaultSettings(slug),
+    createdAt: Date.now(),
+    game: null,
+    timers: new Map(),
+    used: new Set(),
+    custom: null,
+    creatorIp: a.ip,
+  };
+  rooms.set(room.code, room);
+  room.hostId = seat(a.socket, room, a.secret, a.name);
+  const pid = seat(b.socket, room, b.secret, b.name);
+  room.settings = MODULES[slug].normalizeSettings(room.settings, 2);
+  startGame(room);
+  return { room, pid };
+}
+
 // ------------------------------------------------------------ socket events
 
 io.on("connection", (raw) => {
@@ -330,6 +374,7 @@ io.on("connection", (raw) => {
     if (!isPartySlug(payload?.gameSlug)) return ack({ ok: false, error: "unknown_game" });
     const mine = [...rooms.values()].filter((r) => r.creatorIp === socket.data.ip).length;
     if (rooms.size >= MAX_ROOMS || mine >= MAX_ROOMS_PER_IP) return ack({ ok: false, error: "room_full" });
+    leaveQueues(socket.id);
 
     const room: Room = {
       code: newRoomCode(),
@@ -359,6 +404,7 @@ io.on("connection", (raw) => {
     if (!name || !secret) return ack({ ok: false, error: "invalid_input" });
     if (!room) return ack({ ok: false, error: "room_not_found" });
     if (payload?.gameSlug !== undefined && payload.gameSlug !== room.gameSlug) return ack({ ok: false, error: "unknown_game" });
+    leaveQueues(socket.id);
 
     if (!playerBySecret(room, secret)) {
       const limits = PARTY_GAMES[room.gameSlug];
@@ -369,6 +415,38 @@ io.on("connection", (raw) => {
     ack({ ok: true, state: stateFor(room, pid) });
     push(room);
   });
+
+  on<{ gameSlug?: unknown; name?: unknown; pid?: unknown }, MatchResult>(socket, "match:find", (payload, ack) => {
+    if (!allow(socket, "join", 1, 5)) return ack({ ok: false, error: "invalid_input" });
+    const name = cleanName(payload?.name);
+    const secret = cleanPid(payload?.pid);
+    if (!name || !secret) return ack({ ok: false, error: "invalid_input" });
+    const slug = payload?.gameSlug;
+    if (!isPartySlug(slug) || !PARTY_GAMES[slug].matchmaking) return ack({ ok: false, error: "unknown_game" });
+    if (rooms.size >= MAX_ROOMS) return ack({ ok: false, error: "room_full" });
+    leaveQueues(socket.id);
+    // Searching means leaving the room this socket was in
+    const cur = currentRoom(socket);
+    if (cur) removePlayer(cur.room, cur.pid);
+
+    const q = (queues.get(slug) ?? []).filter((w) => io.sockets.sockets.has(w.socketId));
+    // Never pair a browser with itself (two tabs)
+    const i = q.findIndex((w) => w.secret !== secret);
+    if (i < 0) {
+      q.push({ socketId: socket.id, secret, name, ip: socket.data.ip, at: Date.now() });
+      queues.set(slug, q);
+      return ack({ ok: true, waiting: true });
+    }
+    const [opp] = q.splice(i, 1);
+    if (q.length) queues.set(slug, q);
+    else queues.delete(slug);
+    const oppSocket = io.sockets.sockets.get(opp.socketId) as S;
+    const { room, pid } = pairUp(slug, { socket: oppSocket, secret: opp.secret, name: opp.name, ip: opp.ip }, { socket, secret, name });
+    ack({ ok: true, state: stateFor(room, pid) });
+    push(room);
+  });
+
+  on(socket, "match:cancel", () => leaveQueues(socket.id));
 
   on(socket, "room:leave", () => {
     const cur = currentRoom(socket);
@@ -458,6 +536,7 @@ io.on("connection", (raw) => {
   });
 
   on(socket, "disconnect", () => {
+    leaveQueues(socket.id);
     const cur = currentRoom(socket);
     if (!cur) return;
     const { room, pid } = cur;

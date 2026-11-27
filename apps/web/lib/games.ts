@@ -23,7 +23,9 @@ export type GameIcon =
   | "bowl"
   | "flag"
   | "moon"
-  | "hearts";
+  | "hearts"
+  | "vote"
+  | "swords";
 
 export type GameEntry = {
   slug: string;
@@ -324,6 +326,30 @@ export const GAMES: GameEntry[] = [
     thumbnail: "/thumbnails/ai-hieu-ai.webp",
     duration: "10–15 phút",
     players: "2–20 người",
+  },
+  {
+    slug: "ai-de-nhat",
+    title: "Ai dễ… nhất?",
+    type: "party",
+    tagline: "Ai dễ ngủ gật trong họp nhất? Cả nhóm bình chọn ẩn danh, đoán trúng số đông để ăn điểm.",
+    audience: ["group", "office"],
+    status: "live",
+    icon: "vote",
+    cover: ["#f59e0b", "#e5484d"],
+    duration: "10–15 phút",
+    players: "3–20 người",
+  },
+  {
+    slug: "noi-tu-doi-khang",
+    title: "Nối từ đối kháng",
+    type: "party",
+    tagline: "Đấu nối từ 1-1: ghép ngẫu nhiên với người lạ, mời bạn bè hoặc đấu với máy. Làm đối thủ bí từ để thắng!",
+    audience: ["group", "student", "office"],
+    status: "live",
+    icon: "swords",
+    cover: ["#1a9fe8", "#e5484d"],
+    duration: "3–8 phút",
+    players: "2 người",
   },
 ];
 

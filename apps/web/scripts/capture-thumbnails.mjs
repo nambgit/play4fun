@@ -444,6 +444,26 @@ const SHOTS = {
     },
   },
 
+  "ai-de-nhat": {
+    position: "top",
+    async custom({ browser, page }) {
+      const room = await partyRoom(browser, page, "ai-de-nhat", "Hà", ["Khoa", "Linh", "Mai"]);
+      try {
+        await page.getByRole("button", { name: "Bắt đầu chơi" }).click();
+        await sleep(1500);
+        // Everyone votes for the first other player: Hà gets most votes → reveal with an award
+        for (const p of [page, ...room.guests]) {
+          await partyStage(p).locator("div.grid button").first().click();
+          await sleep(150);
+        }
+        await sleep(800);
+        return await partyStage(room.guests[1]).screenshot({ animations: "allow" });
+      } finally {
+        await room.close();
+      }
+    },
+  },
+
 };
 
 /** Kiểm tra 15 phút: giải phép tính trên bảng, ô trống (nbsp) là ẩn số */
