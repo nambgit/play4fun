@@ -25,6 +25,48 @@ export type ArticleMeta = {
 
 export const ARTICLES: ArticleMeta[] = [
   {
+    slug: "cach-choi-doan-chu",
+    title: "Cách chơi đoán chữ tiếng Việt (Wordle): luật chơi, từ mở đầu và mẹo",
+    description: "Luật chơi đoán chữ tiếng Việt 5 chữ cái, 6 lượt: ý nghĩa ô xanh, vàng, xám, từ mở đầu nên dùng, đặc điểm từ 5 chữ cái và ván mẫu giải trong 4 lượt.",
+    kicker: "Trò chơi chữ",
+    games: ["doan-chu", "noi-tu"],
+    published: "2026-11-27",
+    updated: "2026-11-27",
+    readMinutes: 5,
+    faq: [
+      ["Đoán chữ tiếng Việt chơi như thế nào?", "Bạn có 6 lượt để đoán một từ 5 chữ cái, gõ không dấu (“nguoi” là “người”). Sau mỗi lượt, ô xanh là chữ đúng và đúng chỗ, ô vàng là chữ có trong từ nhưng sai chỗ, ô xám là chữ không có."],
+      ["Từ mở đầu nào tốt nhất khi chơi đoán chữ?", "Nên chọn từ chứa các chữ phổ biến và không lặp chữ, như “huong”, “nguoi” hoặc “nghia”. Một cặp mở đầu dễ nhớ là “nguoi” rồi “thang”, thử được 3 nguyên âm, phụ âm t và đuôi “ng”."],
+    ],
+  },
+  {
+    slug: "chon-nganh-nghe-phu-hop",
+    title: "Cách chọn ngành nghề phù hợp với bản thân: 3 bước và 6 nhóm nghề",
+    description: "Cách chọn ngành nghề phù hợp: xác định loại việc mình thích, đối chiếu điểm mạnh, thử nghề trước khi chọn. Bảng 6 nhóm nghề kèm ngành học gợi ý và trắc nghiệm nghề nghiệp miễn phí.",
+    kicker: "Hướng nghiệp",
+    games: ["ban-hop-nghe-gi", "ban-la-kieu-dong-nghiep-nao"],
+    published: "2026-11-27",
+    updated: "2026-11-27",
+    readMinutes: 6,
+    faq: [
+      ["Làm sao biết mình hợp với nghề gì?", "Xét ba điều: loại việc bạn thấy vui khi làm, điều bạn làm tốt (hỏi thêm người hiểu bạn), và trải nghiệm thật như làm thêm, tình nguyện, làm dự án nhỏ. Bài trắc nghiệm nghề nghiệp giúp gợi ý hướng đi để bắt đầu."],
+      ["Có nên chọn ngành theo xu hướng đang hot?", "Chỉ nên khi ngành đó cũng hợp với sở thích và điểm mạnh của bạn. Chọn theo xu hướng hoặc theo bạn bè mà không hợp thường khiến bạn khó theo đuổi lâu dài."],
+    ],
+  },
+  {
+    slug: "cach-ren-luyen-tri-nho",
+    title: "Cách rèn luyện trí nhớ: 8 bài tập đơn giản mỗi ngày",
+    description: "8 bài tập rèn luyện trí nhớ dễ làm hằng ngày: lật thẻ tìm cặp, cung điện trí nhớ, chia nhỏ thông tin, tự kiểm tra, tính nhẩm. Kèm thói quen giúp nhớ tốt hơn.",
+    kicker: "Trí nhớ",
+    games: ["lat-the", "bai-kiem-tra-15-phut"],
+    published: "2026-11-27",
+    updated: "2026-11-27",
+    readMinutes: 6,
+    faq: [
+      ["Làm sao để cải thiện trí nhớ nhanh?", "Tập trung thật sự khi tiếp nhận thông tin, gắn thông tin mới với hình ảnh hoặc điều đã biết, và tự kiểm tra lại theo thời gian. Ngủ đủ 7–8 tiếng và vận động đều giúp các cách này hiệu quả hơn."],
+      ["Chơi game có giúp rèn trí nhớ không?", "Các game như lật thẻ tìm cặp luyện trí nhớ ngắn hạn về vị trí, tính nhẩm luyện trí nhớ làm việc. Chơi vài phút mỗi ngày và theo dõi kết quả là một cách luyện tập vui, nên kết hợp với ngủ đủ và học kỹ năng mới."],
+    ],
+  },
+  {
     slug: "cau-hoi-kien-thuc-viet-nam",
     title: "40 câu hỏi kiến thức Việt Nam có đáp án: lịch sử, địa lý, văn hóa",
     description: "40 câu hỏi trắc nghiệm kiến thức Việt Nam có đáp án và giải thích: lịch sử, địa lý, văn hóa, đời sống. Dùng cho lớp học, team building, kèm bài thi online 15 câu.",

@@ -1,6 +1,9 @@
 import type { ComponentType } from "react";
+import DoanChu from "./cach-choi-doan-chu";
 import EmailLuaDao from "./cach-nhan-biet-email-lua-dao";
 import OnThi from "./cach-on-thi-hieu-qua";
+import TriNho from "./cach-ren-luyen-tri-nho";
+import ChonNganh from "./chon-nganh-nghe-phu-hop";
 import HieuNhau from "./cau-hoi-de-hieu-nhau";
 import CauHoiDoVui from "./cau-hoi-do-vui-team-building";
 import KienThucVN from "./cau-hoi-kien-thuc-viet-nam";
@@ -19,6 +22,9 @@ import VeDoanChu from "./tu-khoa-ve-doan-chu";
 
 /** Article bodies by slug (metadata is in lib/articles.ts) */
 export const ARTICLE_BODY: Record<string, ComponentType> = {
+  "cach-choi-doan-chu": DoanChu,
+  "chon-nganh-nghe-phu-hop": ChonNganh,
+  "cach-ren-luyen-tri-nho": TriNho,
   "luyen-go-phim-10-ngon": LuyenGoPhim,
   "toc-do-go-phim": TocDoGoPhim,
   "tro-choi-team-building-trong-phong-hop": TeamBuilding,
