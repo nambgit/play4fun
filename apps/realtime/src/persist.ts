@@ -56,6 +56,7 @@ function toPlain(room: Room) {
     custom: room.custom,
     players: [...room.players.values()].map((p) => ({ id: p.id, secret: p.secret, name: p.name, joinedAt: p.joinedAt })),
     game: room.game ? { state: room.game.state } : null,
+    gameNo: room.gameNo,
   };
 }
 export type PlainRoom = ReturnType<typeof toPlain>;

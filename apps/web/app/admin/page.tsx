@@ -1,9 +1,10 @@
-import { Activity, Flame, Info } from "lucide-react";
+import { Activity, BookOpen, Flame, Info } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { RANGES, accountStats, analyticsConfigured, isAdmin, liveRooms, traffic, type Range } from "@/lib/admin-stats";
 import { currentUser } from "@/lib/auth";
+import { ARTICLES } from "@/lib/articles";
 import { GAMES, getGame } from "@/lib/games";
 import { hotGames } from "@/lib/hot-games";
 import { RECORD_BY_KEY } from "@/lib/record-keys";
@@ -41,6 +42,12 @@ export default async function AdminPage({ searchParams }: Props) {
   const maxStarts = Math.max(1, ...soloGames.map((x) => x.s?.starts ?? 0));
   const partyGames = GAMES.filter((g) => g.type === "party");
   const partyBy = new Map(t?.party.map((p) => [p.game, p]) ?? []);
+  const pageBy = new Map(t?.pages.map((p) => [p.path, p]) ?? []);
+  const viewsOf = (path: string) => pageBy.get(path) ?? { views: 0, visitors: 0 };
+  /** Share of a page's visitors who started a game (capped: one visitor can play many rounds) */
+  const playRate = (players: number, visitors: number) => (visitors ? `${Math.min(100, Math.round((players / visitors) * 100))}%` : "—");
+  const articles = ARTICLES.map((a) => ({ a, v: viewsOf(`/cam-nang/${a.slug}`) })).sort((x, y) => y.v.visitors - x.v.visitors);
+  const maxArticle = Math.max(1, ...articles.map((x) => x.v.visitors));
 
   return (
     <div className="container-page py-6 sm:py-10">
@@ -138,7 +145,8 @@ export default async function AdminPage({ searchParams }: Props) {
         <section className="mt-6 rounded-3xl border border-line bg-surface p-5 shadow-card sm:p-6">
           <h2 className="font-bold">Game được chơi</h2>
           <p className="mt-0.5 text-xs text-muted">
-            “Chơi hết” là ván kết thúc tới màn kết quả; ván bị đóng tab hay chuyển trang giữa chừng tính là bỏ dở. Thời gian là gần đúng (tối đa 30 phút/ván).
+            “Người xem” là số người mở trang game; “Tỉ lệ chơi” là phần trăm người xem có bấm chơi. “Chơi hết” là ván kết thúc tới màn kết quả; ván bị đóng tab hay chuyển trang giữa
+            chừng tính là bỏ dở. Thời gian là gần đúng (tối đa 30 phút/ván).
           </p>
           {/* Phones: one card per game */}
           <ul className="mt-4 divide-y divide-line sm:hidden">
@@ -155,11 +163,16 @@ export default async function AdminPage({ searchParams }: Props) {
                   <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-surface-2">
                     <div className="h-full rounded-full bg-brand" style={{ width: `${((s?.starts ?? 0) / maxStarts) * 100}%` }} />
                   </div>
-                  {s && s.starts > 0 && (
-                    <p className="mt-1.5 text-xs text-muted">
-                      {fmtNumber(s.players)} người · chơi hết {Math.round((s.ends / s.starts) * 100)}% · TB {finished ? fmtDuration(s.seconds / finished) : "—"}/ván · tổng {fmtDuration(s.seconds)}
-                    </p>
-                  )}
+                  <p className="mt-1.5 text-xs text-muted">
+                    {fmtNumber(viewsOf(`/games/${g.slug}`).visitors)} người xem · tỉ lệ chơi {playRate(s?.players ?? 0, viewsOf(`/games/${g.slug}`).visitors)}
+                    {s && s.starts > 0 && (
+                      <>
+                        {" "}
+                        · {fmtNumber(s.players)} người chơi · chơi hết {Math.round((s.ends / s.starts) * 100)}% · TB {finished ? fmtDuration(s.seconds / finished) : "—"}/ván · tổng{" "}
+                        {fmtDuration(s.seconds)}
+                      </>
+                    )}
+                  </p>
                 </li>
               );
             })}
@@ -169,7 +182,9 @@ export default async function AdminPage({ searchParams }: Props) {
               <thead className="text-xs text-muted">
                 <tr className="border-b border-line">
                   <th className="py-2 font-medium">Game</th>
-                  <th className="py-2 font-medium">Lượt chơi</th>
+                  <th className="py-2 text-right font-medium">Người xem</th>
+                  <th className="py-2 text-right font-medium">Tỉ lệ chơi</th>
+                  <th className="py-2 pl-4 font-medium">Lượt chơi</th>
                   <th className="py-2 text-right font-medium">Người chơi</th>
                   <th className="py-2 text-right font-medium">Chơi hết</th>
                   <th className="py-2 text-right font-medium">TB / ván</th>
@@ -186,7 +201,9 @@ export default async function AdminPage({ searchParams }: Props) {
                           {g.title}
                         </Link>
                       </td>
-                      <td className="w-[28%] py-2.5 pr-4">
+                      <td className="py-2.5 text-right font-mono tabular-nums">{fmtNumber(viewsOf(`/games/${g.slug}`).visitors)}</td>
+                      <td className="py-2.5 text-right font-mono tabular-nums">{playRate(s?.players ?? 0, viewsOf(`/games/${g.slug}`).visitors)}</td>
+                      <td className="w-[24%] py-2.5 pr-4 pl-4">
                         <div className="flex items-center gap-2">
                           <div className="h-2 flex-1 overflow-hidden rounded-full bg-surface-2">
                             <div className="h-full rounded-full bg-brand" style={{ width: `${((s?.starts ?? 0) / maxStarts) * 100}%` }} />
@@ -230,6 +247,37 @@ export default async function AdminPage({ searchParams }: Props) {
         </ol>
       </section>
 
+      {/* Cẩm nang: who reads which guide */}
+      {t && (
+        <section className="mt-6 rounded-3xl border border-line bg-surface p-5 shadow-card sm:p-6">
+          <h2 className="flex items-center gap-2 font-bold">
+            <BookOpen className="h-4 w-4 text-brand" aria-hidden="true" />
+            Bài cẩm nang
+          </h2>
+          <p className="mt-0.5 text-xs text-muted">
+            Số người đọc từng bài trong {RANGE_LABEL[range].toLowerCase()} (lượt xem trong ngoặc). Tổng {fmtNumber(articles.reduce((n, x) => n + x.v.visitors, 0))} người đọc,{" "}
+            {articles.filter((x) => x.v.visitors === 0).length} bài chưa có ai đọc.
+          </p>
+          <ul className="mt-4 grid gap-x-8 gap-y-2.5 md:grid-cols-2">
+            {articles.map(({ a, v }) => (
+              <li key={a.slug} className="min-w-0 text-sm">
+                <div className="flex items-baseline justify-between gap-3">
+                  <Link href={`/cam-nang/${a.slug}`} className="min-w-0 truncate hover:text-brand" title={a.title}>
+                    {a.title}
+                  </Link>
+                  <span className="shrink-0 font-mono text-xs tabular-nums">
+                    <b>{fmtNumber(v.visitors)}</b> <span className="text-muted">({fmtNumber(v.views)})</span>
+                  </span>
+                </div>
+                <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-surface-2">
+                  <div className="h-full rounded-full bg-brand" style={{ width: `${(v.visitors / maxArticle) * 100}%` }} />
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
       <div className="mt-6 grid gap-6 lg:grid-cols-2 [&>*]:min-w-0">
         {/* Party games */}
         <section className="rounded-3xl border border-line bg-surface p-5 shadow-card sm:p-6">
@@ -250,6 +298,7 @@ export default async function AdminPage({ searchParams }: Props) {
                     </span>
                   </div>
                   <p className="mt-0.5 text-muted">
+                    <b className="font-mono text-fg">{fmtNumber(viewsOf(`/games/${g.slug}`).visitors)}</b> người xem ·{" "}
                     <b className="font-mono text-fg">{fmtNumber(p?.games ?? 0)}</b> ván online{p ? ` · TB ${p.avgPlayers.toFixed(1)} người/ván` : ""}
                     {statsBy.get(g.slug)?.starts ? (
                       <>

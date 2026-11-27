@@ -126,6 +126,11 @@ export type RoomPublic = {
   brand: RoomBrand | null;
   /** The Studio question set in use (title and size only — questions stay on the server) */
   customSet: { id: string; title: string; count: number } | null;
+  /**
+   * Games started in this room so far (start, "again", rematch, matchmaking). The host's browser
+   * sends one "party-start" analytics event each time it goes up, so every game is counted once.
+   */
+  gameNo: number;
 };
 
 export const isUuid = (s: unknown): s is string => typeof s === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s);

@@ -204,6 +204,9 @@ function ctxFor(room: Room): Ctx {
     name: (id) => room.players.get(id)?.name ?? "Ai đó",
     isHost: (id) => room.hostId === id,
     now: () => Date.now(),
+    newGame: () => {
+      room.gameNo++;
+    },
   };
 }
 
@@ -221,6 +224,7 @@ function startGame(room: Room) {
   const module = MODULES[room.gameSlug];
   const ctx = ctxFor(room);
   room.status = "playing";
+  room.gameNo++;
   room.game = { module, state: null };
   room.game.state = module.start(ctx, room.settings);
 }
@@ -353,6 +357,7 @@ function pairUp(slug: PartySlug, a: { socket: S; secret: string; name: string; i
     used: new Set(),
     custom: null,
     creatorIp: a.ip,
+    gameNo: 0,
   };
   rooms.set(room.code, room);
   room.hostId = seat(a.socket, room, a.secret, a.name);
@@ -391,6 +396,7 @@ io.on("connection", (raw) => {
       used: new Set(),
       custom: null,
       creatorIp: socket.data.ip,
+      gameNo: 0,
     };
     rooms.set(room.code, room);
     const pid = seat(socket, room, secret, name);
@@ -604,6 +610,7 @@ async function restoreRooms() {
       players: new Map(pr.players.map((p) => [p.id, { ...p, secret: p.secret ?? p.id, socketId: null, leftAt: now }])),
       timers: new Map(),
       game: null,
+      gameNo: pr.gameNo ?? 0,
     };
     rooms.set(room.code, room);
     if (pr.game && room.status === "playing") {

@@ -61,6 +61,8 @@ export type Traffic = {
   devices: { name: string; visitors: number }[];
   games: { game: string; starts: number; ends: number; quits: number; players: number; seconds: number }[];
   party: { game: string; games: number; avgPlayers: number }[];
+  /** Page views of /games/<slug> and /cam-nang/<slug> (visitors = distinct sessions) */
+  pages: { path: string; views: number; visitors: number }[];
 };
 
 function since(range: Range) {
@@ -80,7 +82,7 @@ export async function traffic(range: Range): Promise<Traffic | null> {
   const from = since(range);
   const unit = range === 1 ? "hour" : "day";
 
-  const [overview, online, series, sources, devices, games, party] = await Promise.all([
+  const [overview, online, series, sources, devices, games, party, pages] = await Promise.all([
     db`select count(distinct session_id) filter (where event_type = 1)::int as visitors,
               count(distinct visit_id)::int as visits,
               count(*) filter (where event_type = 1)::int as pageviews
@@ -129,6 +131,12 @@ export async function traffic(range: Range): Promise<Traffic | null> {
        left join event_data p on p.website_event_id = e.event_id and p.data_key = 'players'
        where e.website_id = ${site} and e.created_at >= ${from} and e.event_type = 2 and e.event_name = 'party-start'
        group by 1 order by 2 desc`,
+    // Trailing slash and query string are not part of url_path in Umami, but normalise anyway
+    db`select rtrim(url_path, '/') as path, count(*)::int as views, count(distinct session_id)::int as visitors
+       from website_event
+       where website_id = ${site} and created_at >= ${from} and event_type = 1
+         and (url_path like '/games/%' or url_path like '/cam-nang/%')
+       group by 1`,
   ]);
 
   // Fill empty hours/days so the chart has a bar slot for each
@@ -162,6 +170,7 @@ export async function traffic(range: Range): Promise<Traffic | null> {
     devices: devices.map((r) => ({ name: r.name as string, visitors: r.visitors })),
     games: games.map((r) => ({ game: r.game as string, starts: r.starts, ends: r.ends, quits: r.quits, players: r.players, seconds: r.seconds })),
     party: party.map((r) => ({ game: r.game as string, games: r.games, avgPlayers: r.avg_players })),
+    pages: pages.map((r) => ({ path: r.path as string, views: r.views, visitors: r.visitors })),
   };
 }
 

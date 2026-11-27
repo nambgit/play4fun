@@ -22,6 +22,8 @@ export type Ctx = {
   name(id: string): string;
   isHost(id: string): boolean;
   now(): number;
+  /** The module started a fresh game by itself (e.g. a rematch everyone agreed to): count it */
+  newGame(): void;
 };
 
 export interface GameModule<S, Settings extends PartySettings = PartySettings> {

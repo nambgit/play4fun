@@ -156,6 +156,7 @@ export const duel: GameModule<State, DuelSettings> = {
           // Same table, everyone who is still here; rotate so someone else opens
           const seats = [...present.slice(1), present[0]].slice(0, MAX_SEATS);
           Object.assign(s, fresh(s.settings, seats));
+          ctx.newGame();
           startRound(ctx, s);
         }
         break;
@@ -197,6 +198,7 @@ export const duel: GameModule<State, DuelSettings> = {
     const present = ctx.connected().filter((id) => s.seats.includes(id));
     if (present.length >= 2 && present.every((id) => s.rematch.has(id))) {
       Object.assign(s, fresh(s.settings, present));
+      ctx.newGame();
       startRound(ctx, s);
     }
   },

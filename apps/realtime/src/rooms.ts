@@ -35,6 +35,8 @@ export type Room = {
   custom: CustomSet | null;
   /** Who created the room (per-IP room limit) */
   creatorIp?: string;
+  /** Games started in this room (see RoomPublic.gameNo) */
+  gameNo: number;
 };
 
 export type CustomSet = { id: string; title: string; brand: RoomBrand; questions: { q: string; options: string[]; correct: number }[] };
@@ -95,6 +97,7 @@ export function publicRoom(room: Room): RoomPublic {
     settings: room.settings,
     brand: room.custom?.brand ?? null,
     customSet: room.custom ? { id: room.custom.id, title: room.custom.title, count: room.custom.questions.length } : null,
+    gameNo: room.gameNo,
     players: playerList(room).map((p): PlayerView => ({ id: p.id, name: p.name, connected: p.socketId !== null })),
   };
 }

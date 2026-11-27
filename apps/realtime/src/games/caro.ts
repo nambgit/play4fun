@@ -151,6 +151,7 @@ export const caro: GameModule<State, CaroSettings> = {
         if (s.seats.every((id) => s.rematch.has(id))) {
           // Swap seats so the other player has X in the first game
           Object.assign(s, fresh(ctx, s.settings, [s.seats[1], s.seats[0]]));
+          ctx.newGame();
           startGame(ctx, s);
         }
         break;

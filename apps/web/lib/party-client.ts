@@ -18,6 +18,8 @@ import { track } from "./analytics";
 const PID_KEY = "p4f:pid";
 const NAME_KEY = "p4f:name";
 const roomKey = (slug: string) => `p4f:party:${slug}:room`;
+/** Prefix of the "last game number seen" per room (analytics, see trackGames) */
+const TRACKED_KEY = "p4f:party:games";
 
 function store(kind: "get" | "set" | "del", key: string, value?: string) {
   try {
@@ -68,22 +70,34 @@ export function useParty(slug: PartySlug) {
   searchingRef.current = searching;
   const listeners = useRef({ chat: new Set<(m: ChatMsg) => void>(), op: new Set<(o: DrawOp) => void>() });
 
-  const stateRef = useRef<ServerState | null>(null);
-  stateRef.current = state;
-  /** Only the host can start a game, so each party game is counted once */
-  const trackPartyStart = useCallback(() => {
-    const players = stateRef.current?.room.players.filter((p) => p.connected).length ?? 0;
-    track("party-start", { game: slug, players });
-  }, [slug]);
+  /**
+   * One "party-start" analytics event per game: the server numbers the games of a room
+   * (start, "again", rematch, matchmaking) and the host's browser reports each new number once.
+   * The last number seen is remembered per room, so a reload or a host change does not count a
+   * game twice.
+   */
+  const trackGames = useCallback(
+    (st: ServerState) => {
+      const key = `${TRACKED_KEY}:${st.room.code}`;
+      const seen = Number(store("get", key) ?? "0") || 0;
+      if (st.room.gameNo <= seen) return;
+      store("set", key, String(st.room.gameNo));
+      if (st.room.hostId === st.me && st.room.status === "playing") {
+        track("party-start", { game: slug, players: st.room.players.filter((p) => p.connected).length });
+      }
+    },
+    [slug],
+  );
 
   const apply = useCallback(
     (st: ServerState) => {
       offsetRef.current = st.serverNow - Date.now();
+      trackGames(st);
       setState(st);
       setSearching(false);
       store("set", roomKey(slug), st.room.code);
     },
-    [slug],
+    [slug, trackGames],
   );
 
   const drop = useCallback(
@@ -194,14 +208,12 @@ export function useParty(slug: PartySlug) {
       start: () =>
         new Promise<string | null>((resolve) =>
           socketRef.current?.timeout(8000).emit("room:start", null, (err: Error | null, r: { ok: boolean; error?: string }) => {
-            if (!err && r.ok) trackPartyStart();
             resolve(err ? "Máy chủ không phản hồi." : r.ok ? null : (r.error ?? "Chưa bắt đầu được."));
           }),
         ),
       toLobby: () => socketRef.current?.emit("room:lobby"),
       kick: (id: string) => socketRef.current?.emit("room:kick", id),
       act: (a: GameAction) => {
-        if (a.type === "again") trackPartyStart();
         socketRef.current?.emit("game:action", a);
       },
       op: (o: DrawOp) => socketRef.current?.emit("draw:op", o),
@@ -218,7 +230,7 @@ export function useParty(slug: PartySlug) {
       /** Current time on the server clock (for countdowns) */
       now: () => Date.now() + offsetRef.current,
     }),
-    [apply, drop, enter, slug, trackPartyStart],
+    [apply, drop, enter, slug],
   );
 
   return { state, conn, notice, savedName, searching, ...api };
