@@ -25,6 +25,48 @@ export type ArticleMeta = {
 
 export const ARTICLES: ArticleMeta[] = [
   {
+    slug: "cach-nhan-biet-email-lua-dao",
+    title: "Cách nhận biết email lừa đảo: 8 dấu hiệu dân văn phòng cần nhớ",
+    description: "8 dấu hiệu nhận biết email lừa đảo (phishing) kèm ví dụ: tên miền giả, link độc, đòi OTP, file đính kèm lạ. Bảng kiểm tra nhanh và việc cần làm nếu lỡ bấm vào.",
+    kicker: "Văn phòng",
+    games: ["inbox-zero"],
+    published: "2026-11-27",
+    updated: "2026-11-27",
+    readMinutes: 6,
+    faq: [
+      ["Làm sao biết email có phải lừa đảo không?", "Kiểm tra ba thứ: địa chỉ người gửi có đúng tên miền không (kẻ gian hay đổi một ký tự), link thật sự dẫn tới đâu khi rê chuột lên, và email có hối thúc, đe dọa hay đòi mật khẩu, mã OTP không."],
+      ["Lỡ bấm vào link lừa đảo thì phải làm gì?", "Đổi ngay mật khẩu tài khoản vừa nhập và các tài khoản dùng chung mật khẩu, bật xác thực hai lớp, báo cho bộ phận IT. Nếu đã nhập thông tin thẻ hoặc OTP, gọi ngay tổng đài ngân hàng để khóa thẻ."],
+    ],
+  },
+  {
+    slug: "cau-hoi-de-hieu-nhau",
+    title: "50 câu hỏi để hiểu nhau hơn cho bạn bè, đồng nghiệp, cặp đôi",
+    description: "50 câu hỏi để hiểu nhau hơn chia theo mối quan hệ: làm quen, bạn thân, đồng nghiệp, cặp đôi và câu hỏi chọn một. Kèm cách biến thành trò chơi đoán ý cho cả nhóm.",
+    kicker: "Chơi nhóm",
+    games: ["ai-hieu-ai"],
+    published: "2026-11-27",
+    updated: "2026-11-27",
+    readMinutes: 6,
+    faq: [
+      ["Hỏi gì để hiểu một người hơn?", "Bắt đầu bằng câu hỏi nhẹ về sở thích (món ăn, nơi muốn đi), rồi hỏi thêm “vì sao” sau mỗi câu trả lời. Câu chuyện thật thường bắt đầu từ câu hỏi thứ hai, không phải câu đầu tiên."],
+      ["Có trò chơi nào dùng câu hỏi để hiểu nhau không?", "Có, trò “Ai hiểu ai nhất?”: một người bí mật chọn câu trả lời của mình, những người khác đoán, ai đoán trúng được điểm. Có thể chơi trên điện thoại với 2–20 người."],
+    ],
+  },
+  {
+    slug: "luat-choi-noi-tu",
+    title: "Luật chơi nối từ tiếng Việt và mẹo làm đối thủ bí từ",
+    description: "Luật chơi nối từ tiếng Việt đầy đủ, 5 biến thể phổ biến, mẹo chọn từ khó nối và bảng từ cứu cánh cho tiếng hay gặp. Chơi nối từ online với máy miễn phí.",
+    kicker: "Trò chơi chữ",
+    games: ["noi-tu", "doan-chu"],
+    published: "2026-11-27",
+    updated: "2026-11-27",
+    readMinutes: 5,
+    faq: [
+      ["Luật chơi nối từ là gì?", "Mỗi người nói một từ hai tiếng có nghĩa, từ sau phải bắt đầu bằng tiếng cuối của từ trước và giữ nguyên dấu, ví dụ “học sinh” → “sinh viên”. Mỗi từ chỉ dùng một lần, ai bí từ hoặc hết giờ thì thua lượt."],
+      ["Nối từ có được dùng từ láy không?", "Tùy nhóm thống nhất trước. Nhiều nhóm cấm từ láy vì các từ như “bâng khuâng” gần như không ai nối tiếp được."],
+    ],
+  },
+  {
     slug: "tro-choi-tat-nien-cong-ty",
     title: "15 trò chơi tất niên công ty vui, dễ tổ chức cho mọi quy mô",
     description: "15 trò chơi tất niên công ty: khởi động, trò cả hội trường chơi trên điện thoại, thi đấu giữa các bàn, trò trao quà. Kèm kịch bản mẫu 2 tiếng và mẹo tổ chức.",

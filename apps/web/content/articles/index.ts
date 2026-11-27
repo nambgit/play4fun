@@ -1,9 +1,12 @@
 import type { ComponentType } from "react";
+import EmailLuaDao from "./cach-nhan-biet-email-lua-dao";
+import HieuNhau from "./cau-hoi-de-hieu-nhau";
 import CauHoiDoVui from "./cau-hoi-do-vui-team-building";
 import GiaiLao from "./giai-lao-van-phong";
 import AiLaGianDiep from "./luat-choi-ai-la-gian-diep";
 import LuyenGoPhim from "./luyen-go-phim-10-ngon";
 import MaSoi from "./luat-choi-ma-soi";
+import NoiTu from "./luat-choi-noi-tu";
 import TinhNham from "./meo-tinh-nham-nhanh";
 import TocDoGoPhim from "./toc-do-go-phim";
 import ChoiOnline from "./tro-choi-online-qua-zoom";
@@ -24,4 +27,7 @@ export const ARTICLE_BODY: Record<string, ComponentType> = {
   "giai-lao-van-phong": GiaiLao,
   "tro-choi-tat-nien-cong-ty": TatNien,
   "tro-choi-online-qua-zoom": ChoiOnline,
+  "cach-nhan-biet-email-lua-dao": EmailLuaDao,
+  "cau-hoi-de-hieu-nhau": HieuNhau,
+  "luat-choi-noi-tu": NoiTu,
 };
