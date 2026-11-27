@@ -13,6 +13,10 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   // Fonts for the result images (/og/result) are read from disk at runtime: ship them in the standalone build
   outputFileTracingIncludes: { "/og/result": ["./assets/fonts/**"] },
+  async redirects() {
+    // "Nối từ đối kháng" replaced the solo "Nối từ" game and took over its address
+    return [{ source: "/games/noi-tu-doi-khang", destination: "/games/noi-tu", permanent: true }];
+  },
 };
 
 export default nextConfig;

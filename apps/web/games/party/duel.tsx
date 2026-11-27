@@ -8,8 +8,8 @@ import { Choice, PartyRoom, nameOf, type GameProps, type SettingsProps } from "@
 import { getGame } from "@/lib/games";
 import { useCountdown } from "@/lib/party-client";
 
-const accent = getGame("noi-tu-doi-khang")!.cover;
-const TITLE = "Nối từ đối kháng";
+const accent = getGame("noi-tu")!.cover;
+const TITLE = "Nối từ";
 
 const RULES = (
   <ol className="list-decimal space-y-1 pl-4">
@@ -29,7 +29,7 @@ export default function Play() {
   if (mode === "bot") return <BotDuel onExit={() => setMode("online")} />;
   return (
     <PartyRoom
-      slug="noi-tu-doi-khang"
+      slug="noi-tu"
       title={TITLE}
       emoji="⚔️"
       accent={accent}

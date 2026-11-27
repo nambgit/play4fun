@@ -139,7 +139,7 @@ export const ARTICLES: ArticleMeta[] = [
   {
     slug: "luat-choi-noi-tu",
     title: "Luật chơi nối từ tiếng Việt và mẹo làm đối thủ bí từ",
-    description: "Luật chơi nối từ tiếng Việt đầy đủ, 5 biến thể phổ biến, mẹo chọn từ khó nối và bảng từ cứu cánh cho tiếng hay gặp. Chơi nối từ online với máy miễn phí.",
+    description: "Luật chơi nối từ tiếng Việt đầy đủ, 5 biến thể phổ biến, mẹo chọn từ khó nối và bảng từ cứu cánh cho tiếng hay gặp. Chơi nối từ online 2 người hoặc với máy, miễn phí.",
     kicker: "Trò chơi chữ",
     games: ["noi-tu", "doan-chu"],
     published: "2026-11-27",

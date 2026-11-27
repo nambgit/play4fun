@@ -278,20 +278,25 @@ const SHOTS = {
 
   "noi-tu": {
     position: "top",
+    // Vs-computer mode: no second browser needed
     async custom({ page }) {
       await page.goto(`${BASE_URL}/games/noi-tu`, { waitUntil: "networkidle" });
-      await page.getByRole("button", { name: "Bắt đầu" }).click();
+      await page.getByRole("button", { name: "Chơi với máy" }).click();
+      await page.getByRole("button", { name: /^Dễ/ }).click();
       const words = dictionaryWords();
       for (let turn = 0; turn < 3; turn++) {
-        await sleep(400);
-        const need = (await gameRoot(page).locator("form label > span").first().innerText()).trim();
+        const input = page.getByLabel(/^Tiếng tiếp theo sau/);
+        await input.waitFor();
+        // Wait for the player's turn (the box is disabled while the computer thinks)
+        for (let i = 0; i < 40 && (await input.isDisabled()); i++) await sleep(150);
+        const need = (await gameRoot(page).locator("form > span").first().innerText()).trim();
         const next = words.find((w) => w.startsWith(`${need} `) && !w.endsWith(` ${need}`));
         if (!next) break;
-        await page.keyboard.type(next.split(" ")[1], { delay: 50 });
+        await input.fill(next.split(" ")[1]);
         await page.keyboard.press("Enter");
+        await sleep(300);
       }
-      await sleep(500);
-      await page.keyboard.type("v", { delay: 50 });
+      await sleep(2800);
       return await gameRoot(page).screenshot();
     },
   },
@@ -493,7 +498,7 @@ const gameRoot = (page) => page.locator("main .rounded-2xl.bg-bg").first();
 let WORD_CACHE = null;
 function dictionaryWords() {
   if (!WORD_CACHE) {
-    const src = readFileSync(fileURLToPath(new URL("../games/noi-tu/dictionary.ts", import.meta.url)), "utf8");
+    const src = readFileSync(fileURLToPath(new URL("../../../packages/party/src/noi-tu/dictionary.ts", import.meta.url)), "utf8");
     WORD_CACHE = [...src.matchAll(/"([^"]+ [^"]+)"/g)].map((m) => m[1]);
   }
   return WORD_CACHE;

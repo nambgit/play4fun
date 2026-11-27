@@ -53,7 +53,6 @@ const PLAYABLE: Record<string, { Game: ComponentType<GameProps>; frame: Frame }>
     frame: "light",
   },
   "doan-chu": { Game: dynamic(() => import("@/games/doan-chu/doan-chu"), { ssr: false, loading: skeleton("light") }), frame: "light" },
-  "noi-tu": { Game: dynamic(() => import("@/games/noi-tu/noi-tu"), { ssr: false, loading: skeleton("light") }), frame: "light" },
   "phan-xa": { Game: dynamic(() => import("@/games/phan-xa/phan-xa"), { ssr: false, loading: skeleton("light") }), frame: "light" },
   "lat-the": { Game: dynamic(() => import("@/games/lat-the/lat-the"), { ssr: false, loading: skeleton("light") }), frame: "light" },
   "thang-may": { Game: dynamic(() => import("@/games/thang-may/thang-may"), { ssr: false, loading: skeleton("light") }), frame: "light" },
@@ -89,7 +88,8 @@ const PLAYABLE: Record<string, { Game: ComponentType<GameProps>; frame: Frame }>
   "ma-soi": { Game: dynamic(() => import("@/games/party/wolf"), { ssr: false, loading: skeleton("light") }), frame: "light" },
   "ai-hieu-ai": { Game: dynamic(() => import("@/games/party/hieu"), { ssr: false, loading: skeleton("light") }), frame: "light" },
   "ai-de-nhat": { Game: dynamic(() => import("@/games/party/aide"), { ssr: false, loading: skeleton("light") }), frame: "light" },
-  "noi-tu-doi-khang": { Game: dynamic(() => import("@/games/party/duel"), { ssr: false, loading: skeleton("light") }), frame: "light" },
+  "noi-tu": { Game: dynamic(() => import("@/games/party/duel"), { ssr: false, loading: skeleton("light") }), frame: "light" },
+  "co-caro": { Game: dynamic(() => import("@/games/party/caro"), { ssr: false, loading: skeleton("light") }), frame: "light" },
 };
 
 export function GameStage({ slug }: { slug: string }) {

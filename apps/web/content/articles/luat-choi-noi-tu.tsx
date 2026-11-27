@@ -34,11 +34,11 @@ export default function Article() {
           ["Nối từ đảo", "Nối bằng tiếng đầu thay vì tiếng cuối", "Người đã chơi giỏi"],
           ["Nối từ có loại", "Ai bí từ thì bị loại, chơi đến người cuối", "Nhóm đông"],
           ["Nối từ đồng đội", "Chia hai đội, nối luân phiên, đội nào bí trước thua", "Team building"],
-          ["Nối từ với máy", "Chơi một mình, máy ra từ và kiểm tra từ điển", "Luyện từ vựng"],
+          ["Nối từ online", "Đấu 1-1 với bạn bè, người lạ hoặc với máy, máy kiểm tra từ điển", "Luyện từ vựng, giải trí"],
         ]}
       />
 
-      <PlayCta slug="noi-tu" text="Chơi nối từ với máy: hơn 20.000 từ ghép thông dụng, thời gian ngắn dần, làm máy bí để ăn điểm." />
+      <PlayCta slug="noi-tu" text="Chơi nối từ online: ghép ngẫu nhiên với người lạ, mời bạn bằng link hoặc đấu với máy. Hơn 20.000 từ ghép, làm đối thủ bí để thắng." />
 
       <h2>Mẹo chơi nối từ giỏi hơn</h2>
       <h3>Dùng từ có tiếng cuối “khó nối”</h3>
@@ -64,7 +64,7 @@ export default function Article() {
       <h3>Tránh tự đưa mình vào thế khó</h3>
       <p>Trước khi nói, nghĩ nhanh xem tiếng cuối từ của mình có dễ bị dùng ngược lại để chặn bạn ở lượt sau không, nhất là khi chơi hai người.</p>
       <h3>Đọc nhiều, chơi nhiều</h3>
-      <p>Vốn từ là lợi thế lớn nhất. Chơi vài ván mỗi ngày với máy là cách nhanh để nhớ thêm từ ghép, vì mỗi lần bí bạn sẽ thấy gợi ý những từ có thể dùng.</p>
+      <p>Vốn từ là lợi thế lớn nhất. Chơi vài ván mỗi ngày, với bạn bè hay với máy, là cách nhanh để nhớ thêm từ ghép, vì mỗi lần thua hiệp bạn sẽ thấy gợi ý những từ có thể dùng.</p>
 
       <Tip>
         Khi chơi với trẻ em, bỏ giới hạn thời gian và cho phép gợi ý. Nối từ là cách học từ vựng tiếng Việt rất tự nhiên, quan trọng là để các bé thấy vui chứ không phải thắng thua.

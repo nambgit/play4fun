@@ -95,7 +95,7 @@ export default function Article() {
       </ul>
 
       <p>
-        Thích trò chơi chữ? Thử thêm <Link href="/games/noi-tu">nối từ với máy</Link>, đọc <Link href="/cam-nang/luat-choi-noi-tu">luật chơi nối từ và mẹo làm đối thủ bí</Link>, hoặc chơi{" "}
+        Thích trò chơi chữ? Thử thêm <Link href="/games/noi-tu">nối từ 2 người</Link>, đọc <Link href="/cam-nang/luat-choi-noi-tu">luật chơi nối từ và mẹo làm đối thủ bí</Link>, hoặc chơi{" "}
         <Link href="/cam-nang/tu-khoa-ve-doan-chu">vẽ đoán chữ</Link> cùng nhóm bạn.
       </p>
     </>

@@ -8,7 +8,7 @@
 
 // ------------------------------------------------------------ games & limits
 
-export type PartySlug = "ai-la-gian-diep" | "ve-doan-chu" | "do-vui-team-building" | "ma-soi" | "ai-hieu-ai" | "ai-de-nhat" | "noi-tu-doi-khang";
+export type PartySlug = "ai-la-gian-diep" | "ve-doan-chu" | "do-vui-team-building" | "ma-soi" | "ai-hieu-ai" | "ai-de-nhat" | "noi-tu" | "co-caro";
 
 export const PARTY_GAMES: Record<
   PartySlug,
@@ -27,7 +27,8 @@ export const PARTY_GAMES: Record<
   "ma-soi": { minPlayers: 5, maxPlayers: 16, lateJoin: false },
   "ai-hieu-ai": { minPlayers: 2, maxPlayers: 20, lateJoin: true },
   "ai-de-nhat": { minPlayers: 3, maxPlayers: 20, lateJoin: true },
-  "noi-tu-doi-khang": { minPlayers: 2, maxPlayers: 2, lateJoin: false, matchmaking: true },
+  "noi-tu": { minPlayers: 2, maxPlayers: 2, lateJoin: false, matchmaking: true },
+  "co-caro": { minPlayers: 2, maxPlayers: 2, lateJoin: false, matchmaking: true },
 };
 
 export const isPartySlug = (s: unknown): s is PartySlug => typeof s === "string" && s in PARTY_GAMES;
@@ -53,8 +54,10 @@ export type HieuSettings = { turns: number; seconds: number };
 export type AiDeSettings = { rounds: number; seconds: number };
 /** Nối từ đối kháng: rounds needed to win the match and seconds per turn */
 export type DuelSettings = { target: number; seconds: number };
+/** Cờ caro: games needed to win the match, seconds per move, "chặn hai đầu" rule */
+export type CaroSettings = { target: number; seconds: number; blocked: boolean };
 
-export type PartySettings = SpySettings | DrawSettings | TriviaSettings | WolfSettings | HieuSettings | AiDeSettings | DuelSettings;
+export type PartySettings = SpySettings | DrawSettings | TriviaSettings | WolfSettings | HieuSettings | AiDeSettings | DuelSettings | CaroSettings;
 
 export const TRIVIA_CATEGORY_LABEL: Record<TriviaCategory, string> = {
   all: "Tất cả chủ đề",
@@ -76,6 +79,8 @@ export const AIDE_SECONDS_OPTIONS = [15, 25];
 /** First to 2 (best of 3), 3 (best of 5) or 4 (best of 7) rounds */
 export const DUEL_TARGET_OPTIONS = [2, 3, 4];
 export const DUEL_SECONDS_OPTIONS = [10, 15, 20];
+export const CARO_TARGET_OPTIONS = [1, 2, 3];
+export const CARO_SECONDS_OPTIONS = [20, 30, 60];
 
 /** Werewolves must stay a minority: 5–7 players → 1, 8–11 → 2, 12–15 → 3, 16 → 4 */
 export const maxWolves = (players: number) => Math.max(1, Math.min(4, Math.floor(players / 4)));
@@ -97,8 +102,10 @@ export function defaultSettings(slug: PartySlug): PartySettings {
       return { turns: 10, seconds: 20 } satisfies HieuSettings;
     case "ai-de-nhat":
       return { rounds: 12, seconds: 15 } satisfies AiDeSettings;
-    case "noi-tu-doi-khang":
+    case "noi-tu":
       return { target: 3, seconds: 15 } satisfies DuelSettings;
+    case "co-caro":
+      return { target: 2, seconds: 30, blocked: false } satisfies CaroSettings;
   }
 }
 
@@ -147,7 +154,7 @@ export const JOIN_ERROR_TEXT: Record<JoinError, string> = {
 
 // ------------------------------------------------------------ game views
 
-export type GameView = SpyView | DrawView | TriviaView | WolfView | HieuView | AiDeView | DuelView;
+export type GameView = SpyView | DrawView | TriviaView | WolfView | HieuView | AiDeView | DuelView | CaroView;
 
 export type SpyPhase = "reveal" | "describe" | "vote" | "result" | "over";
 export type SpyView = {
@@ -335,6 +342,31 @@ export type DuelView = {
   rematch: string[];
 };
 
+export type CaroPhase = "play" | "roundEnd" | "over";
+export type CaroView = {
+  kind: "caro";
+  phase: CaroPhase;
+  seats: [string, string];
+  /** Player with X this game (X moves first; alternates every game) */
+  x: string;
+  turn: string;
+  /** 0 empty, 1 X, 2 O; index = row * 15 + col */
+  board: number[];
+  lastMove: number | null;
+  /** Cells of the winning five */
+  winLine: number[] | null;
+  endsAt: number;
+  gameNo: number;
+  target: number;
+  blocked: boolean;
+  wins: Record<string, number>;
+  /** After a game: null = draw */
+  gameWinner: string | null;
+  reason: "five" | "timeout" | "resign" | "draw" | null;
+  nextAt: number;
+  rematch: string[];
+};
+
 // ------------------------------------------------------------ client → server game actions
 
 export type GameAction =
@@ -371,6 +403,10 @@ export type GameAction =
   | { type: "duel:word"; text: string }
   | { type: "duel:skip" }
   | { type: "duel:rematch" }
+  // cờ caro
+  | { type: "caro:move"; cell: number }
+  | { type: "caro:resign" }
+  | { type: "caro:rematch" }
   // any game: host starts a fresh game with the same players
   | { type: "again" };
 

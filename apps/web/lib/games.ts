@@ -25,7 +25,8 @@ export type GameIcon =
   | "moon"
   | "hearts"
   | "vote"
-  | "swords";
+  | "swords"
+  | "grid";
 
 export type GameEntry = {
   slug: string;
@@ -211,19 +212,6 @@ export const GAMES: GameEntry[] = [
     players: "1 người",
   },
   {
-    slug: "noi-tu",
-    title: "Nối từ",
-    type: "arcade",
-    tagline: "Đấu trí với máy: nối tiếng cuối thành từ mới, “con mèo” → “mèo mướp”.",
-    audience: ["student", "office"],
-    status: "live",
-    icon: "link",
-    cover: ["#1a9fe8", "#6b3cf5"],
-    thumbnail: "/thumbnails/noi-tu.webp",
-    duration: "2–5 phút",
-    players: "1 người",
-  },
-  {
     slug: "phan-xa",
     title: "Phản xạ 0,2 giây",
     type: "arcade",
@@ -340,15 +328,28 @@ export const GAMES: GameEntry[] = [
     players: "3–20 người",
   },
   {
-    slug: "noi-tu-doi-khang",
-    title: "Nối từ đối kháng",
+    slug: "noi-tu",
+    title: "Nối từ",
     type: "party",
-    tagline: "Đấu nối từ 1-1: ghép ngẫu nhiên với người lạ, mời bạn bè hoặc đấu với máy. Làm đối thủ bí từ để thắng!",
+    tagline: "Nối từ tiếng Việt 1-1: ghép ngẫu nhiên với người lạ, mời bạn bè hoặc đấu với máy. Làm đối thủ bí từ để thắng!",
     audience: ["group", "student", "office"],
     status: "live",
-    icon: "swords",
-    cover: ["#1a9fe8", "#e5484d"],
+    icon: "link",
+    cover: ["#1a9fe8", "#6b3cf5"],
+    thumbnail: "/thumbnails/noi-tu.webp",
     duration: "3–8 phút",
+    players: "2 người",
+  },
+  {
+    slug: "co-caro",
+    title: "Cờ caro",
+    type: "party",
+    tagline: "Cờ caro 2 người online: ghép ngẫu nhiên, mời bạn bằng link hoặc đấu với máy. 5 quân liền hàng là thắng!",
+    audience: ["group", "student", "office"],
+    status: "live",
+    icon: "grid",
+    cover: ["#e5484d", "#1a9fe8"],
+    duration: "5–15 phút",
     players: "2 người",
   },
 ];

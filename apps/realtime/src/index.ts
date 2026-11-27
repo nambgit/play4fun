@@ -17,6 +17,7 @@ import { loadQuestionSet } from "./db";
 import { loadRooms, saveRooms } from "./persist";
 import { draw } from "./games/draw";
 import { aide } from "./games/aide";
+import { caro } from "./games/caro";
 import { duel } from "./games/duel";
 import { hieu } from "./games/hieu";
 import { spy } from "./games/spy";
@@ -62,7 +63,8 @@ const MODULES: Record<PartySlug, GameModule<any, any>> = {
   "ma-soi": wolf,
   "ai-hieu-ai": hieu,
   "ai-de-nhat": aide,
-  "noi-tu-doi-khang": duel,
+  "noi-tu": duel,
+  "co-caro": caro,
 };
 
 const httpServer = createServer((req, res) => {

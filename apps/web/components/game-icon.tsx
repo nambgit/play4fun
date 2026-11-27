@@ -23,6 +23,7 @@ import {
   type LucideIcon,
   Vote,
   Swords,
+  Grid3x3,
 } from "lucide-react";
 import type { GameIcon as GameIconKey } from "@/lib/games";
 
@@ -50,6 +51,7 @@ const ICONS: Record<GameIconKey, LucideIcon> = {
   hearts: HeartHandshake,
   vote: Vote,
   swords: Swords,
+  grid: Grid3x3,
 };
 
 export function GameIcon({ name, className }: { name: GameIconKey; className?: string }) {

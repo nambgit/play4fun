@@ -160,17 +160,6 @@ export const GAME_SEO: Record<string, GameSeo> = {
       FREE,
     ],
   },
-  "noi-tu": {
-    title: "Nối từ online – Chơi nối từ tiếng Việt với máy",
-    description: "Trò chơi nối từ tiếng Việt: máy nói một từ, bạn nối tiếng cuối thành từ mới trong thời gian ngắn dần. Hơn 20.000 từ ghép thông dụng, làm máy bí để ăn điểm. Miễn phí.",
-    genre: "Word game",
-    faq: [
-      ["Luật chơi nối từ là gì?", "Mỗi từ có hai tiếng. Từ tiếp theo phải bắt đầu bằng tiếng cuối của từ trước, ví dụ “học sinh” → “sinh viên” → “viên chức”. Mỗi từ chỉ dùng một lần trong ván."],
-      ["Tôi phải gõ cả từ hay chỉ một tiếng?", "Chỉ gõ tiếng thứ hai, có dấu. Tiếng đầu đã được điền sẵn theo từ của máy. Kiểu đặt dấu cũ hay mới (“hòa” hay “hoà”) đều được chấp nhận."],
-      ["Gõ từ không có trong từ điển thì sao?", "Không bị trừ điểm, bạn gõ lại từ khác khi đồng hồ còn chạy. Hết giờ hoặc bấm bỏ qua mới mất 1 tim, và game gợi ý vài từ có thể đã dùng được."],
-      FREE,
-    ],
-  },
   "phan-xa": {
     title: "Test phản xạ online – Đo thời gian phản xạ (ms)",
     description: "Kiểm tra tốc độ phản xạ: màn hình chuyển xanh là chạm, đo bằng mili-giây, lấy trung bình 5 lần. Xem bạn nhanh hơn số đông không. Miễn phí, chơi trên điện thoại.",
@@ -270,8 +259,8 @@ export const GAME_SEO: Record<string, GameSeo> = {
       PARTY_JOIN,
     ],
   },
-  "noi-tu-doi-khang": {
-    title: "Nối từ đối kháng – Chơi nối từ 2 người online, đấu với máy",
+  "noi-tu": {
+    title: "Nối từ online – Chơi nối từ 2 người hoặc đấu với máy",
     description: "Chơi nối từ tiếng Việt 2 người online: ghép ngẫu nhiên với người lạ, tạo phòng mời bạn bè hoặc đấu với máy. Từ điển hơn 20.000 từ, làm đối thủ bí từ để thắng. Miễn phí, không cần cài.",
     genre: "Word game",
     faq: [
@@ -279,6 +268,17 @@ export const GAME_SEO: Record<string, GameSeo> = {
       ["Không có ai chơi cùng thì sao?", "Chọn “Chơi với máy”. Mức Dễ máy dùng từ thông dụng; mức Khó máy chủ động tìm từ làm bạn bí."],
       ["Khi nào thắng một hiệp?", "Khi đối thủ hết giờ hoặc bỏ cuộc, hoặc khi bạn nói được từ mà không còn từ nào bắt đầu bằng tiếng cuối của nó. Gõ sai từ không bị trừ lượt, chỉ cần thử lại trước khi hết giờ."],
       ["Từ điển có bao nhiêu từ?", "Hơn 20.000 từ ghép hai tiếng thông dụng. Máy chủ kiểm tra từng từ nên không ai gian lận được."],
+    ],
+  },
+  "co-caro": {
+    title: "Cờ caro online – Chơi cờ ca rô 2 người, đấu với máy",
+    description: "Chơi cờ caro online miễn phí: ghép ngẫu nhiên với người lạ, tạo phòng mời bạn bè bằng link, hoặc đấu với máy 2 mức độ. Bàn 15×15, 5 quân liền hàng thắng, có luật chặn hai đầu.",
+    genre: "Board game",
+    faq: [
+      ["Luật chơi cờ caro như thế nào?", "Hai người lần lượt đặt X và O lên bàn cờ, X đi trước. Ai có 5 quân liền nhau theo hàng ngang, dọc hoặc chéo trước là thắng."],
+      ["Luật chặn hai đầu là gì?", "Với luật này, 5 quân liền nhau mà bị quân đối thủ chặn ở cả hai đầu thì không được tính thắng. Đây là luật phổ biến khi chơi caro ở Việt Nam, bạn có thể bật hoặc tắt khi tạo phòng."],
+      ["Chơi caro với bạn bè ở xa được không?", "Được. Bấm “Tạo phòng mời bạn” rồi gửi link hoặc mã phòng. Bạn bè mở link trên điện thoại hay máy tính là vào chơi ngay, không cần cài đặt."],
+      ["Không có ai chơi cùng thì sao?", "Bấm “Tìm đối thủ ngẫu nhiên” để ghép với người đang chờ, hoặc chọn “Chơi với máy”: mức Dễ máy hay sơ hở, mức Khó máy công thủ chắc chắn."],
     ],
   },
 };
@@ -290,7 +290,7 @@ export const CATEGORY_SEO: Record<GameType, CategorySeo> = {
     path: "/giai-lao",
     title: "Game giải lao online miễn phí cho dân văn phòng",
     h1: "Game giải lao online miễn phí",
-    description: "Mini-game giải lao 1–3 phút trên trình duyệt: đoán chữ hằng ngày, nối từ, gõ phím tiếng Việt, tính nhẩm, test phản xạ, lật hình. Không cần cài, mượt trên điện thoại.",
+    description: "Mini-game giải lao 1–3 phút trên trình duyệt: đoán chữ hằng ngày, gõ phím tiếng Việt, tính nhẩm, test phản xạ, lật hình. Không cần cài, mượt trên điện thoại.",
     intro: [
       "Năm phút nghỉ giữa giờ là đủ cho một ván. Các mini-game ở đây được làm cho dân văn phòng, học sinh và game thủ: luật chơi hiểu ngay, mỗi ván 1 đến 3 phút, có bảng xếp hạng và thử thách hằng ngày để thi với bạn bè.",
       "Không cần tải app hay tạo tài khoản. Mở trên điện thoại hoặc máy tính là chơi được ngay.",
@@ -320,7 +320,7 @@ export const CATEGORY_SEO: Record<GameType, CategorySeo> = {
     path: "/choi-nhom",
     title: "Game chơi nhóm online trên điện thoại – Party game miễn phí",
     h1: "Game chơi nhóm online",
-    description: "Party game chơi nhóm miễn phí: Ma sói, Ai là gián điệp, vẽ đoán chữ, đố vui team building, Ai hiểu ai nhất, Ai dễ… nhất, nối từ đối kháng 2 người. Vào phòng bằng mã hoặc QR trên điện thoại.",
+    description: "Party game chơi nhóm miễn phí: Ma sói, Ai là gián điệp, vẽ đoán chữ, đố vui team building, Ai hiểu ai nhất, Ai dễ… nhất, nối từ và cờ caro 2 người. Vào phòng bằng mã hoặc QR trên điện thoại.",
     intro: [
       "Hợp cho buổi họp đầu tuần, tiệc công ty, lớp học hay hội bạn tụ tập. Một người tạo phòng và gửi mã, mọi người vào bằng điện thoại của mình, không cần cài app hay tạo tài khoản.",
       "Ở xa nhau vẫn chơi được: vào cùng một phòng rồi gọi video qua Zoom, Google Meet, Messenger hoặc Zalo.",

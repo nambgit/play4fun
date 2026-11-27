@@ -126,15 +126,6 @@ export const GAME_DETAILS: Record<string, GameDetails> = {
       "Thắng liên tiếp để giữ chuỗi ngày. Muốn chơi thêm thì chọn “Luyện tập”.",
     ],
   },
-  "noi-tu": {
-    description: "Trò nối từ quen thuộc, giờ chơi với máy. Máy nói một từ, bạn nối tiếp bằng từ bắt đầu bằng tiếng cuối của nó. Thời gian mỗi lượt ngắn dần, làm máy bí từ để ăn điểm thưởng.",
-    howTo: [
-      "Máy đưa ra một từ hai tiếng, ví dụ “con mèo”.",
-      "Tiếng đầu của từ tiếp theo đã có sẵn (“mèo”), bạn chỉ gõ tiếng thứ hai, có dấu (“mướp”).",
-      "Mỗi từ chỉ được dùng một lần. Từ chưa có trong từ điển thì gõ lại, không bị trừ điểm.",
-      "Trả lời nhanh được thưởng điểm, làm máy bí từ được +3. Hết giờ hoặc bỏ qua mất 1 tim.",
-    ],
-  },
   "phan-xa": {
     description: "Bài kiểm tra phản xạ đơn giản mà gây nghiện: chờ màu đỏ chuyển sang xanh rồi chạm thật nhanh. Làm 5 lần để lấy trung bình, chạm sớm phải làm lại. Bạn nhanh hơn số đông không?",
     howTo: [
@@ -222,14 +213,24 @@ export const GAME_DETAILS: Record<string, GameDetails> = {
       "Cuối game có bảng xếp hạng và danh sách danh hiệu của từng người.",
     ],
   },
-  "noi-tu-doi-khang": {
-    description: "Nối từ tiếng Việt đấu 1-1 trực tuyến. Bấm “Tìm đối thủ” để ghép ngẫu nhiên với người đang chờ, tạo phòng gửi link cho bạn bè, hoặc đấu với máy hai mức dễ và khó. Máy chủ kiểm tra từng từ với từ điển hơn 20.000 từ ghép.",
+  "noi-tu": {
+    description: "Trò chơi nối từ tiếng Việt cho 2 người. Bấm “Tìm đối thủ” để ghép ngẫu nhiên với người đang chờ, tạo phòng gửi link cho bạn bè, hoặc đấu với máy hai mức dễ và khó. Máy chủ kiểm tra từng từ với từ điển hơn 20.000 từ ghép.",
     howTo: [
       "Chọn cách chơi: tìm đối thủ ngẫu nhiên, tạo phòng mời bạn (gửi link hoặc mã phòng), hoặc chơi với máy.",
       "Mỗi hiệp mở đầu bằng một từ. Hai người thay phiên gõ tiếng tiếp theo, ví dụ “học sinh” → “sinh viên”.",
       "Gõ sai không mất lượt, nhưng hết giờ hoặc bỏ cuộc là thua hiệp.",
       "Nói được từ khiến đối thủ không còn từ nào để nối là thắng hiệp ngay.",
       "Ai thắng đủ số hiệp trước (mặc định chạm 3) là thắng trận. Bấm “Chơi lại” để đấu tiếp.",
+    ],
+  },
+  "co-caro": {
+    description: "Cờ caro (cờ ca rô) online cho 2 người trên bàn 15×15. Bấm “Tìm đối thủ” để ghép ngẫu nhiên, tạo phòng gửi link cho bạn bè, hoặc chơi với máy hai mức dễ và khó. Có tùy chọn luật chặn hai đầu, mượt trên điện thoại.",
+    howTo: [
+      "Chọn cách chơi: tìm đối thủ ngẫu nhiên, tạo phòng mời bạn (gửi link hoặc mã phòng), hoặc chơi với máy.",
+      "Hai người lần lượt đặt X và O lên bàn 15×15, X đi trước.",
+      "Ai có 5 quân liền nhau theo hàng ngang, dọc hoặc chéo trước là thắng ván.",
+      "Bật luật chặn hai đầu nếu muốn: 5 quân bị chặn cả hai đầu không tính thắng.",
+      "Mỗi nước có giới hạn thời gian; hết giờ là thua ván. Người cầm X đổi sau mỗi ván.",
     ],
   },
 };
