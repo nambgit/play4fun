@@ -26,8 +26,8 @@ export type ArticleMeta = {
 export const ARTICLES: ArticleMeta[] = [
   {
     slug: "game-2-nguoi-online",
-    title: "Game 2 người online: 8 trò chơi hai người miễn phí trên điện thoại",
-    description: "8 game 2 người online miễn phí, không cần cài app: cờ caro, nối từ, Ai hiểu ai nhất, vẽ đoán chữ, đố vui. Tạo phòng gửi link là chơi được với bạn bè, người yêu ở xa.",
+    title: "Game 2 người online: 8 trò chơi hai người miễn phí",
+    description: "8 game 2 người online miễn phí, không cần cài app: cờ caro, nối từ, Ai hiểu ai nhất, vẽ đoán chữ. Gửi link là chơi được với bạn bè, người yêu ở xa.",
     kicker: "Chơi 2 người",
     games: ["co-caro", "noi-tu", "ai-hieu-ai", "ve-doan-chu"],
     published: "2026-11-27",
@@ -41,7 +41,7 @@ export const ARTICLES: ArticleMeta[] = [
   {
     slug: "cac-vai-trong-ma-soi",
     title: "Các vai trong Ma sói: chức năng và cách chơi từng vai",
-    description: "Các vai trong Ma sói: Sói, Tiên tri, Bảo vệ, Dân làng và các vai mở rộng Phù thủy, Thợ săn, Cupid, Già làng. Chức năng, mẹo chơi từng vai và cách chia vai theo số người.",
+    description: "Các vai trong Ma sói: Sói, Tiên tri, Bảo vệ, Dân làng và vai mở rộng Phù thủy, Thợ săn, Cupid. Chức năng, mẹo chơi từng vai và cách chia vai theo số người.",
     kicker: "Ma sói",
     games: ["ma-soi", "ai-la-gian-diep"],
     published: "2026-11-27",
@@ -54,8 +54,8 @@ export const ARTICLES: ArticleMeta[] = [
   },
   {
     slug: "luat-choi-ve-doan-chu",
-    title: "Luật chơi vẽ đoán chữ: cách tính điểm, mẹo vẽ nhanh và đoán giỏi",
-    description: "Luật chơi vẽ đoán chữ đầy đủ: không viết chữ, không ra hiệu, cách tính điểm cho người vẽ và người đoán. Mẹo vẽ để cả nhóm đoán nhanh, mẹo đoán đúng sớm và cách chơi online trên điện thoại.",
+    title: "Luật chơi vẽ đoán chữ: cách tính điểm và mẹo vẽ nhanh",
+    description: "Luật chơi vẽ đoán chữ đầy đủ: không viết chữ, không ra hiệu, cách tính điểm cho người vẽ và người đoán, mẹo vẽ để cả nhóm đoán nhanh và đoán đúng sớm.",
     kicker: "Vẽ đoán",
     games: ["ve-doan-chu", "ai-de-nhat"],
     published: "2026-11-27",
@@ -69,7 +69,7 @@ export const ARTICLES: ArticleMeta[] = [
   {
     slug: "cac-kieu-dong-nghiep",
     title: "5 kiểu đồng nghiệp nơi công sở và cách làm việc ăn ý",
-    description: "5 kiểu đồng nghiệp quen thuộc: chiến thần deadline, người giữ nhịp, đại sứ trà sữa, ngôi sao ý tưởng, người chữa cháy. Điểm mạnh, điểm cần lưu ý và cách làm việc ăn ý với từng kiểu.",
+    description: "5 kiểu đồng nghiệp quen thuộc: chiến thần deadline, người giữ nhịp, đại sứ trà sữa, ngôi sao ý tưởng, người chữa cháy, và cách làm việc ăn ý với từng kiểu.",
     kicker: "Văn phòng",
     games: ["ban-la-kieu-dong-nghiep-nao", "ai-de-nhat"],
     published: "2026-11-27",
@@ -83,7 +83,7 @@ export const ARTICLES: ArticleMeta[] = [
   {
     slug: "game-ne-dan",
     title: "Game né đạn (bullet hell) là gì? 8 mẹo chơi sống lâu hơn",
-    description: "Game né đạn bullet hell là gì: hitbox, pattern, graze, cảnh báo. 8 mẹo né đạn sống lâu hơn: di chuyển nhỏ, tránh góc màn hình, nhìn khoảng trống, dụ đạn đuổi. Kèm game né đạn online miễn phí.",
+    description: "Game né đạn bullet hell là gì: hitbox, pattern, graze. 8 mẹo né đạn sống lâu hơn: di chuyển nhỏ, tránh góc màn hình, dụ đạn đuổi. Kèm game né đạn miễn phí.",
     kicker: "Game",
     games: ["pixel-dodge", "phan-xa"],
     published: "2026-11-27",
@@ -96,8 +96,8 @@ export const ARTICLES: ArticleMeta[] = [
   },
   {
     slug: "van-hoa-di-thang-may",
-    title: "Văn hóa đi thang máy nơi công sở: 10 phép lịch sự giờ cao điểm",
-    description: "10 phép lịch sự khi đi thang máy văn phòng: đứng hai bên cửa, đi sâu vào trong, nhường người cần ưu tiên. Vì sao giờ cao điểm thang chậm, mẹo đỡ chờ lâu và cần làm gì khi kẹt thang.",
+    title: "Văn hóa đi thang máy: 10 phép lịch sự nơi công sở",
+    description: "10 phép lịch sự khi đi thang máy văn phòng: đứng hai bên cửa, đi sâu vào trong, nhường người cần ưu tiên. Kèm mẹo đỡ chờ lâu và cách xử lý khi kẹt thang.",
     kicker: "Văn phòng",
     games: ["thang-may", "deadline-dash"],
     published: "2026-11-27",
@@ -111,7 +111,7 @@ export const ARTICLES: ArticleMeta[] = [
   {
     slug: "cach-choi-co-caro",
     title: "Cách chơi cờ caro luôn thắng: luật chơi, thế cờ và 10 mẹo",
-    description: "Luật chơi cờ caro, luật chặn hai đầu, các thế cờ ba mở, bốn mở và đòn đe dọa kép (bốn – ba, ba – ba) để thắng. Kèm 10 mẹo chơi caro giỏi hơn và chơi caro online miễn phí.",
+    description: "Luật chơi cờ caro, luật chặn hai đầu, các thế ba mở, bốn mở và đòn đe dọa kép (bốn – ba, ba – ba) để thắng. Kèm 10 mẹo chơi caro giỏi hơn.",
     kicker: "Cờ caro",
     games: ["co-caro", "noi-tu"],
     published: "2026-11-27",
@@ -125,7 +125,7 @@ export const ARTICLES: ArticleMeta[] = [
   {
     slug: "cau-hoi-ai-de-nhat",
     title: "60 câu hỏi “Ai dễ… nhất?” vui cho team building và hội bạn",
-    description: "60 câu hỏi bình chọn “Ai dễ… nhất?” về công sở, tính cách và tình huống vui, kèm cách chơi, cách tính điểm và lưu ý để không ai bị trêu quá đà. Có bản chơi online trên điện thoại.",
+    description: "60 câu hỏi “Ai dễ… nhất?” về công sở, tính cách và tình huống vui, kèm cách chơi, cách tính điểm và lưu ý để không ai bị trêu quá đà. Có bản chơi online.",
     kicker: "Team building",
     games: ["ai-de-nhat", "ai-hieu-ai"],
     published: "2026-11-27",
@@ -139,7 +139,7 @@ export const ARTICLES: ArticleMeta[] = [
   {
     slug: "cac-kieu-game-thu",
     title: "5 kiểu game thủ: bạn là gamer hệ nào?",
-    description: "5 kiểu game thủ phổ biến: Tryhard, Chill, Gánh team, Khám phá, Tấu hài. Điểm mạnh, điểm cần lưu ý, thể loại game hợp với từng hệ và mẹo chơi game lành mạnh. Kèm trắc nghiệm 3 phút.",
+    description: "5 kiểu game thủ phổ biến: Tryhard, Chill, Gánh team, Khám phá, Tấu hài. Điểm mạnh, thể loại game hợp với từng hệ và mẹo chơi game lành mạnh.",
     kicker: "Game thủ",
     games: ["gamer-he-nao", "pixel-dodge"],
     published: "2026-11-27",
@@ -153,7 +153,7 @@ export const ARTICLES: ArticleMeta[] = [
   {
     slug: "trua-nay-an-gi",
     title: "Trưa nay ăn gì? 40 món ăn trưa cho dân văn phòng",
-    description: "Gợi ý 40 món ăn trưa văn phòng theo từng tình huống: đang bận, cần tỉnh táo buổi chiều, trời mưa, ăn chung cả nhóm. Kèm mẹo ăn trưa không buồn ngủ và cách hết cãi nhau chọn quán.",
+    description: "Gợi ý 40 món ăn trưa văn phòng theo tình huống: đang bận, cần tỉnh táo buổi chiều, trời mưa, ăn chung cả nhóm. Kèm mẹo ăn trưa không buồn ngủ.",
     kicker: "Văn phòng",
     games: ["ban-la-mon-an-viet-nao", "doan-chu"],
     published: "2026-11-27",
@@ -166,8 +166,8 @@ export const ARTICLES: ArticleMeta[] = [
   },
   {
     slug: "cach-quan-ly-deadline",
-    title: "Cách quản lý deadline không bị trễ hạn: 8 mẹo cho dân văn phòng",
-    description: "8 cách quản lý deadline hiệu quả: chia nhỏ việc, ước lượng thời gian, tự đặt hạn sớm, ma trận ưu tiên, chặn lịch tập trung. Kèm mẫu tin nhắn xin lùi deadline khi biết sẽ trễ.",
+    title: "Cách quản lý deadline không trễ hạn: 8 mẹo hiệu quả",
+    description: "8 cách quản lý deadline hiệu quả: chia nhỏ việc, ước lượng thời gian, tự đặt hạn sớm, ma trận ưu tiên. Kèm mẫu tin nhắn xin lùi deadline khi sắp trễ.",
     kicker: "Văn phòng",
     games: ["deadline-dash", "ban-la-kieu-dong-nghiep-nao"],
     published: "2026-11-27",
@@ -180,7 +180,7 @@ export const ARTICLES: ArticleMeta[] = [
   },
   {
     slug: "cach-choi-doan-chu",
-    title: "Cách chơi đoán chữ tiếng Việt (Wordle): luật chơi, từ mở đầu và mẹo",
+    title: "Cách chơi đoán chữ tiếng Việt (Wordle): luật và mẹo",
     description: "Luật chơi đoán chữ tiếng Việt 5 chữ cái, 6 lượt: ý nghĩa ô xanh, vàng, xám, từ mở đầu nên dùng, đặc điểm từ 5 chữ cái và ván mẫu giải trong 4 lượt.",
     kicker: "Trò chơi chữ",
     games: ["doan-chu", "noi-tu"],
@@ -194,8 +194,8 @@ export const ARTICLES: ArticleMeta[] = [
   },
   {
     slug: "chon-nganh-nghe-phu-hop",
-    title: "Cách chọn ngành nghề phù hợp với bản thân: 3 bước và 6 nhóm nghề",
-    description: "Cách chọn ngành nghề phù hợp: xác định loại việc mình thích, đối chiếu điểm mạnh, thử nghề trước khi chọn. Bảng 6 nhóm nghề kèm ngành học gợi ý và trắc nghiệm nghề nghiệp miễn phí.",
+    title: "Cách chọn ngành nghề phù hợp: 3 bước và 6 nhóm nghề",
+    description: "Cách chọn ngành nghề phù hợp: xác định việc mình thích, đối chiếu điểm mạnh, thử nghề trước khi chọn. Bảng 6 nhóm nghề kèm ngành học gợi ý.",
     kicker: "Hướng nghiệp",
     games: ["ban-hop-nghe-gi", "ban-la-kieu-dong-nghiep-nao"],
     published: "2026-11-27",
@@ -222,8 +222,8 @@ export const ARTICLES: ArticleMeta[] = [
   },
   {
     slug: "cau-hoi-kien-thuc-viet-nam",
-    title: "40 câu hỏi kiến thức Việt Nam có đáp án: lịch sử, địa lý, văn hóa",
-    description: "40 câu hỏi trắc nghiệm kiến thức Việt Nam có đáp án và giải thích: lịch sử, địa lý, văn hóa, đời sống. Dùng cho lớp học, team building, kèm bài thi online 15 câu.",
+    title: "40 câu hỏi kiến thức Việt Nam có đáp án (lịch sử, địa lý)",
+    description: "40 câu hỏi trắc nghiệm kiến thức Việt Nam có đáp án và giải thích: lịch sử, địa lý, văn hóa, đời sống. Dùng cho lớp học, team building.",
     kicker: "Đố vui",
     games: ["kien-thuc-viet-nam", "do-vui-team-building"],
     published: "2026-11-27",
@@ -236,8 +236,8 @@ export const ARTICLES: ArticleMeta[] = [
   },
   {
     slug: "thoi-gian-phan-xa",
-    title: "Thời gian phản xạ trung bình bao nhiêu ms? Cách đo và cải thiện",
-    description: "Thời gian phản xạ trung bình của người trưởng thành, bảng đánh giá kết quả test phản xạ, các yếu tố làm phản xạ chậm đi và 5 cách cải thiện. Kèm bài test phản xạ online miễn phí.",
+    title: "Thời gian phản xạ trung bình bao nhiêu ms? Cách cải thiện",
+    description: "Thời gian phản xạ trung bình của người trưởng thành, bảng đánh giá kết quả test phản xạ, yếu tố làm phản xạ chậm đi và 5 cách cải thiện.",
     kicker: "Phản xạ",
     games: ["phan-xa", "pixel-dodge"],
     published: "2026-11-27",
@@ -264,7 +264,7 @@ export const ARTICLES: ArticleMeta[] = [
   },
   {
     slug: "cach-nhan-biet-email-lua-dao",
-    title: "Cách nhận biết email lừa đảo: 8 dấu hiệu dân văn phòng cần nhớ",
+    title: "Cách nhận biết email lừa đảo: 8 dấu hiệu cần nhớ",
     description: "8 dấu hiệu nhận biết email lừa đảo (phishing) kèm ví dụ: tên miền giả, link độc, đòi OTP, file đính kèm lạ. Bảng kiểm tra nhanh và việc cần làm nếu lỡ bấm vào.",
     kicker: "Văn phòng",
     games: ["inbox-zero"],
@@ -279,7 +279,7 @@ export const ARTICLES: ArticleMeta[] = [
   {
     slug: "cau-hoi-de-hieu-nhau",
     title: "50 câu hỏi để hiểu nhau hơn cho bạn bè, đồng nghiệp, cặp đôi",
-    description: "50 câu hỏi để hiểu nhau hơn chia theo mối quan hệ: làm quen, bạn thân, đồng nghiệp, cặp đôi và câu hỏi chọn một. Kèm cách biến thành trò chơi đoán ý cho cả nhóm.",
+    description: "50 câu hỏi để hiểu nhau hơn theo từng mối quan hệ: làm quen, bạn thân, đồng nghiệp, cặp đôi. Kèm cách biến thành trò chơi đoán ý cho cả nhóm.",
     kicker: "Chơi nhóm",
     games: ["ai-hieu-ai"],
     published: "2026-11-27",
@@ -293,7 +293,7 @@ export const ARTICLES: ArticleMeta[] = [
   {
     slug: "luat-choi-noi-tu",
     title: "Luật chơi nối từ tiếng Việt và mẹo làm đối thủ bí từ",
-    description: "Luật chơi nối từ tiếng Việt đầy đủ, 5 biến thể phổ biến, mẹo chọn từ khó nối và bảng từ cứu cánh cho tiếng hay gặp. Chơi nối từ online 2 người hoặc với máy, miễn phí.",
+    description: "Luật chơi nối từ tiếng Việt đầy đủ, 5 biến thể phổ biến, mẹo chọn từ khó nối và bảng từ cứu cánh. Chơi nối từ online với bạn bè hoặc với máy.",
     kicker: "Trò chơi chữ",
     games: ["noi-tu", "doan-chu"],
     published: "2026-11-27",
@@ -321,7 +321,7 @@ export const ARTICLES: ArticleMeta[] = [
   {
     slug: "tro-choi-online-qua-zoom",
     title: "10 trò chơi online với bạn bè qua Zoom, Google Meet, Zalo",
-    description: "10 trò chơi online khi mỗi người một nơi: Ai là gián điệp, Ma sói, vẽ đoán chữ, đố vui trên điện thoại và các trò chỉ cần cuộc gọi video. Miễn phí, không cần cài.",
+    description: "10 trò chơi online khi mỗi người một nơi: Ai là gián điệp, Ma sói, vẽ đoán chữ, đố vui trên điện thoại và các trò chỉ cần cuộc gọi video.",
     kicker: "Chơi nhóm",
     games: ["ai-la-gian-diep", "ma-soi", "ve-doan-chu", "do-vui-team-building", "ai-hieu-ai"],
     published: "2026-11-22",
@@ -334,7 +334,7 @@ export const ARTICLES: ArticleMeta[] = [
   },
   {
     slug: "luat-choi-ma-soi",
-    title: "Luật chơi Ma sói chi tiết cho người mới: các vai, cách chơi, mẹo",
+    title: "Luật chơi Ma sói cho người mới: các vai, cách chơi, mẹo",
     description: "Luật chơi Ma sói từ A đến Z: vai Sói, Tiên tri, Bảo vệ, Dân làng, diễn biến ngày đêm, chia vai theo số người và mẹo cho từng phe. Chơi online miễn phí.",
     kicker: "Chơi nhóm",
     games: ["ma-soi", "ai-la-gian-diep"],

@@ -17,7 +17,7 @@ const siteUrl = process.env.PUBLIC_URL ?? "https://play4fun.io.vn";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: { default: "Play4Fun – Game online miễn phí: giải lao, trắc nghiệm, chơi nhóm", template: "%s | Play4Fun" },
+  title: { default: "Play4Fun – Game online miễn phí: giải lao, chơi nhóm", template: "%s | Play4Fun" },
   description:
     "Game online miễn phí trên trình duyệt: gõ phím tiếng Việt, tính nhẩm, trắc nghiệm tính cách, Ai là gián điệp, vẽ đoán chữ, đố vui team building. Không cần cài.",
   applicationName: "Play4Fun",

@@ -20,6 +20,13 @@ export const OG_BASE = {
 };
 
 export type Faq = [question: string, answer: string];
+/**
+ * <title> for a page: "Title | Play4Fun" when that fits in a Google result (about 60 characters),
+ * otherwise the title alone, so the useful words are not cut off with "…".
+ */
+export const BRAND_SUFFIX = " | Play4Fun";
+export const pageTitle = (title: string) => (title.length + BRAND_SUFFIX.length <= 60 ? title : { absolute: title });
+
 export type GameSeo = { title: string; description: string; genre: string; faq: Faq[] };
 
 const FREE: Faq = ["Có mất phí hay phải tải app không?", "Không. Mọi game trên Play4Fun đều miễn phí và chơi ngay trên trình duyệt của điện thoại hoặc máy tính, không cần cài đặt, không bắt buộc đăng ký."];
@@ -30,7 +37,7 @@ const PARTY_REMOTE: Faq = ["Có chơi được khi mỗi người ở một nơi
 export const GAME_SEO: Record<string, GameSeo> = {
   "inbox-zero": {
     title: "Inbox Zero – Game phân loại email văn phòng vui nhộn",
-    description: "Vuốt trái, vuốt phải để dọn sạch hộp thư trong 90 giây: xử lý việc của sếp, xóa thư rác, né email lừa đảo. Game giải lao văn phòng miễn phí, chơi ngay trên điện thoại.",
+    description: "Vuốt trái, vuốt phải dọn sạch hộp thư trong 90 giây: xử lý việc sếp giao, xóa thư rác, né email lừa đảo. Game giải lao văn phòng miễn phí.",
     genre: "Arcade",
     faq: [
       ["Inbox Zero chơi như thế nào?", "Mỗi email hiện lên là một lá bài: vuốt phải để xử lý email công việc, vuốt trái để xóa quảng cáo, thư rác và email lừa đảo. Sau 20 giây bạn mở khóa vuốt lên để chuyển tiếp thư của phòng khác."],
@@ -73,7 +80,7 @@ export const GAME_SEO: Record<string, GameSeo> = {
     ],
   },
   "go-phim-nhanh": {
-    title: "Kiểm tra tốc độ gõ phím tiếng Việt online (WPM) – Gõ phím thần tốc",
+    title: "Kiểm tra tốc độ gõ phím tiếng Việt online (WPM)",
     description: "Đo tốc độ gõ phím tiếng Việt có dấu (Telex, VNI) và tiếng Anh trong 60 giây, tính WPM và độ chính xác. Mỗi lượt một đoạn văn mới, miễn phí, không cần cài đặt.",
     genre: "Typing",
     faq: [
@@ -84,8 +91,8 @@ export const GAME_SEO: Record<string, GameSeo> = {
     ],
   },
   "ban-la-kieu-dong-nghiep-nao": {
-    title: "Trắc nghiệm: Bạn là kiểu đồng nghiệp nào? – Test tính cách công sở",
-    description: "10 tình huống công sở quen thuộc để biết bạn là chiến thần deadline, người giữ nhịp, đại sứ trà sữa hay ngôi sao ý tưởng. Test tính cách miễn phí, có kết quả để chia sẻ.",
+    title: "Bạn là kiểu đồng nghiệp nào? Test tính cách công sở",
+    description: "10 tình huống công sở để biết bạn là chiến thần deadline, người giữ nhịp, đại sứ trà sữa hay ngôi sao ý tưởng. Test miễn phí, có kết quả để chia sẻ.",
     genre: "Quiz",
     faq: [
       ["Bài test có bao nhiêu câu?", "10 câu hỏi tình huống công sở, mất khoảng 3 phút. Không có đáp án đúng sai, hãy chọn điều bạn thật sự sẽ làm."],
@@ -96,7 +103,7 @@ export const GAME_SEO: Record<string, GameSeo> = {
   },
   "ban-hoc-kieu-gi": {
     title: "Trắc nghiệm phong cách học tập: Bạn học kiểu gì?",
-    description: "Cú đêm, chiến thần nước rút hay mọt sách chính hiệu? 10 tình huống mùa thi giúp bạn hiểu phong cách học của mình, kèm mẹo ôn thi phù hợp. Miễn phí, có kết quả ngay.",
+    description: "Cú đêm, chiến thần nước rút hay mọt sách? 10 tình huống mùa thi giúp bạn hiểu phong cách học của mình, kèm mẹo ôn thi phù hợp. Miễn phí.",
     genre: "Quiz",
     faq: [
       ["Bài trắc nghiệm này dành cho ai?", "Học sinh, sinh viên và cả người đang ôn thi chứng chỉ. 10 tình huống quen thuộc mùa thi, mất khoảng 3 phút."],
@@ -107,7 +114,7 @@ export const GAME_SEO: Record<string, GameSeo> = {
   },
   "gamer-he-nao": {
     title: "Test: Bạn là gamer hệ nào? – Trắc nghiệm tính cách game thủ",
-    description: "Tryhard, chill hay chuyên đi gánh team? 12 tình huống từ phòng chờ đến lúc thua trận để biết bạn là hệ gamer nào và hợp cạ với ai. Test vui miễn phí cho game thủ.",
+    description: "Tryhard, chill hay chuyên gánh team? 12 tình huống từ phòng chờ đến lúc thua trận để biết bạn là gamer hệ nào và hợp cạ với ai. Test miễn phí.",
     genre: "Quiz",
     faq: [
       ["Bài test có bao nhiêu câu?", "12 tình huống quen thuộc với game thủ, từ cách chọn tướng đến phản ứng khi thua liên tiếp, mất khoảng 3 phút."],
@@ -129,7 +136,7 @@ export const GAME_SEO: Record<string, GameSeo> = {
   },
   "ve-doan-chu": {
     title: "Vẽ đoán chữ online – Game vẽ hình đoán từ chơi nhóm",
-    description: "Một người vẽ, cả phòng thi nhau đoán: game vẽ đoán chữ online miễn phí cho 2–12 người, đoán bằng tiếng Việt không cần gõ dấu. Chơi trên điện thoại, không cần tài khoản.",
+    description: "Một người vẽ, cả phòng thi nhau đoán: game vẽ đoán chữ online miễn phí cho 2–12 người, đoán tiếng Việt không cần gõ dấu, chơi ngay trên điện thoại.",
     genre: "Party game",
     faq: [
       ["Cách chơi vẽ đoán chữ online?", "Đến lượt mình, bạn chọn 1 trong 3 từ và vẽ trên màn hình. Những người khác gõ đáp án; đoán càng sớm càng nhiều điểm, người vẽ được điểm cho mỗi người đoán đúng."],
@@ -139,7 +146,7 @@ export const GAME_SEO: Record<string, GameSeo> = {
     ],
   },
   "do-vui-team-building": {
-    title: "Đố vui team building online – Quiz nhóm realtime trên điện thoại",
+    title: "Đố vui team building online – Quiz nhóm trên điện thoại",
     description: "Đố vui team building cho 2–50 người: chiếu câu hỏi lên màn hình lớn, mọi người trả lời bằng điện thoại, xếp hạng trực tiếp. Tự soạn câu hỏi công ty miễn phí.",
     genre: "Trivia",
     faq: [
@@ -173,7 +180,7 @@ export const GAME_SEO: Record<string, GameSeo> = {
   },
   "lat-the": {
     title: "Game lật hình tìm cặp – Nhớ thẻ bài rèn trí nhớ",
-    description: "Trò chơi trí nhớ lật thẻ tìm cặp hình chủ đề Việt Nam qua 4 cấp độ, từ 12 đến 24 thẻ. Tính giờ và số lượt, hợp cho cả trẻ em và người lớn. Miễn phí, không cần cài.",
+    description: "Trò chơi trí nhớ lật thẻ tìm cặp hình chủ đề Việt Nam qua 4 cấp độ, từ 12 đến 24 thẻ. Tính giờ và số lượt, hợp cả trẻ em và người lớn. Miễn phí.",
     genre: "Memory",
     faq: [
       ["Chơi nhớ thẻ bài thế nào?", "Lật 2 thẻ mỗi lượt. Hai hình giống nhau thì giữ lại, khác nhau thì úp xuống sau một chút. Tìm hết các cặp để qua cấp; có 4 cấp với bàn chơi to dần."],
@@ -227,7 +234,7 @@ export const GAME_SEO: Record<string, GameSeo> = {
     ],
   },
   "ma-soi": {
-    title: "Ma sói online – Chơi Ma sói trên điện thoại, máy làm quản trò",
+    title: "Ma sói online – Chơi trên điện thoại, máy làm quản trò",
     description: "Chơi Ma sói online miễn phí cho 5–16 người: vai bí mật trên điện thoại (sói, tiên tri, bảo vệ, dân làng), máy làm quản trò, đếm giờ thảo luận và bỏ phiếu.",
     genre: "Party game",
     faq: [
@@ -239,7 +246,7 @@ export const GAME_SEO: Record<string, GameSeo> = {
   },
   "ai-hieu-ai": {
     title: "Ai hiểu ai nhất? – Game đoán ý bạn bè chơi nhóm online",
-    description: "Game chơi nhóm cho hội bạn và đồng nghiệp: mỗi lượt một người lên ghế nóng chọn câu trả lời thật của mình, cả nhóm đoán. Hơn 100 câu hỏi vui, 2–20 người, miễn phí.",
+    description: "Game chơi nhóm cho hội bạn và đồng nghiệp: một người lên ghế nóng chọn câu trả lời thật, cả nhóm đoán. Hơn 100 câu hỏi vui, 2–20 người, miễn phí.",
     genre: "Party game",
     faq: [
       ["Cách chơi Ai hiểu ai nhất?", "Mỗi lượt, một người lên ghế nóng và bí mật chọn đáp án đúng với mình (ví dụ món có thể ăn cả tuần không chán). Những người khác đoán xem người đó chọn gì, rồi cùng lật đáp án."],
@@ -250,7 +257,7 @@ export const GAME_SEO: Record<string, GameSeo> = {
   },
   "ai-de-nhat": {
     title: "Ai dễ… nhất? – Game bình chọn vui chơi nhóm online",
-    description: "Game chơi nhóm cho đồng nghiệp và hội bạn: “Ai dễ ngủ gật trong họp nhất?”, cả nhóm bình chọn ẩn danh trên điện thoại, đoán trúng số đông để ăn điểm, nhận danh hiệu vui. Hơn 130 câu, 3–20 người, miễn phí.",
+    description: "“Ai dễ ngủ gật trong họp nhất?” Cả nhóm bình chọn ẩn danh trên điện thoại, đoán trúng số đông để ăn điểm, nhận danh hiệu vui. 130+ câu, 3–20 người.",
     genre: "Party game",
     faq: [
       ["Cách chơi Ai dễ… nhất?", "Mỗi câu hiện một tình huống như “Ai dễ quên tắt mic khi họp online nhất?”. Mọi người bí mật chọn một người khác trong phòng trên điện thoại của mình, rồi cùng xem kết quả bình chọn."],
@@ -261,7 +268,7 @@ export const GAME_SEO: Record<string, GameSeo> = {
   },
   "noi-tu": {
     title: "Nối từ online – Chơi nối từ 2 người, cả nhóm hoặc với máy",
-    description: "Chơi nối từ tiếng Việt online: đấu 1-1 với người lạ, mở phòng cho nhóm 2–10 người bằng link, hoặc đấu với máy. Từ điển hơn 20.000 từ, mỗi lượt 30 giây. Miễn phí, không cần cài.",
+    description: "Chơi nối từ tiếng Việt online: đấu 1-1 với người lạ, mở phòng cho nhóm 2–10 người hoặc đấu với máy. Từ điển hơn 20.000 từ, miễn phí, không cần cài.",
     genre: "Word game",
     faq: [
       ["Chơi nối từ online với bạn bè thế nào?", "Bấm “Tạo phòng mời bạn” rồi gửi link hoặc mã phòng. Từ 2 đến 10 người cùng vào, chủ phòng bấm bắt đầu. Mọi người lần lượt nối từ: từ sau bắt đầu bằng tiếng cuối của từ trước, mỗi lượt 30 giây."],
@@ -272,7 +279,7 @@ export const GAME_SEO: Record<string, GameSeo> = {
   },
   "co-caro": {
     title: "Cờ caro online – Chơi cờ ca rô 2 người, đấu với máy",
-    description: "Chơi cờ caro online miễn phí: ghép ngẫu nhiên với người lạ, tạo phòng mời bạn bè bằng link, hoặc đấu với máy 2 mức độ. Bàn 20×20, 5 quân liền hàng thắng, có luật chặn hai đầu.",
+    description: "Chơi cờ caro online miễn phí: ghép ngẫu nhiên với người lạ, mời bạn bằng link hoặc đấu với máy. Bàn 20×20, 5 quân liền hàng thắng, có luật chặn hai đầu.",
     genre: "Board game",
     faq: [
       ["Luật chơi cờ caro như thế nào?", "Hai người lần lượt đặt X và O lên bàn cờ, X đi trước. Ai có 5 quân liền nhau theo hàng ngang, dọc hoặc chéo trước là thắng."],
@@ -320,7 +327,7 @@ export const CATEGORY_SEO: Record<GameType, CategorySeo> = {
     path: "/choi-nhom",
     title: "Game chơi nhóm online trên điện thoại – Party game miễn phí",
     h1: "Game chơi nhóm online",
-    description: "Party game chơi nhóm miễn phí: Ma sói, Ai là gián điệp, vẽ đoán chữ, đố vui team building, Ai hiểu ai nhất, Ai dễ… nhất, nối từ (2–10 người) và cờ caro. Vào phòng bằng mã hoặc QR trên điện thoại.",
+    description: "Party game chơi nhóm miễn phí: Ma sói, Ai là gián điệp, vẽ đoán chữ, đố vui team building, nối từ, cờ caro… Vào phòng bằng mã hoặc QR trên điện thoại.",
     intro: [
       "Hợp cho buổi họp đầu tuần, tiệc công ty, lớp học hay hội bạn tụ tập. Một người tạo phòng và gửi mã, mọi người vào bằng điện thoại của mình, không cần cài app hay tạo tài khoản.",
       "Ở xa nhau vẫn chơi được: vào cùng một phòng rồi gọi video qua Zoom, Google Meet, Messenger hoặc Zalo.",

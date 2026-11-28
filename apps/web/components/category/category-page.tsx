@@ -7,14 +7,14 @@ import { GameCard } from "@/components/game-card";
 import { ARTICLES } from "@/lib/articles";
 import { JsonLd } from "@/components/json-ld";
 import { GAMES, GAME_TYPES, TYPE_META, type GameType } from "@/lib/games";
-import { CATEGORY_SEO, SITE_URL, gameSeo, OG_BASE } from "@/lib/seo";
+import { CATEGORY_SEO, SITE_URL, gameSeo, OG_BASE, pageTitle } from "@/lib/seo";
 
 /** Landing page for one category (/giai-lao, /test-vui, /choi-nhom): what people search for, then the games */
 
 export function categoryMetadata(type: GameType): Metadata {
   const c = CATEGORY_SEO[type];
   return {
-    title: c.title,
+    title: pageTitle(c.title),
     description: c.description,
     alternates: { canonical: c.path },
     openGraph: { ...OG_BASE, title: `${c.title} | Play4Fun`, description: c.description, url: c.path },

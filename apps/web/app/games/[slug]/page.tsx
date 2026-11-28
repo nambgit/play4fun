@@ -12,7 +12,7 @@ import { articlesForGame } from "@/lib/articles";
 import { gameDetails } from "@/lib/game-details";
 import { JsonLd } from "@/components/json-ld";
 import { LeaderboardCard } from "@/components/leaderboard-card";
-import { CATEGORY_SEO, SITE_URL, gameSeo, OG_BASE } from "@/lib/seo";
+import { CATEGORY_SEO, SITE_URL, gameSeo, OG_BASE, pageTitle } from "@/lib/seo";
 import { RECORDS } from "@/lib/record-keys";
 import { AUDIENCE_LABEL, GAMES, TYPE_META, getGame, relatedGames, shareImage } from "@/lib/games";
 
@@ -29,7 +29,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const seo = gameSeo(game);
   const images = image ? [{ url: image, width: 1200, height: 750, alt: game.title }] : undefined;
   return {
-    title: seo.title,
+    title: pageTitle(seo.title),
     description: seo.description,
     alternates: { canonical: `/games/${game.slug}` },
     openGraph: {

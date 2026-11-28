@@ -9,7 +9,7 @@ import { JsonLd } from "@/components/json-ld";
 import { ARTICLE_BODY } from "@/content/articles";
 import { ARTICLES, formatDate, getArticle } from "@/lib/articles";
 import { getGame, shareImage } from "@/lib/games";
-import { SITE_URL, OG_BASE } from "@/lib/seo";
+import { SITE_URL, OG_BASE, pageTitle } from "@/lib/seo";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -29,7 +29,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const image = coverOf(a.games[0]);
   const path = `/cam-nang/${a.slug}`;
   return {
-    title: a.title,
+    title: pageTitle(a.title),
     description: a.description,
     alternates: { canonical: path },
     openGraph: {

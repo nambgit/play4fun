@@ -7,6 +7,7 @@ import { GameBrowser } from "@/components/home/game-browser";
 import { Hero } from "@/components/home/hero";
 import { HotGames } from "@/components/home/hot-games";
 import { HowItWorks } from "@/components/home/how-it-works";
+import { LatestArticles } from "@/components/home/latest-articles";
 import { PartyBanner } from "@/components/home/party-banner";
 
 export const metadata: Metadata = { alternates: { canonical: "/" } };
@@ -46,6 +47,7 @@ export default function HomePage() {
           <AdSlot placement="home" />
         </div>
         <PartyBanner />
+        <LatestArticles />
         <HowItWorks />
       </div>
     </>

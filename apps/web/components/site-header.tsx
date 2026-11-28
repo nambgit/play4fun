@@ -11,12 +11,13 @@ export const NAV_LINKS = [
   ...GAME_TYPES.map((t) => ({ href: categoryHref(t), label: TYPE_META[t].label, dot: TYPE_META[t].dot })),
   { href: "/daily", label: "Thử thách", dot: "bg-brand" },
   { href: "/leaderboard", label: "Xếp hạng", dot: "bg-[#f5a400]" },
+  { href: "/cam-nang", label: "Cẩm nang", dot: "bg-muted" },
 ];
 
 export function SiteHeader() {
   return (
     <header className="sticky top-0 z-50 border-b border-line/70 bg-bg/80 backdrop-blur-xl supports-[backdrop-filter]:bg-bg/65">
-      <div className="container-page flex h-16 items-center gap-6">
+      <div className="container-page flex h-16 items-center gap-4 xl:gap-6">
         <Logo />
 
         <nav aria-label="Danh mục" className="hidden items-center gap-0.5 lg:flex">
@@ -24,9 +25,9 @@ export function SiteHeader() {
             <Link
               key={l.href}
               href={l.href}
-              className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-muted transition-colors hover:bg-surface-2 hover:text-fg"
+              className="inline-flex items-center gap-2 rounded-lg px-2 py-2 text-sm font-medium whitespace-nowrap text-muted transition-colors hover:bg-surface-2 hover:text-fg xl:px-3"
             >
-              <span className={`h-1.5 w-1.5 rounded-full ${l.dot}`} />
+              <span className={`hidden h-1.5 w-1.5 rounded-full xl:inline-block ${l.dot}`} />
               {l.label}
             </Link>
           ))}
@@ -39,7 +40,7 @@ export function SiteHeader() {
             <Play className="h-4 w-4 fill-current" aria-hidden="true" />
             Chơi ngay
           </Link>
-          <MobileNav links={[...NAV_LINKS, { href: "/cam-nang", label: "Cẩm nang", dot: "bg-muted" }]} />
+          <MobileNav links={NAV_LINKS} />
         </div>
       </div>
     </header>
