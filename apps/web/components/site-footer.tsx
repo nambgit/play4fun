@@ -3,6 +3,7 @@ import Link from "next/link";
 import { GAMES, GAME_TYPES, TYPE_META } from "@/lib/games";
 import { categoryHref } from "@/lib/seo";
 import { SOCIAL } from "@/lib/site";
+import { InstallButton } from "./install-app";
 import { LogoMark } from "./logo";
 
 function FacebookIcon(props: React.SVGProps<SVGSVGElement>) {
@@ -76,6 +77,9 @@ export function SiteFooter() {
               </li>
             ))}
           </ul>
+          <div className="mt-4 empty:hidden">
+            <InstallButton className="btn-ghost h-10 px-4 text-sm" label="Cài play4fun lên màn hình chính" />
+          </div>
           {SOCIAL_LINKS.length > 0 && (
             <div className="mt-5 flex gap-2">
               {SOCIAL_LINKS.map(({ href, label, Icon }) => (

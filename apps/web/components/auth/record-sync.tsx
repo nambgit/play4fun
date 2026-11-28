@@ -3,10 +3,16 @@
 import { useEffect, useRef } from "react";
 import { useSession } from "@/lib/auth-client";
 import { onRecordChanged, syncRecords } from "@/lib/record-sync";
+import { syncProgress } from "@/lib/progress-sync";
+
+/** Streak and game progress (Đường lên CEO) go up this often while the page is open */
+const PROGRESS_EVERY_MS = 120_000;
 
 /**
  * Invisible: when a player is signed in, merges this device's records with the account
  * on sign-in / page load, right after a new record, and when the tab comes back into view.
+ * Also syncs progress (streak, Đường lên CEO save): on load, every 2 minutes, and when the tab
+ * is hidden or closed.
  * Renders nothing and does nothing for guests.
  */
 export function RecordSync() {
@@ -31,7 +37,7 @@ export function RecordSync() {
       if (busy.current) return;
       busy.current = true;
       const first = isFirst();
-      const res = await syncRecords(includeLatest || first);
+      const [res] = await Promise.all([syncRecords(includeLatest || first), syncProgress()]);
       if (res && first) {
         try {
           localStorage.setItem(firstKey, "1");
@@ -48,11 +54,17 @@ export function RecordSync() {
       clearTimeout(timer);
       timer = setTimeout(() => void run(true), 800);
     });
-    const onVisible = () => document.visibilityState === "visible" && void run(false);
+    const onVisible = () => {
+      if (document.visibilityState === "visible") void run(false);
+      // Leaving: push progress made on this visit (keepalive survives the tab closing)
+      else void syncProgress({ keepalive: true });
+    };
     document.addEventListener("visibilitychange", onVisible);
+    const every = setInterval(() => document.visibilityState === "visible" && void syncProgress(), PROGRESS_EVERY_MS);
     return () => {
       offRecord();
       clearTimeout(timer);
+      clearInterval(every);
       document.removeEventListener("visibilitychange", onVisible);
     };
   }, [userId]);

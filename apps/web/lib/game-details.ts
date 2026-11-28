@@ -144,6 +144,16 @@ export const GAME_DETAILS: Record<string, GameDetails> = {
       "Mỗi ván các hình và vị trí đều được xáo mới.",
     ],
   },
+  "duong-len-ceo": {
+    description: "Game clicker chủ đề công sở: bắt đầu là thực tập sinh, bấm để làm việc kiếm lương, thuê nhân sự, mở phòng ban, chi nhánh, nhà máy… và leo dần qua 10 chức danh lên CEO. Hơn 40 tình huống công sở bất ngờ, lịch trong game, cà phê vàng, thành tựu và tự lưu tiến độ.",
+    howTo: [
+      "Bấm vào chiếc laptop để làm việc và kiếm lương.",
+      "Thuê nhân sự (thực tập sinh, nhân viên, trưởng nhóm, phòng ban…) để tiền tự chảy về mỗi giây.",
+      "Mua nâng cấp để mỗi lần bấm và mỗi nhân sự làm việc hiệu quả hơn.",
+      "Chọn cách xử lý các tình huống bất ngờ: họp đột xuất, deadline, khách khó tính, email lừa đảo, Tết, gọi vốn, IPO…",
+      "Bấm ly cà phê vàng khi nó xuất hiện để nhận thưởng. Khởi nghiệp lại để nhận danh tiếng, tăng thu nhập vĩnh viễn.",
+    ],
+  },
   "thang-may": {
     description: "Game điều phối thang máy chủ đề văn phòng: chọn ai lên chuyến này, gom người cùng tầng để thang đi nhanh hơn, và đừng để ai chờ lâu đến mức bỏ đi thang bộ. Đơn giản lúc đầu, căng thẳng khi gần 9 giờ.",
     howTo: [

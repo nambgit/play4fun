@@ -1,5 +1,6 @@
 "use client";
 
+import { AfterGameNudge } from "./after-game-nudge";
 import dynamic from "next/dynamic";
 import { useEffect, useState, type ComponentType } from "react";
 import { dailyGame, dailyInfo, type DailyInfo } from "@/lib/daily";
@@ -55,6 +56,7 @@ const PLAYABLE: Record<string, { Game: ComponentType<GameProps>; frame: Frame }>
   "doan-chu": { Game: dynamic(() => import("@/games/doan-chu/doan-chu"), { ssr: false, loading: skeleton("light") }), frame: "light" },
   "phan-xa": { Game: dynamic(() => import("@/games/phan-xa/phan-xa"), { ssr: false, loading: skeleton("light") }), frame: "light" },
   "lat-the": { Game: dynamic(() => import("@/games/lat-the/lat-the"), { ssr: false, loading: skeleton("light") }), frame: "light" },
+  "duong-len-ceo": { Game: dynamic(() => import("@/games/duong-len-ceo/duong-len-ceo"), { ssr: false, loading: skeleton("light") }), frame: "light" },
   "thang-may": { Game: dynamic(() => import("@/games/thang-may/thang-may"), { ssr: false, loading: skeleton("light") }), frame: "light" },
   "kien-thuc-viet-nam": { Game: dynamic(() => import("@/games/kien-thuc/kien-thuc"), { ssr: false, loading: skeleton("light") }), frame: "light" },
   "ban-hop-nghe-gi": { Game: dynamic(() => import("@/games/quiz/nghe-nghiep"), { ssr: false, loading: skeleton("light") }), frame: "light" },
@@ -112,8 +114,11 @@ export function GameStage({ slug }: { slug: string }) {
         }
       : undefined;
   return (
-    <div className={`self-start ${FRAME_CLASS[entry.frame]}`} style={tint}>
-      <entry.Game daily={daily} />
+    <div className="min-w-0 self-start">
+      <div className={FRAME_CLASS[entry.frame]} style={tint}>
+        <entry.Game daily={daily} />
+      </div>
+      <AfterGameNudge slug={slug} />
     </div>
   );
 }

@@ -35,6 +35,16 @@ const PARTY_JOIN: Faq = ["Người chơi vào phòng bằng cách nào?", "Một
 const PARTY_REMOTE: Faq = ["Có chơi được khi mỗi người ở một nơi không?", "Được. Mọi người vào cùng một phòng qua mạng, rồi nói chuyện qua Zoom, Google Meet, Messenger hoặc Zalo trong lúc chơi."];
 
 export const GAME_SEO: Record<string, GameSeo> = {
+  "duong-len-ceo": {
+    title: "Đường lên CEO – Game clicker công sở miễn phí",
+    description: "Game clicker văn phòng: từ thực tập sinh lên CEO. Bấm làm việc, thuê nhân sự, xử lý hơn 40 tình huống công sở, thăng chức qua 10 cấp. Tự lưu, chơi ngay.",
+    genre: "Idle game",
+    faq: [
+      ["Đường lên CEO chơi như thế nào?", "Bấm vào laptop để kiếm lương, dùng tiền thuê nhân sự để kiếm tiền tự động mỗi giây, mua nâng cấp và xử lý các tình huống bất ngờ. Kiếm càng nhiều, chức danh càng cao: từ thực tập sinh đến CEO và Chủ tịch tập đoàn."],
+      ["Tắt trình duyệt có mất tiến độ không?", "Không. Tiến độ tự lưu trên trình duyệt của bạn. Khi quay lại, đội ngũ của bạn đã kiếm thêm tiền trong lúc vắng mặt (một nửa năng suất, tối đa 8 giờ)."],
+      ["Khởi nghiệp lại là gì?", "Khi đã kiếm đủ nhiều, bạn có thể bắt đầu lại từ thực tập sinh để nhận sao danh tiếng. Mỗi sao tăng 2% thu nhập vĩnh viễn, giúp lần leo tiếp theo nhanh hơn."],
+    ],
+  },
   "inbox-zero": {
     title: "Inbox Zero – Game phân loại email văn phòng vui nhộn",
     description: "Vuốt trái, vuốt phải dọn sạch hộp thư trong 90 giây: xử lý việc sếp giao, xóa thư rác, né email lừa đảo. Game giải lao văn phòng miễn phí.",

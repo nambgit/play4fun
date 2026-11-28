@@ -325,6 +325,27 @@ const SHOTS = {
     },
   },
 
+  "duong-len-ceo": {
+    position: "top",
+    // A mid-game save (Trưởng nhóm, a few staff tiers) so the shot shows a living company
+    async custom({ page }) {
+      await page.addInitScript(() => {
+        localStorage.setItem(
+          "p4f:duong-len-ceo:save",
+          JSON.stringify({ v: 1, money: 3.2e9, career: 2.6e9, allTime: 2.6e9, clicks: 900, owned: { tts: 42, nv: 18, cv: 9, tn: 4, pb: 1 }, bought: ["s-tts-0", "s-tts-1", "s-nv-0", "c-banphim", "c-chuot", "g-caphe"], stars: 0, prestiges: 0, achievements: ["a-click-100", "a-earn-1m", "a-earn-1b", "a-staff-10", "a-first-tts", "a-first-nv", "a-first-cv", "a-first-tn", "a-first-pb"], events: 12, coffees: 3, time: 1700, month0: 11, boosts: [{ target: "prod", mult: 1.5, until: 1760, label: "Team building" }], event: null, nextEvent: 9999, recent: [], rank: 3, savedAt: Date.now() }),
+        );
+      });
+      await page.goto(`${BASE_URL}/games/duong-len-ceo`, { waitUntil: "networkidle" });
+      const work = page.getByRole("button", { name: /^Làm việc/ });
+      for (let i = 0; i < 6; i++) {
+        await work.click();
+        await sleep(60);
+      }
+      await sleep(150);
+      return await gameRoot(page).screenshot();
+    },
+  },
+
   "phan-xa": {
     position: "center",
     async custom({ page }) {

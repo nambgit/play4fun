@@ -1,5 +1,7 @@
 "use client";
 
+import { markPlayedToday } from "./streak";
+
 /**
  * Game analytics on top of Umami (loaded from /stats/script.js in the root layout).
  *
@@ -19,6 +21,9 @@ declare global {
     umami?: Umami;
   }
 }
+
+/** Fired on window when a round finishes (detail = game slug) */
+export const GAME_END_EVENT = "p4f:game-end";
 
 /** Events fired before the tracker script finished loading */
 const queue: [string, Record<string, string | number>][] = [];
@@ -64,6 +69,7 @@ function hookUnload() {
 /** A round of `game` (slug) started. Starting again without ending counts the previous one as quit. */
 export function gameStart(game: string) {
   hookUnload();
+  markPlayedToday();
   const prev = running.get(game);
   if (prev !== undefined) track("game-quit", { game, seconds: secondsSince(prev) });
   running.set(game, performance.now());
@@ -78,6 +84,8 @@ export function gameEnd(game: string, extra: { score?: number } = {}) {
   const data: Record<string, string | number> = { game, seconds: secondsSince(t) };
   if (typeof extra.score === "number" && Number.isFinite(extra.score)) data.score = Math.round(extra.score);
   track("game-end", data);
+  // The page shows a "come back tomorrow" nudge after a finished round (components/after-game-nudge)
+  window.dispatchEvent(new CustomEvent(GAME_END_EVENT, { detail: game }));
 }
 
 /** Leaving a game page (component unmount) while a round is running */

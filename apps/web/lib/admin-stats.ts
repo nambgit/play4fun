@@ -193,7 +193,7 @@ export async function accountStats(range: Range) {
       .groupBy(accounts.providerId),
     db.execute(sql`select distinct on (${userRecords.key}) ${userRecords.key} as key, ${userRecords.value} as value, ${users.displayName} as name, ${users.id} as user_id
                    from ${userRecords} join ${users} on ${users.id} = ${userRecords.userId}
-                   where ${userRecords.value} > 0
+                   where ${userRecords.value} > 0 and ${userRecords.key} not like 'progress:%'
                    order by ${userRecords.key}, ${userRecords.value} desc`),
   ]);
   return {

@@ -14,6 +14,7 @@ import {
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { io, type Socket } from "socket.io-client";
 import { track } from "./analytics";
+import { markPlayedToday } from "./streak";
 
 const PID_KEY = "p4f:pid";
 const NAME_KEY = "p4f:name";
@@ -78,6 +79,8 @@ export function useParty(slug: PartySlug) {
    */
   const trackGames = useCallback(
     (st: ServerState) => {
+      // Any party game in progress counts as a day played for the streak
+      if (st.room.status === "playing") markPlayedToday();
       const key = `${TRACKED_KEY}:${st.room.code}`;
       const seen = Number(store("get", key) ?? "0") || 0;
       if (st.room.gameNo <= seen) return;

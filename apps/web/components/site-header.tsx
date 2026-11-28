@@ -5,6 +5,7 @@ import { categoryHref } from "@/lib/seo";
 import { AccountMenu } from "./auth/account-menu";
 import { Logo } from "./logo";
 import { MobileNav } from "./mobile-nav";
+import { StreakBadge } from "./streak-badge";
 import { ThemeToggle } from "./theme-toggle";
 
 export const NAV_LINKS = [
@@ -34,6 +35,7 @@ export function SiteHeader() {
         </nav>
 
         <div className="ml-auto flex items-center gap-2">
+          <StreakBadge />
           <ThemeToggle />
           <AccountMenu />
           <Link href={`/games/${FEATURED_SLUG}`} className="btn-primary hidden px-4 py-2.5 sm:inline-flex">
