@@ -270,7 +270,7 @@ Dữ liệu: bảng `users` (tên, ảnh, email), `accounts` (liên kết Google
 Container `umami` (thống kê mã nguồn mở, không cookie) chạy cùng docker-compose, dùng database `umami` riêng trong Postgres sẵn có (tự tạo bởi `umami-db-init`). Dashboard Umami chỉ mở trên `127.0.0.1:3002`; người chơi gửi dữ liệu qua `https://play4fun.io.vn/stats/*` (web chuyển tiếp vào container). Trang `/admin` gom số liệu từ Umami, tài khoản và phòng chơi nhóm.
 
 1. Thêm vào `.env`: `UMAMI_APP_SECRET` (bắt buộc, chạy `openssl rand -base64 32`) và `ADMIN_EMAILS=email-google-cua-ban@gmail.com` (nhiều email cách nhau bởi dấu phẩy; email phải được Google/Facebook xác minh), rồi `./deploy/deploy.sh`. Chắc hơn nữa: dùng `ADMIN_USER_IDS` (id trong bảng `users`).
-2. Mở dashboard Umami qua SSH tunnel từ máy bạn: `ssh -L 3002:127.0.0.1:3002 user@IP-server`, rồi vào `http://localhost:3002`.
+2. Mở dashboard Umami qua SSH tunnel từ máy bạn: `ssh -L 3002:127.0.0.1:3002 user@IP-server`, rồi vào `http://localhost:3002`. Hoặc mở qua tên miền riêng `https://analytics.play4fun.io.vn` (xem "Dashboard Umami qua tên miền" bên dưới).
 3. Đăng nhập `admin` / `umami` → **đổi mật khẩu ngay** (Settings → Profile).
 4. Settings → Websites → *Add website*: tên `Play4Fun`, domain `play4fun.io.vn` → mở website vừa tạo, sao chép **Website ID**.
 5. Thêm `UMAMI_WEBSITE_ID=<id vừa chép>` vào `.env`, chạy lại `./deploy/deploy.sh`.
@@ -281,6 +281,24 @@ Sự kiện được ghi: `game-start`, `game-end` (kèm `seconds`, `score`), `g
 Nên cho `/admin` đọc Umami bằng role chỉ-đọc: chạy `deploy/sql/umami-reader.sql` (hướng dẫn ở đầu file), đặt `UMAMI_READER_URL` trong `.env` rồi deploy lại.
 
 `/admin` đọc thẳng các bảng của Umami 3.4.1 (`website_event`, `event_data`, `session`) trong `apps/web/lib/admin-stats.ts`; khi nâng phiên bản Umami, kiểm tra lại các câu truy vấn đó.
+
+#### Dashboard Umami qua tên miền
+
+Mở dashboard tại `https://analytics.play4fun.io.vn` thay vì SSH tunnel. Dùng tên miền con vì image Umami dựng sẵn chỉ chạy ở gốc tên miền (chạy dưới đường dẫn con cần build lại image với `BASE_PATH`). Container vẫn chỉ bind `127.0.0.1:3002`; nginx chuyển tiếp vào.
+
+```bash
+# 1. DNS: thêm bản ghi A  analytics.play4fun.io.vn -> IP server, chờ vài phút cho DNS cập nhật
+# 2. Nạp config chính (đã có khối cổng 80 cho analytics) để certbot xác thực được
+sudo cp deploy/nginx/play4fun.io.vn.conf /etc/nginx/conf.d/
+sudo nginx -t && sudo systemctl reload nginx
+# 3. Lấy chứng chỉ (tự gia hạn cùng chứng chỉ chính)
+sudo certbot certonly --webroot -w /var/www/certbot -d analytics.play4fun.io.vn
+# 4. Bật khối HTTPS
+sudo cp deploy/nginx/analytics.play4fun.io.vn.conf /etc/nginx/conf.d/
+sudo nginx -t && sudo systemctl reload nginx
+```
+
+Bảo vệ: Umami có đăng nhập riêng (nhớ đổi mật khẩu mặc định), nginx giới hạn 5 lần thử đăng nhập/phút mỗi IP và gắn `X-Robots-Tag: noindex`. Nên bật thêm lớp mật khẩu của nginx (`auth_basic`, hướng dẫn trong file config) hoặc chỉ cho phép IP của bạn (`allow` / `deny`). Muốn đóng lại: xoá `/etc/nginx/conf.d/analytics.play4fun.io.vn.conf` rồi reload nginx.
 
 ### 5. Quảng cáo Google AdSense (tùy chọn)
 
